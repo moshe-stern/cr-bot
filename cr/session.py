@@ -3,12 +3,8 @@ import time
 from dataclasses import dataclass
 import requests
 import os
-from dotenv import load_dotenv
 
 from cr.org import CR_Org
-
-if not load_dotenv():
-    raise Exception('could not import env file')
 
 
 @dataclass
