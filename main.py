@@ -1,4 +1,4 @@
-from cr_playwright.update_auth_settings import playwright_update_auth_settings
+from cr_playwright.auth_settings.update import playwright_update_auth_settings
 
 
 def main():

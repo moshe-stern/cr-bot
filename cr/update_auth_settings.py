@@ -5,8 +5,8 @@ from cr.session import CRSession
 async def update_auth_settings(session: CRSession):
     # client id
     resource_id = 12345
-    invalid_service_codes = [1223, 7895, 4562]
-    valid_service_code = 9715
+    invalid_service_codes = [1223, 7895, 4562] # Delete
+    valid_service_code = 9715 # Add
     try:
         auth_settings = await load_auth_settings(session, resource_id)
         for auth_setting in auth_settings:

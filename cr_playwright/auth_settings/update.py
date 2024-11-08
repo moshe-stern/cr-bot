@@ -4,32 +4,31 @@ from cr.actions import load_auth_settings
 from cr.api import BASE_URL, API
 from cr.org import kadiant
 from cr.session import CRSession
+from cr_playwright.auth_settings.resources import resources_to_update
 
 
 def playwright_update_auth_settings():
      with sync_playwright() as p:
-        codes_to_remove = ['97151: ASMT/Reassessment', '97151: Assessment, Lic/Cert only - REVIEWER']
-        codes_to_add = ['97152: Additional Assessment by BCBA']
-        resource_id = 50704127
-        authorization_page = f'https://members.centralreach.com/#resources/details/?id={resource_id}&tab=authorizations'
-        browser =  p.chromium.launch()
-        page =  browser.new_page()
-        page.goto(
-        "https://login.centralreach.com/login"
-        )
-        log_in(page)
-        goto_auth_settings(page, authorization_page)
-        auth_settings = load_auth_settings(CRSession(kadiant), resource_id)
-        for auth_setting in auth_settings:
-            group = page.locator(f'#group-auth-{auth_setting['Id']}')
-            group.wait_for(state="visible")
-            group.hover()
-            edit = group.locator('a').nth(1)
-            edit.wait_for(state="visible")
-            edit.click()
-            print('Updating codes for:', auth_setting['Id'])
-            page.expect_response(API.AUTH_SETTINGS.LOAD_SETTING)
-            update_auth_setting(page, codes_to_add, codes_to_remove)
+        for resource in resources_to_update:
+            authorization_page = f'https://members.centralreach.com/#resources/details/?id={resource.id}&tab=authorizations'
+            browser =  p.chromium.launch()
+            page =  browser.new_page()
+            page.goto(
+            "https://login.centralreach.com/login"
+            )
+            log_in(page)
+            goto_auth_settings(page, authorization_page)
+            auth_settings = load_auth_settings(CRSession(kadiant), resource.id)
+            for auth_setting in auth_settings:
+                group = page.locator(f'#group-auth-{auth_setting['Id']}')
+                group.wait_for(state="visible")
+                group.hover()
+                edit = group.locator('a').nth(1)
+                edit.wait_for(state="visible")
+                edit.click()
+                print('Updating codes for:', auth_setting['Id'])
+                page.expect_response(API.AUTH_SETTINGS.LOAD_SETTING)
+                update_auth_setting(page, resource.codes_to_add, resource.codes_to_remove)
         browser.close()
         print('Finished')
 
