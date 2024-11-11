@@ -8,5 +8,9 @@ def update():
 def index():
     return 'App is Working!'
 
+@app.route('/', methods=['POST'])
+def index():
+    return 'Post is Working!'
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)
