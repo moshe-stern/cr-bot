@@ -6,8 +6,6 @@ class CRResource:
     id: int
     codes_to_remove: List[str]
     codes_to_add: List[str]
-
-
 # test_resource = Resource(
 #     50704127,
 #     ['97151: ASMT/Reassessment', '97151: Assessment, Lic/Cert only - REVIEWER'],
