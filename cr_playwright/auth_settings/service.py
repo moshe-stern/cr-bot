@@ -14,7 +14,7 @@ def playwright_update_auth_settings(resources_to_update: List[CRResource]):
             resource.id: [False, False] for resource in resources_to_update
         }
         cr_session = CRSession(kadiant)
-        browser =  p.chromium.launch(headless=False)
+        browser =  p.chromium.launch()
         page =  browser.new_page()
         page.goto(
         "https://login.centralreach.com/login"

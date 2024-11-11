@@ -13,8 +13,5 @@ def update():
 def index():
     return 'App is Working!'
 
-def test():
-    print('k')
 if __name__ == '__main__':
-    test()
-    # app.run(host='0.0.0.0', port=8000)
+    app.run(host='0.0.0.0', port=8000)
