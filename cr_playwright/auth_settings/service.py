@@ -8,8 +8,8 @@ from cr.api import  API
 from cr.org import kadiant
 from cr.session import CRSession
 from cr_playwright.auth_settings.resources import CRResource
-from main import logger
-
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 if os.getenv('DEVELOPMENT') and not load_dotenv():
     raise Exception('could not import env file')
 cr_session = None
