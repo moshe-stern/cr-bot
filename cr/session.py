@@ -5,6 +5,7 @@ import requests
 import os
 
 from cr.org import CR_Org
+from cr_playwright.auth_settings.service import logger
 
 
 @dataclass
@@ -45,8 +46,10 @@ class CRSession(requests.Session):
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded'
         }
+        logger.info(self._client_id, self._client_secret)
         response = requests.post(url, headers=headers, data=payload)
         if response.status_code >= 400:
+            logger.error(response)
             raise Exception(f'could not get access token status code: {response.status_code}')
         self._cr_token_response = CR_TokenResponse(**response.json(), creation_time=time.time())
 

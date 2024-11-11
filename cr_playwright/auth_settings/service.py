@@ -48,7 +48,7 @@ def playwright_update_auth_settings(resources_to_update: List[CRResource]):
                     updated_settings = update_auth_setting(page, resource.codes_to_add, resource.codes_to_remove)
                     updated_resources[resource.id] = updated_settings
             except Exception as e:
-                print(f"Failed to update resource {resource.id}: {e}")
+                logger.error(f"Failed to update resource {resource.id}: {e}")
         browser.close()
         print('Finished')
         return updated_resources
