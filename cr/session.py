@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timezone
 import time
 from dataclasses import dataclass
@@ -5,9 +6,9 @@ import requests
 import os
 
 from cr.org import CR_Org
-from cr_playwright.auth_settings.service import logger
 
-
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 @dataclass
 class CR_TokenResponse:
     access_token: str
