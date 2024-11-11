@@ -9,7 +9,7 @@ def index():
     return 'App is Working!'
 
 @app.route('/', methods=['POST'])
-def index():
+def hi():
     return 'Post is Working!'
 
 if __name__ == '__main__':
