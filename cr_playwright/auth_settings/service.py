@@ -1,10 +1,14 @@
 from typing import List
+
+from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright, Page
 from cr.actions import load_auth_settings, get_service_codes
 from cr.api import  API
 from cr.org import kadiant
 from cr.session import CRSession
 from cr_playwright.auth_settings.resources import CRResource
+if not load_dotenv():
+    raise Exception('could not import env file')
 cr_session = None
 
 def playwright_update_auth_settings(resources_to_update: List[CRResource]):

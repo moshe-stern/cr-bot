@@ -1,9 +1,5 @@
 from flask import Flask
-from dotenv import load_dotenv
 from cr_playwright.auth_settings.controller import update_auth_settings
-
-if not load_dotenv():
-    raise Exception('could not import env file')
 app = Flask(__name__)
 
 @app.route('/auth-settings', methods=['POST'])
