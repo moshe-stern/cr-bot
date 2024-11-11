@@ -1,7 +1,6 @@
 from flask import Flask
 from cr_playwright.auth_settings.controller import update_auth_settings
 app = Flask(__name__)
-
 @app.route('/auth-settings', methods=['POST'])
 def update():
     update_auth_settings()
