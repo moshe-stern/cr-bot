@@ -1,3 +1,4 @@
+import os
 from typing import List
 
 from dotenv import load_dotenv
@@ -7,7 +8,7 @@ from cr.api import  API
 from cr.org import kadiant
 from cr.session import CRSession
 from cr_playwright.auth_settings.resources import CRResource
-if not load_dotenv():
+if os.getenv('DEVELOPMENT') and not load_dotenv():
     raise Exception('could not import env file')
 cr_session = None
 
@@ -18,7 +19,7 @@ def playwright_update_auth_settings(resources_to_update: List[CRResource]):
             resource.id: [False, False] for resource in resources_to_update
         }
         cr_session = CRSession(kadiant)
-        browser =  p.chromium.launch()
+        browser =  p.chromium.launch(headless=not os.getenv('DEVELOPMENT'))
         page =  browser.new_page()
         page.goto(
         "https://login.centralreach.com/login"
@@ -67,7 +68,7 @@ def goto_auth_settings(page: Page, authorization_page):
     print('Navigate to main page')
     page.goto(authorization_page)
     if page.url != authorization_page or page.locator("text=Resource Not Found").is_visible():
-        Exception('Resource does not exist')
+        raise Exception('Resource does not exist')
     home = page.get_by_text("HomeContactsFilesBillingClaimsHRSchedulingClinicalInsightsKADIANT LLC")
     home.wait_for(state="visible")
     page.wait_for_load_state('domcontentloaded')
