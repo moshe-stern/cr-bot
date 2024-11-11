@@ -2,7 +2,7 @@ from cr.actions import load_auth_settings, load_auth_setting, set_auth_setting, 
 from cr.session import CRSession
 
 
-async def update_auth_settings(session: CRSession):
+async def cr_update_auth_settings(session: CRSession):
     # client id
     resource_id = 12345
     invalid_service_codes = [1223, 7895, 4562] # Delete

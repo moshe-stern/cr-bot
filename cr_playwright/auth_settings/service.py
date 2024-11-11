@@ -1,36 +1,45 @@
-import time
+from typing import List
 from playwright.sync_api import sync_playwright, Page
-from cr.actions import load_auth_settings
-from cr.api import BASE_URL, API
+from cr.actions import load_auth_settings, get_service_codes
+from cr.api import  API
 from cr.org import kadiant
 from cr.session import CRSession
-from cr_playwright.auth_settings.resources import resources_to_update
+from cr_playwright.auth_settings.resources import CRResource
 
+cr_session = CRSession(kadiant)
 
-def playwright_update_auth_settings():
+def playwright_update_auth_settings(resources_to_update: List[CRResource]):
      with sync_playwright() as p:
+        updated_resources = {
+            resource.id: [False, False] for resource in resources_to_update
+        }
+        browser =  p.chromium.launch(headless=False)
+        page =  browser.new_page()
+        page.goto(
+        "https://login.centralreach.com/login"
+        )
+        log_in(page)
         for resource in resources_to_update:
-            authorization_page = f'https://members.centralreach.com/#resources/details/?id={resource.id}&tab=authorizations'
-            browser =  p.chromium.launch()
-            page =  browser.new_page()
-            page.goto(
-            "https://login.centralreach.com/login"
-            )
-            log_in(page)
-            goto_auth_settings(page, authorization_page)
-            auth_settings = load_auth_settings(CRSession(kadiant), resource.id)
-            for auth_setting in auth_settings:
-                group = page.locator(f'#group-auth-{auth_setting['Id']}')
-                group.wait_for(state="visible")
-                group.hover()
-                edit = group.locator('a').nth(1)
-                edit.wait_for(state="visible")
-                edit.click()
-                print('Updating codes for:', auth_setting['Id'])
-                page.expect_response(API.AUTH_SETTINGS.LOAD_SETTING)
-                update_auth_setting(page, resource.codes_to_add, resource.codes_to_remove)
+            try:
+                authorization_page = f'https://members.centralreach.com/#resources/details/?id={resource.id}&tab=authorizations'
+                goto_auth_settings(page, authorization_page)
+                auth_settings = load_auth_settings(cr_session, resource.id)
+                for auth_setting in auth_settings:
+                    group = page.locator(f'#group-auth-{auth_setting['Id']}')
+                    group.wait_for(state="visible")
+                    group.hover()
+                    edit = group.locator('a').nth(1)
+                    edit.wait_for(state="visible")
+                    edit.click()
+                    print('Updating codes for:', auth_setting['Id'])
+                    page.expect_response(API.AUTH_SETTINGS.LOAD_SETTING)
+                    updated_settings = update_auth_setting(page, resource.codes_to_add, resource.codes_to_remove)
+                    updated_resources[resource.id] = updated_settings
+            except Exception as e:
+                print(f"Failed to update resource {resource.id}: {e}")
         browser.close()
         print('Finished')
+        return updated_resources
 
 
 def log_in(page: Page):
@@ -52,6 +61,8 @@ def log_in(page: Page):
 def goto_auth_settings(page: Page, authorization_page):
     print('Navigate to main page')
     page.goto(authorization_page)
+    if page.url != authorization_page or page.locator("text=Resource Not Found").is_visible():
+        Exception('Resource does not exist')
     home = page.get_by_text("HomeContactsFilesBillingClaimsHRSchedulingClinicalInsightsKADIANT LLC")
     home.wait_for(state="visible")
     page.wait_for_load_state('domcontentloaded')
@@ -65,9 +76,13 @@ def update_auth_setting(page: Page, codes_add, codes_remove):
     service_codes = page.get_by_role("link", name="Service Code(s)")
     service_codes.wait_for(state="visible")
     service_codes.click()
+    updated_codes = [0,0]
     for code in codes_add:
+        if len(get_service_codes(cr_session, code)) == 0:
+            print('Code not found:', code)
+            continue
         has_code = page.locator("#service-codes div").get_by_text(code, exact=True)
-        if has_code:
+        if has_code.is_visible():
             print('Has code:', code)
             continue
         add = page.get_by_role("link", name="Add service code")
@@ -76,6 +91,7 @@ def update_auth_setting(page: Page, codes_add, codes_remove):
         search.fill(code)
         page.expect_response(API.SERVICE_CODES.GET)
         page.keyboard.press('Enter')
+        updated_codes[0] += 1
         print('Adding code:', code)
     for code in codes_remove:
         remove = page.locator("#service-codes div").get_by_text(code, exact=True)
@@ -85,7 +101,9 @@ def update_auth_setting(page: Page, codes_add, codes_remove):
             delete_button = page.get_by_role("button", name="Yes", exact=True)
             delete_button.wait_for(state="visible")
             delete_button.click()
+            updated_codes[1] += 1
             print('Deleted:', code)
         else:
             print('Code not found:', code)
     page.get_by_role("button", name="Save", exact=True).click()
+    return [updated_codes[0] == len(codes_add), updated_codes[1] == len(codes_remove)]
