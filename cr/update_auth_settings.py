@@ -1,7 +1,7 @@
 from cr.actions import load_auth_settings, load_auth_setting, set_auth_setting, get_auth
 from cr.session import CRSession
 
-
+#not working
 async def cr_update_auth_settings(session: CRSession):
     # client id
     resource_id = 12345

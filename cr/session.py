@@ -20,9 +20,9 @@ class CRSession(requests.Session):
     def __init__(self, org: CR_Org, headers=None):
         super().__init__()
         self.org = org
-        self._client_secret: str = os.getenv(f'cr-api-secret-{org.org_str}-{org.org_type}')
-        self._client_id: str = os.getenv(f'cr-api-id-{org.org_str}-{org.org_type}')
-        self._api_key: str = os.getenv(f'cr-api-key-{org.org_str}-{org.org_type}')
+        self._client_secret: str = os.getenv(f'CR_API_SECRET_{org.org_str}_{org.org_type}')
+        self._client_id: str = os.getenv(f'CR_API_ID_{org.org_str}_{org.org_type}')
+        self._api_key: str = os.getenv(f'CR_API_KEY_{org.org_str}_{org.org_type}')
         self._cr_token_response: CR_TokenResponse = None
         self._csrf_token = None
         self._make_crsf_token()
