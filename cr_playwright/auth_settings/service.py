@@ -1,6 +1,5 @@
 import os
 from typing import List
-
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright, Page
 from cr.actions import load_auth_settings, get_service_codes
