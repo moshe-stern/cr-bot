@@ -5,8 +5,8 @@ from cr.api import  API
 from cr.org import kadiant
 from cr.session import CRSession
 from cr_playwright.auth_settings.resources import CRResource
+from main import cr_session
 
-cr_session = CRSession(kadiant)
 
 def playwright_update_auth_settings(resources_to_update: List[CRResource]):
      with sync_playwright() as p:
