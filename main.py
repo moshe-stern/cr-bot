@@ -1,6 +1,10 @@
+import logging
+
 from flask import Flask
 from cr_playwright.auth_settings.controller import update_auth_settings
 app = Flask(__name__)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 @app.route('/auth-settings', methods=['POST'])
 def update():
     return update_auth_settings()

@@ -1,4 +1,5 @@
 import os
+import logging
 from typing import List
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright, Page
@@ -7,6 +8,8 @@ from cr.api import  API
 from cr.org import kadiant
 from cr.session import CRSession
 from cr_playwright.auth_settings.resources import CRResource
+from main import logger
+
 if os.getenv('DEVELOPMENT') and not load_dotenv():
     raise Exception('could not import env file')
 cr_session = None
@@ -18,7 +21,9 @@ def playwright_update_auth_settings(resources_to_update: List[CRResource]):
             resource.id: [False, False] for resource in resources_to_update
         }
         print('hi')
+        logger.info('hi')
         print(os.getenv('CR_API_KEY_KADIANT_HOME'))
+        logger.info(os.getenv('CR_API_KEY_KADIANT_HOME'))
         cr_session = CRSession(kadiant)
         browser =  p.chromium.launch(headless=not os.getenv('DEVELOPMENT'))
         page =  browser.new_page()
