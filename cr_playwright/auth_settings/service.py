@@ -5,13 +5,15 @@ from cr.api import  API
 from cr.org import kadiant
 from cr.session import CRSession
 from cr_playwright.auth_settings.resources import CRResource
-cr_session = CRSession(kadiant)
+cr_session = None
 
 def playwright_update_auth_settings(resources_to_update: List[CRResource]):
      with sync_playwright() as p:
+        global cr_session
         updated_resources = {
             resource.id: [False, False] for resource in resources_to_update
         }
+        cr_session = CRSession(kadiant)
         browser =  p.chromium.launch(headless=False)
         page =  browser.new_page()
         page.goto(
