@@ -30,6 +30,12 @@ class CRSession(requests.Session):
         self._cr_token_response: CR_TokenResponse = None
         logger.info('still in class')
         print('still in class')
+        print(org.org_str, org.org_type)
+        print(
+            os.getenv(f"CR_API_SECRET_{org.org_str}_{org.org_type}"),
+            os.getenv(f"CR_API_ID_{org.org_str}_{org.org_type}"),
+            os.getenv(f"CR_API_KEY_{org.org_str}_{org.org_type}"),
+        )
         self._csrf_token = None
         self._make_crsf_token()
         self.utc_offset = self.set_utc_offset()
