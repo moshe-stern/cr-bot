@@ -1,29 +1,55 @@
 import dataclasses
-from typing import List
-import enum
+from dataclasses import dataclass
+from typing import List, Callable, Union, TypeVar
+from enum import Enum
+from playwright.sync_api import Page
 
-from src.cr_playwright_modules.auth_settings.services.payors import update_payors
-from src.cr_playwright_modules.auth_settings.services.service_codes import (
-    update_service_codes,
-)
+T = TypeVar("T", bound="CRResource")
 
 
-class UpdateType(enum):
+class UpdateType(Enum):
     CODES = "codes"
     PAYERS = "payers"
 
 
-@dataclasses.dataclass
 class CRResource:
-    id: int
-    to_remove: List[str]
-    to_add: List[str]
+    resource_id: int
+    update: Callable[[Page, T], List[bool]]
+
+    def __init__(self, resource_id: int, update: Callable[[Page, T], List[bool]]):
+        self.resource_id = resource_id
+        self.update = update
 
 
-update_functions = {
-    UpdateType.CODES: update_service_codes,
-    UpdateType.PAYERS: update_payors,
-}
+class CRCodeResource(CRResource):
+    to_remove: List[str] = []
+    to_add: List[str] = []
+
+    def __init__(
+        self,
+        resource_id: int,
+        update: Callable[[Page, "CRCodeResource"], List[bool]],
+        to_remove: List[str] = None,
+        to_add: List[str] = None,
+    ):
+        super().__init__(resource_id, update)
+        self.to_remove = to_remove if to_remove is not None else []
+        self.to_add = to_add if to_add is not None else []
+
+
+class CRPayerResource(CRResource):
+    global_payer: str
+
+    def __init__(
+        self,
+        resource_id: int,
+        update: Callable[[Page, "CRPayerResource"], List[bool]],
+        global_payer: str,
+    ):
+        super().__init__(resource_id, update)
+        self.global_payer = global_payer
+
+
 # test_resource = Resource(
 #     50704127,
 #     ['97151: ASMT/Reassessment', '97151: Assessment, Lic/Cert only - REVIEWER'],

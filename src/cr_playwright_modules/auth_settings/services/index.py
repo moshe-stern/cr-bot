@@ -6,36 +6,29 @@ from src.cr.actions import load_auth_settings
 from src.cr.api import API
 from src.cr.org import kadiant
 from src.cr.session import CRSession
-from src.cr_playwright_modules.auth_settings.resources import (
-    CRResource,
-    UpdateType,
-    update_functions,
-)
+from src.cr_playwright_modules.auth_settings.resources import CRResource
 
 if os.getenv("DEVELOPMENT") and not load_dotenv():
     raise Exception("could not import env file")
 cr_session = None
 
 
-def playwright_update_auth_settings(
-    resources_to_update: List[CRResource], update_type: UpdateType
-):
+def playwright_update_auth_settings(resources_to_update: List[CRResource]):
     with sync_playwright() as p:
         global cr_session
         updated_resources = {
-            resource.id: [False, False] for resource in resources_to_update
+            resource.resource_id: [False, False] for resource in resources_to_update
         }
         cr_session = CRSession(kadiant)
-        update_fn = update_functions.get(update_type)
         browser = p.chromium.launch(headless=not os.getenv("DEVELOPMENT"))
         page = browser.new_page()
         page.goto("https://login.centralreach.com/login")
         log_in(page)
         for resource in resources_to_update:
             try:
-                authorization_page = f"https://members.centralreach.com/#resources/details/?id={resource.id}&tab=authorizations"
+                authorization_page = f"https://members.centralreach.com/#resources/details/?id={resource.resource_id}&tab=authorizations"
                 goto_auth_settings(page, authorization_page)
-                auth_settings = load_auth_settings(cr_session, resource.id)
+                auth_settings = load_auth_settings(cr_session, resource.resource_id)
                 for auth_setting in auth_settings:
                     group = page.locator(f"#group-auth-{auth_setting['Id']}")
                     group.wait_for(state="visible")
@@ -45,12 +38,10 @@ def playwright_update_auth_settings(
                     edit.click()
                     print("Updating codes for:", auth_setting["Id"])
                     page.expect_response(API.AUTH_SETTINGS.LOAD_SETTING)
-                    updated_settings = update_fn(
-                        page, resource.to_add, resource.to_remove
-                    )
-                    updated_resources[resource.id] = updated_settings
+                    updated_settings = resource.update(page, resource)
+                    updated_resources[resource.resource_id] = updated_settings
             except Exception as e:
-                print(f"Failed to update resource {resource.id}: {e}")
+                print(f"Failed to update resource {resource.resource_id}: {e}")
         browser.close()
         print("Finished")
         return updated_resources

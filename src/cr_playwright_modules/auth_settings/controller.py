@@ -1,6 +1,8 @@
 import pandas as pd
-from main import app
 from src.cr_playwright_modules.auth_settings.resources import CRResource, UpdateType
+from src.cr_playwright_modules.auth_settings.services.get_resource_obj import (
+    get_resource_obj,
+)
 from src.cr_playwright_modules.auth_settings.services.index import (
     playwright_update_auth_settings,
 )
@@ -9,7 +11,6 @@ import os
 from flask import Flask, request, abort, jsonify, send_file
 
 
-@app.route("/auth-settings", methods=["POST"])
 def update_auth_settings():
     if request.headers.get("X-Secret-Key") != os.getenv("SECRET_KEY"):
         abort(403)
@@ -33,34 +34,7 @@ def update_auth_settings():
         if update_type_str not in UpdateType:
             return jsonify({"error": "Not valid update type specified"}), 400
         update_type = UpdateType(update_type_str)
-        required_columns = {
-            "resource_id",
-            f"{update_type}_to_remove",
-            f"{update_type}_to_change",
-        }
-        if not required_columns.issubset(df.columns):
-            return (
-                jsonify(
-                    {
-                        "error": f"Missing required columns. Required columns are: {required_columns}"
-                    }
-                ),
-                400,
-            )
-        resources = [
-            CRResource(
-                row["resource_id"],
-                [
-                    str(code).strip()
-                    for code in row[f"{update_type}_to_remove"].split(",")
-                ],
-                [
-                    str(code).strip()
-                    for code in row[f"{update_type}_to_change"].split(",")
-                ],
-            )
-            for _, row in df.iterrows()
-        ]
+        resources = get_resource_obj(update_type, df)
         updated_settings = playwright_update_auth_settings(resources)
         df["update"] = df.apply(
             lambda row: (

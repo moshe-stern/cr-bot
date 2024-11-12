@@ -1,6 +1,6 @@
-from session import CRSession
-from api import API
-from data import auth_post
+from src.cr.api import API
+from src.cr.data import auth_post
+from src.cr.session import CRSession
 
 
 def load_auth_settings(session: CRSession, resources_id: int):
