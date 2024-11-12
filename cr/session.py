@@ -24,7 +24,6 @@ class CRSession(requests.Session):
         self._client_id: str = os.getenv(f'CR_API_ID_{org.org_str}_{org.org_type}')
         self._api_key: str = os.getenv(f'CR_API_KEY_{org.org_str}_{org.org_type}')
         self._cr_token_response: CR_TokenResponse = None
-        logger.info('still in class')
         print('still in class')
         print(org.org_str, org.org_type)
         print(
@@ -55,10 +54,8 @@ class CRSession(requests.Session):
         }
         print(self)
         print(self._client_id, self._client_secret)
-        logger.info(self._client_id, self._client_secret)
         response = requests.post(url, headers=headers, data=payload)
         if response.status_code >= 400:
-            logger.error(response)
             raise Exception(f'could not get access token status code: {response.status_code}')
         self._cr_token_response = CR_TokenResponse(**response.json(), creation_time=time.time())
 

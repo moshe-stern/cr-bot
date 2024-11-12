@@ -8,8 +8,6 @@ from cr.api import  API
 from cr.org import kadiant
 from cr.session import CRSession
 from cr_playwright.auth_settings.resources import CRResource
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 if os.getenv('DEVELOPMENT') and not load_dotenv():
     raise Exception('could not import env file')
 cr_session = None
@@ -21,12 +19,9 @@ def playwright_update_auth_settings(resources_to_update: List[CRResource]):
             resource.id: [False, False] for resource in resources_to_update
         }
         print('hisssss')
-        logger.info('hit')
         print(os.getenv('CR_API_KEY_KADIANT_HOME'))
-        logger.info(os.getenv('CR_API_KEY_KADIANT_HOME'))
         print(kadiant.cr_name, kadiant.org_str, kadiant.org_type, kadiant.organizationId)
         cr_session = CRSession(kadiant)
-        logger.info('Pass')
         browser =  p.chromium.launch(headless=not os.getenv('DEVELOPMENT'))
         page =  browser.new_page()
         page.goto(
@@ -50,7 +45,7 @@ def playwright_update_auth_settings(resources_to_update: List[CRResource]):
                     updated_settings = update_auth_setting(page, resource.codes_to_add, resource.codes_to_remove)
                     updated_resources[resource.id] = updated_settings
             except Exception as e:
-                logger.error(f"Failed to update resource {resource.id}: {e}")
+                print(f"Failed to update resource {resource.id}: {e}")
         browser.close()
         print('Finished')
         return updated_resources

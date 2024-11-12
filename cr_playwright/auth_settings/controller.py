@@ -1,6 +1,6 @@
 import pandas as pd
 from cr_playwright.auth_settings.resources import CRResource
-from cr_playwright.auth_settings.service import playwright_update_auth_settings, logger
+from cr_playwright.auth_settings.service import playwright_update_auth_settings
 import io
 import os
 from flask import Flask, request, abort, jsonify, send_file
