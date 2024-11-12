@@ -27,5 +27,5 @@ auth_post = {
     "isIdInHash": False,
     "placeOfServiceList": [],
     "posUtil": {},
-    "_utcOffsetMinutes": 300
+    "_utcOffsetMinutes": 300,
 }
