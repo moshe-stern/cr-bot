@@ -6,9 +6,6 @@ import requests
 import os
 
 from cr.org import CR_Org
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 @dataclass
 class CR_TokenResponse:
     access_token: str
@@ -21,7 +18,6 @@ class CR_TokenResponse:
 class CRSession(requests.Session):
     def __init__(self, org: CR_Org, headers=None):
         super().__init__()
-        logger.info('in class')
         print('hiii')
         self.org = org
         self._client_secret: str = os.getenv(f'CR_API_SECRET_{org.org_str}_{org.org_type}')
