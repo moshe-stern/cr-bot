@@ -25,6 +25,7 @@ def playwright_update_auth_settings(resources_to_update: List[CRResource]):
         print(os.getenv('CR_API_KEY_KADIANT_HOME'))
         logger.info(os.getenv('CR_API_KEY_KADIANT_HOME'))
         cr_session = CRSession(kadiant)
+        logger.info('Pass')
         browser =  p.chromium.launch(headless=not os.getenv('DEVELOPMENT'))
         page =  browser.new_page()
         page.goto(

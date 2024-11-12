@@ -21,11 +21,13 @@ class CR_TokenResponse:
 class CRSession(requests.Session):
     def __init__(self, org: CR_Org, headers=None):
         super().__init__()
+        logger.info('in class')
         self.org = org
         self._client_secret: str = os.getenv(f'CR_API_SECRET_{org.org_str}_{org.org_type}')
         self._client_id: str = os.getenv(f'CR_API_ID_{org.org_str}_{org.org_type}')
         self._api_key: str = os.getenv(f'CR_API_KEY_{org.org_str}_{org.org_type}')
         self._cr_token_response: CR_TokenResponse = None
+        logger.info('still in class')
         self._csrf_token = None
         self._make_crsf_token()
         self.utc_offset = self.set_utc_offset()
