@@ -20,8 +20,8 @@ def playwright_update_auth_settings(resources_to_update: List[CRResource]):
         updated_resources = {
             resource.id: [False, False] for resource in resources_to_update
         }
-        print('hi')
-        logger.info('hi')
+        print('hisssss')
+        logger.info('hit')
         print(os.getenv('CR_API_KEY_KADIANT_HOME'))
         logger.info(os.getenv('CR_API_KEY_KADIANT_HOME'))
         cr_session = CRSession(kadiant)
