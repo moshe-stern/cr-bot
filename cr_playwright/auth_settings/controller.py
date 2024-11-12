@@ -4,22 +4,35 @@ from cr_playwright.auth_settings.service import playwright_update_auth_settings
 import io
 import os
 from flask import Flask, request, abort, jsonify, send_file
+
+app = Flask(__name__)
+
+@app.route('/auth-settings', methods=['POST'])
 def update_auth_settings():
+    # Secret Key Validation
     if request.headers.get("X-Secret-Key") != os.getenv('SECRET_KEY'):
         abort(403)
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part in the request"}), 400
-
-    file = request.files['file']
-
-    if file.filename == '':
-        return jsonify({"error": "No file selected"}), 400
-
-    if not file.filename.endswith('.xlsx'):
-        return jsonify({"error": "Invalid file format. Please upload an .xlsx file"}), 400
+    print(request)
+    # Check if there is data in the request
+    if not request.data:
+        return jsonify({"error": "No file data in the request"}), 400
 
     try:
-        df = pd.read_excel(file, engine='openpyxl')
+        # Read the binary data directly and load it into a DataFrame
+        file = io.BytesIO(request.data)
+
+        # Attempt to read the Excel file
+        try:
+            df = pd.read_excel(file, engine='openpyxl')
+        except Exception as e:
+            return jsonify({"error": "Failed to read Excel file. Please check the file format."}), 400
+
+        # Check if required columns are present
+        required_columns = {'resource_id', 'codes_to_remove', 'codes_to_change'}
+        if not required_columns.issubset(df.columns):
+            return jsonify({"error": f"Missing required columns. Required columns are: {required_columns}"}), 400
+
+        # Create resources list
         resources = [
             CRResource(
                 row['resource_id'],
@@ -28,15 +41,24 @@ def update_auth_settings():
             )
             for _, row in df.iterrows()
         ]
+
+        # Update settings
         updated_settings = playwright_update_auth_settings(resources)
+
+        # Add an 'update' column to the DataFrame based on the update status
         df['update'] = df.apply(
-            lambda row: "Yes" if updated_settings[row['resource_id']][0] and updated_settings[row['resource_id']][1] else "No",
+            lambda row: "Yes" if row['resource_id'] in updated_settings and
+            updated_settings[row['resource_id']][0] and updated_settings[row['resource_id']][1] else "No",
             axis=1
         )
+
+        # Save updated DataFrame to a BytesIO stream
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
             df.to_excel(writer, index=False, sheet_name='Sheet1')
         output.seek(0)
+
+        # Return the file as a response
         return send_file(
             output,
             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -45,4 +67,5 @@ def update_auth_settings():
         )
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        # General error handling
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
