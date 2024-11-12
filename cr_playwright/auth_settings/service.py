@@ -20,11 +20,13 @@ def playwright_update_auth_settings(resources_to_update: List[CRResource]):
         updated_resources = {
             resource.id: [False, False] for resource in resources_to_update
         }
-        print('hi')
-        logger.info('hi')
+        print('hisssss')
+        logger.info('hit')
         print(os.getenv('CR_API_KEY_KADIANT_HOME'))
         logger.info(os.getenv('CR_API_KEY_KADIANT_HOME'))
+        print(kadiant.cr_name, kadiant.org_str, kadiant.org_type, kadiant.organizationId)
         cr_session = CRSession(kadiant)
+        logger.info('Pass')
         browser =  p.chromium.launch(headless=not os.getenv('DEVELOPMENT'))
         page =  browser.new_page()
         page.goto(
