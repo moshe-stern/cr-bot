@@ -1,6 +1,6 @@
 import os
+import time
 from typing import List
-from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright, Page
 from src.cr.actions import load_auth_settings
 from src.cr.api import API
@@ -8,8 +8,6 @@ from src.cr.org import kadiant
 from src.cr.session import CRSession
 from src.cr_playwright_modules.auth_settings.resources import CRResource
 
-if os.getenv("DEVELOPMENT") and not load_dotenv():
-    raise Exception("could not import env file")
 cr_session = None
 
 
@@ -36,7 +34,6 @@ def playwright_update_auth_settings(resources_to_update: List[CRResource]):
                     edit = group.locator("a").nth(1)
                     edit.wait_for(state="visible")
                     edit.click()
-                    print("Updating codes for:", auth_setting["Id"])
                     page.expect_response(API.AUTH_SETTINGS.LOAD_SETTING)
                     updated_settings = resource.update(page, resource)
                     updated_resources[resource.resource_id] = updated_settings
@@ -77,6 +74,11 @@ def goto_auth_settings(page: Page, authorization_page):
     home.wait_for(state="visible")
     page.wait_for_load_state("domcontentloaded")
     continue_to_login = page.get_by_role("button", name="Continue To Login")
+    time.sleep(3)
     is_visible = continue_to_login.is_visible()
     if is_visible:
         continue_to_login.click()
+
+
+def get_cr_session():
+    return cr_session

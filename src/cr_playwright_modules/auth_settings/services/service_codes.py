@@ -1,19 +1,18 @@
 from playwright.sync_api import Page
-
 from src.cr.actions import get_service_codes
 from src.cr.api import API
 from src.cr_playwright_modules.auth_settings.resources import CRCodeResource
-from src.cr_playwright_modules.auth_settings.services.index import cr_session
+from src.cr_playwright_modules.auth_settings.services.index import get_cr_session
 
 
 def update_service_codes(page: Page, code_resource: CRCodeResource) -> list[bool]:
-    print("hiiih")
+    print("update_service_codes")
     service_codes = page.get_by_role("link", name="Service Code(s)")
     service_codes.wait_for(state="visible")
     service_codes.click()
     updated_codes = [0, 0]
     for code in code_resource.to_add:
-        if len(get_service_codes(cr_session, code)) == 0:
+        if len(get_service_codes(get_cr_session(), code)) == 0:
             print("Code not found:", code)
             continue
         has_code = page.locator("#service-codes div").get_by_text(code, exact=True)

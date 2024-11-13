@@ -8,9 +8,12 @@ from src.cr_playwright_modules.auth_settings.services.index import (
 )
 import io
 import os
-from flask import Flask, request, abort, jsonify, send_file
+from flask import Flask, request, abort, jsonify, send_file, Blueprint
+
+auth_settings = Blueprint("auth-settings", __name__, url_prefix="/auth-settings")
 
 
+@auth_settings.route("", methods=["POST"])
 def update_auth_settings():
     if request.headers.get("X-Secret-Key") != os.getenv("SECRET_KEY"):
         abort(403)
@@ -40,8 +43,7 @@ def update_auth_settings():
             lambda row: (
                 "Yes"
                 if row["resource_id"] in updated_settings
-                and updated_settings[row["resource_id"]][0]
-                and updated_settings[row["resource_id"]][1]
+                and all(updated_settings[row["resource_id"]])
                 else "No"
             ),
             axis=1,

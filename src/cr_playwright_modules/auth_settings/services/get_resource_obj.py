@@ -21,8 +21,8 @@ def get_resource_obj(update_type: UpdateType, df: DataFrame):
             "codes_to_remove",
             "codes_to_change",
         }
-    elif update_type == UpdateType.PAYERS:
-        required_columns = {"resource_id", "global_payer"}
+    elif update_type == UpdateType.PAYORS:
+        required_columns = {"resource_id", "global_payor"}
     if not required_columns.issubset(df.columns):
         raise Exception(
             f"Missing required columns. Required columns are: {required_columns}"
@@ -41,12 +41,12 @@ def get_resource_obj(update_type: UpdateType, df: DataFrame):
             )
             for _, row in df.iterrows()
         ]
-    elif update_type == UpdateType.PAYERS:
+    elif update_type == UpdateType.PAYORS:
         resources = [
             CRPayerResource(
                 resource_id=row["resource_id"],
                 update=update_payors,
-                global_payer=row["global_payer"],
+                global_payer=row["global_payor"],
             )
             for _, row in df.iterrows()
         ]
