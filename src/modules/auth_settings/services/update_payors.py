@@ -1,11 +1,14 @@
 from playwright.sync_api import Page
 
-from src.cr_playwright_modules.auth_settings.resources import CRPayerResource
+from src.modules.shared.start import get_world
+from src.resources import CRPayerResource
 
 global_payer = None
 
 
-def update_payors(page: Page, payor_resource: CRPayerResource):
+def update_payors(payor_resource: CRPayerResource):
+    world = get_world()
+    page = world.page
     combo = page.get_by_role("combobox")
     combo.click()
     combo.select_option(payor_resource.global_payer)

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import requests
 import os
 
-from src.cr.org import CR_Org
+from src.org import CR_Org
 
 
 @dataclass
