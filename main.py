@@ -3,15 +3,13 @@ import os
 from dotenv import load_dotenv
 from flask import Flask
 
-from src.modules.auth_settings.controller import auth_settings
-from src.modules.schedule.controller import schedule
+from src.modules.authorization.controller import authorization
 from src.modules.shared.error_handler import register_error_handlers
 
 load_dotenv()
 app = Flask(__name__)
 register_error_handlers(app)
-app.register_blueprint(auth_settings)
-app.register_blueprint(schedule)
+app.register_blueprint(authorization)
 
 
 if __name__ == "__main__":

@@ -5,12 +5,14 @@ import pandas as pd
 from pandas import DataFrame
 
 
-def get_updated_file(df: DataFrame, updated_settings: list[bool]) -> io.BytesIO:
+def get_updated_file(
+    df: DataFrame, updated_settings: list[bool], col_name: str
+) -> io.BytesIO:
     df["update"] = df.apply(
         lambda row: (
             "Yes"
-            if row["resource_id"] in updated_settings
-            and all(updated_settings[row["resource_id"]])
+            if row[col_name] in updated_settings
+            and all(updated_settings[row[col_name]])
             else "No"
         ),
         axis=1,

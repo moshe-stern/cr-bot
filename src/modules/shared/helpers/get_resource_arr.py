@@ -1,5 +1,4 @@
 from pandas import DataFrame
-from flask import Request, jsonify
 
 from src.resources import (
     UpdateType,
@@ -7,8 +6,8 @@ from src.resources import (
     CRPayerResource,
     CRScheduleResource,
 )
-from src.modules.auth_settings.services.update_payors import update_payors
-from src.modules.auth_settings.services.update_service_codes import (
+from src.modules.authorization.services.auth_settings.update_payors import update_payors
+from src.modules.authorization.services.auth_settings.update_service_codes import (
     update_service_codes,
 )
 

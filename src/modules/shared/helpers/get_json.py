@@ -11,4 +11,7 @@ def get_json(request: Request):
     instance = data.get("instance")
     if not instance:
         raise Exception("error: Missing 'instance' field in the request.")
+    update_type = data.get("type")
+    if not update_type:
+        raise Exception("error: Missing 'type' field in the request.")
     return data
