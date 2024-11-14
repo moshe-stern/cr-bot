@@ -8,9 +8,9 @@ T = TypeVar("T", bound="CRResource")
 
 
 class UpdateType(Enum):
-    CODES = "codes"
-    PAYORS = "payors"
-    SCHEDULE = "schedule"
+    CODES = "Service Codes"
+    PAYORS = "Payors"
+    SCHEDULE = "Schedules"
 
 
 class CRResource:

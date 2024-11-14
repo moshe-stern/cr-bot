@@ -10,6 +10,6 @@ class CrORG:
 
 
 orgs = {
-    "kadiant": CrORG(427999, "kadiantadmin", "HOME", "KADIANT"),
-    "attain": CrORG(1098187, "brightadmin", "HOME", "ATTAIN"),
+    "Kadiant": CrORG(427999, "kadiantadmin", "HOME", "KADIANT"),
+    "Attain TSS": CrORG(1098187, "brightadmin", "HOME", "ATTAIN"),
 }
