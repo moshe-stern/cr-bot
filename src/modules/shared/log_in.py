@@ -33,6 +33,7 @@ def check_for_multiple_login():
     home.wait_for(state="visible")
     page.wait_for_load_state("domcontentloaded")
     page.expect_response(API.SERVICE_CODES.GET_PLACES_OF_SERVICE)
+    time.sleep(2)
     continue_to_login = page.get_by_role("button", name="Continue To Login")
     is_visible = continue_to_login.is_visible()
     if is_visible:
