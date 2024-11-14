@@ -27,12 +27,12 @@ def log_in():
 def check_for_multiple_login():
     world = get_world()
     page = world.page
-    page.expect_response(API.SERVICE_CODES.GET_PLACES_OF_SERVICE)
     home = page.get_by_text(
         "HomeContactsFilesBillingClaimsHRSchedulingClinicalInsightsKADIANT LLC"
     )
     home.wait_for(state="visible")
     page.wait_for_load_state("domcontentloaded")
+    page.expect_response(API.SERVICE_CODES.GET_PLACES_OF_SERVICE)
     continue_to_login = page.get_by_role("button", name="Continue To Login")
     is_visible = continue_to_login.is_visible()
     if is_visible:
