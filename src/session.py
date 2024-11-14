@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import requests
 import os
 
-from src.org import CR_Org
+from src.org import CrORG
 
 
 @dataclass
@@ -17,7 +17,7 @@ class CR_TokenResponse:
 
 
 class CRSession(requests.Session):
-    def __init__(self, org: CR_Org, headers=None):
+    def __init__(self, org: CrORG, headers=None):
         super().__init__()
         self.org = org
         self._client_secret: str = os.getenv(

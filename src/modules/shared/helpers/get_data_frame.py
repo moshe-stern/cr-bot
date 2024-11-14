@@ -4,8 +4,8 @@ from flask import Request, jsonify
 from pandas import DataFrame
 
 
-def get_data_frame(request: Request) -> DataFrame:
-    file = io.BytesIO(request.data)
+def get_data_frame(file_data: bytes) -> DataFrame:
+    file = io.BytesIO(file_data)
     try:
         df = pd.read_excel(file, engine="openpyxl")
         return df

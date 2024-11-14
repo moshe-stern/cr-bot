@@ -7,8 +7,6 @@ def register_error_handlers(app):
     def before_request():
         if request.headers.get("X-Secret-Key") != os.getenv("SECRET_KEY"):
             abort(403)
-        if not request.data:
-            return jsonify({"error": "No file data in the request"}), 400
 
     @app.errorhandler(404)
     def not_found_error(error):

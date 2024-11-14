@@ -7,9 +7,9 @@ from src.modules.shared.start import get_world, start
 from src.resources import CRResource
 
 
-def update_auth_settings(resources_to_update: List[CRResource]):
+def update_auth_settings(resources_to_update: List[CRResource], instance: str):
     with sync_playwright() as p:
-        start(p)
+        start(p, instance)
         updated_resources = {
             resource.resource_id: [False, False] for resource in resources_to_update
         }

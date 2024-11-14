@@ -3,18 +3,16 @@ from asyncio import wait_for
 from datetime import datetime
 
 from playwright.sync_api import sync_playwright
-
 from src.actions.schedule import get_appointments
-from src.api import API
 from src.modules.shared.log_in import log_in
 from src.modules.shared.start import start, get_world
-from src.modules.shared.world import World
 from src.resources import CRScheduleResource
 
 
-def update_schedule(resources: list[CRScheduleResource]):
+def update_schedule(resources: list[CRScheduleResource], instance: str):
     with sync_playwright() as p:
-        start(p)
+        codes_added = 0
+        start(p, instance)
         log_in()
         world = get_world()
         page = world.page
@@ -45,6 +43,7 @@ def update_schedule(resources: list[CRScheduleResource]):
                     ]
                     for item in filtered_items:
                         item.get_by_role("button", name="Use this").click()
+                        codes_added += 1
                 page.get_by_role("button", name="Update Appointment").click()
                 page.get_by_placeholder("Reason for change", exact=True).click()
                 page.get_by_placeholder("Reason for change", exact=True).fill(
@@ -52,3 +51,4 @@ def update_schedule(resources: list[CRScheduleResource]):
                 )
                 page.get_by_text("Save", exact=True).click()
                 world.close()
+                return [codes_added == len(resource.codes)]
