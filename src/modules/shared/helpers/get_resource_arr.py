@@ -19,12 +19,12 @@ def get_resource_arr(update_type: UpdateType, df: DataFrame):
         required_columns = {
             "resource_id",
             "codes_to_remove",
-            "codes_to_change",
+            "codes_to_add",
         }
     elif update_type == UpdateType.PAYORS:
         required_columns = {"resource_id", "global_payor"}
     elif update_type == UpdateType.SCHEDULE:
-        required_columns = {"client_id", "codes"}
+        required_columns = {"client_id", "codes_to_add"}
     if not required_columns.issubset(df.columns):
         raise Exception(
             f"Missing required columns. Required columns are: {required_columns}"
@@ -35,11 +35,9 @@ def get_resource_arr(update_type: UpdateType, df: DataFrame):
                 resource_id=row["resource_id"],
                 update=update_service_codes,
                 to_remove=[
-                    str(code).strip() for code in row["codes_to_remove"].split(",")
+                    str(code).strip() for code in row["codes_to_remove"].split(";")
                 ],
-                to_add=[
-                    str(code).strip() for code in row["codes_to_change"].split(",")
-                ],
+                to_add=[str(code).strip() for code in row["codes_to_add"].split(";")],
             )
             for _, row in df.iterrows()
         ]
@@ -56,7 +54,7 @@ def get_resource_arr(update_type: UpdateType, df: DataFrame):
         resources = [
             CRScheduleResource(
                 client_id=row["client_id"],
-                codes=[str(code).strip() for code in row["codes"].split(",")],
+                codes=[str(code).strip() for code in row["codes_to_add"].split(";")],
             )
             for _, row in df.iterrows()
         ]
