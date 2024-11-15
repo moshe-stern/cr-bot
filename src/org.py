@@ -9,7 +9,7 @@ class CrORG:
     org_str: str
 
 
-orgs = {
+orgs: dict[str, CrORG] = {
     "Kadiant": CrORG(427999, "kadiantadmin", "HOME", "KADIANT"),
     "Attain TSS": CrORG(1098187, "brightadmin", "HOME", "ATTAIN"),
 }

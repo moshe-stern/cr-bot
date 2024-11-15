@@ -6,7 +6,7 @@ from src.modules.shared.start import get_world
 from src.resources import CRCodeResource
 
 
-def update_service_codes(code_resource: CRCodeResource) -> list[bool]:
+def update_service_codes(code_resource: CRCodeResource) -> bool:
     print("update_service_codes")
     world = get_world()
     page = world.page
@@ -45,7 +45,6 @@ def update_service_codes(code_resource: CRCodeResource) -> list[bool]:
         else:
             print("Code not found:", code)
     page.get_by_role("button", name="Save", exact=True).click()
-    return [
-        updated_codes[0] == len(code_resource.to_add),
-        updated_codes[1] == len(code_resource.to_remove),
-    ]
+    return updated_codes[0] == len(code_resource.to_add) and updated_codes[1] == len(
+        code_resource.to_remove
+    )

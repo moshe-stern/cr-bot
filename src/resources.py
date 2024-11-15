@@ -15,9 +15,9 @@ class UpdateType(Enum):
 
 class CRResource:
     resource_id: int
-    update: Callable[[T], List[bool]]
+    update: Callable[[T], bool]
 
-    def __init__(self, resource_id: int, update: Callable[[T], List[bool]]):
+    def __init__(self, resource_id: int, update: Callable[[T], bool]):
         self.resource_id = resource_id
         self.update = update
 
@@ -29,7 +29,7 @@ class CRCodeResource(CRResource):
     def __init__(
         self,
         resource_id: int,
-        update: Callable[["CRCodeResource"], List[bool]],
+        update: Callable[["CRCodeResource"], bool],
         to_remove: List[str] = None,
         to_add: List[str] = None,
     ):
@@ -44,7 +44,7 @@ class CRPayerResource(CRResource):
     def __init__(
         self,
         resource_id: int,
-        update: Callable[["CRPayerResource"], List[bool]],
+        update: Callable[["CRPayerResource"], bool],
         global_payer: str,
     ):
         super().__init__(resource_id, update)

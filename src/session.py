@@ -4,6 +4,8 @@ from dataclasses import dataclass
 import requests
 import os
 
+from playwright.sync_api import Page
+
 from src.org import CrORG
 
 
@@ -17,7 +19,7 @@ class CR_TokenResponse:
 
 
 class CRSession(requests.Session):
-    def __init__(self, org: CrORG, headers=None):
+    def __init__(self, org: CrORG):
         super().__init__()
         self.org = org
         self._client_secret: str = os.getenv(

@@ -17,7 +17,7 @@ def update_payors(payor_resource: CRPayerResource):
     page.get_by_role("button", name="Save", exact=True).click()
     if not global_payer:
         set_global_payer(page, payor_resource.global_payer)
-    return [True]
+    return True
 
 
 def set_global_payer(page: Page, payer: str):

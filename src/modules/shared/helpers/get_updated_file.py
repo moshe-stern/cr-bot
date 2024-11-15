@@ -1,19 +1,23 @@
 import io
 from ast import Bytes
+from typing import Union
 
 import pandas as pd
 from pandas import DataFrame
 
 
 def get_updated_file(
-    df: DataFrame, updated_settings: list[bool], col_name: str
+    df: DataFrame, updated_settings: dict[int, list[Union[bool, None]]], col_name: str
 ) -> io.BytesIO:
-    df["update"] = df.apply(
+    df["status"] = df.apply(
         lambda row: (
-            "Yes"
-            if row[col_name] in updated_settings
-            and all(updated_settings[row[col_name]])
-            else "No"
+            "Successfully updated"
+            if updated_settings[row[col_name]] == True
+            else (
+                "Failed to update"
+                if updated_settings[row[col_name]] == False
+                else "Already updated"
+            )
         ),
         axis=1,
     )
