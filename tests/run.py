@@ -9,7 +9,6 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-directory_path = "test-files"
 parser = argparse.ArgumentParser(
     description="Run the application in a specific environment."
 )
@@ -18,8 +17,16 @@ parser.add_argument(
     choices=["local", "prod"],
     help="Specify the environment to run the application. Options: local or prod.",
 )
+parser.add_argument(
+    "directory_path",
+    default="test-files",
+    choices=["test", "stress-test"],
+    help="Specify the directory path. Default is 'test-files'.",
+)
 args = parser.parse_args()
 environment = args.environment
+test_type = args.directory_path
+directory_path = "test-files" if test_type == "test" else "test-files/stress-test"
 prod = "https://bulk-auth-update-gsgdb6fsefcfbpbn.eastus-01.azurewebsites.net"
 local = "http://localhost:8000"
 
@@ -80,7 +87,9 @@ for filename in os.listdir(directory_path):
                         print("Something went wrong")
                 else:
                     print("The 'Update' column was not found in the Excel file.")
+            elif response.status_code == 502:
+                raise Exception("Server overloaded")
             else:
                 raise Exception(response.json())
     except Exception as e:
-        print(e)
+        print(f"Error: {e}")

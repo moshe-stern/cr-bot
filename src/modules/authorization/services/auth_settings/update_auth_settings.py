@@ -18,12 +18,12 @@ def update_auth_settings(resources_to_update: List[CRResource], instance: str):
         page = world.page
         cr_session = world.cr_session
         for resource in resources_to_update:
-            auth_settings = load_auth_settings(cr_session, resource.resource_id)
-            if len(auth_settings) == 0:
-                raise Exception("No authorization settings found")
-            authorization_page = f"https://members.centralreach.com/#resources/details/?id={resource.resource_id}&tab=authorizations"
-            goto_auth_settings(page, authorization_page)
             try:
+                auth_settings = load_auth_settings(cr_session, resource.resource_id)
+                if len(auth_settings) == 0:
+                    raise Exception("No authorization settings found")
+                authorization_page = f"https://members.centralreach.com/#resources/details/?id={resource.resource_id}&tab=authorizations"
+                goto_auth_settings(page, authorization_page)
                 for auth_setting in auth_settings:
                     group = page.locator(f"#group-auth-{auth_setting['Id']}")
                     group.wait_for(state="visible")

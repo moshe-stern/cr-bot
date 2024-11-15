@@ -27,7 +27,7 @@ def get_resource_arr(update_type: UpdateType, df: DataFrame):
         required_columns = {"client_id", "codes_to_add"}
     if not required_columns.issubset(df.columns):
         raise Exception(
-            f"Missing required columns. Required columns are: {required_columns}"
+            f"Missing required columns. Required columns are: {required_columns}", 400
         )
     if update_type == UpdateType.CODES:
         resources = [
