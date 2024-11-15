@@ -23,7 +23,7 @@ environment = args.environment
 prod = "https://bulk-auth-update-gsgdb6fsefcfbpbn.eastus-01.azurewebsites.net"
 local = "http://localhost:8000"
 
-url = f"{'local' if environment == 'local' else 'prod'}/authorization"
+url = f"{local if environment == 'local' else prod}/authorization"
 for filename in os.listdir(directory_path):
     file_path = os.path.join(directory_path, filename)
     try:
@@ -36,7 +36,7 @@ for filename in os.listdir(directory_path):
             }
             if "Switch back" in filename:
                 filename = filename.replace("Switch back", "").strip()
-                print("Switching back Service Codes")
+                print("Switching back: " + os.path.splitext(filename)[0])
             else:
                 print(os.path.splitext(filename)[0])
             data = {
@@ -58,27 +58,9 @@ for filename in os.listdir(directory_path):
                     )
                 if "status" in df.columns:
                     total_count = len(df["status"])
-                    success_count = (
-                        df["status"]
-                        .str.strip()
-                        .str.casefold()
-                        .eq("Successfully updated")
-                        .sum()
-                    )
-                    fail_count = (
-                        df["status"]
-                        .str.strip()
-                        .str.casefold()
-                        .eq("Failed to update")
-                        .sum()
-                    )
-                    already_count = (
-                        df["status"]
-                        .str.strip()
-                        .str.casefold()
-                        .eq("Already updated")
-                        .sum()
-                    )
+                    success_count = df["status"].eq("Successfully updated").sum()
+                    fail_count = df["status"].eq("Failed to update").sum()
+                    already_count = df["status"].eq("Already updated").sum()
                     success_count = (
                         (success_count / total_count) * 100 if total_count > 0 else 0
                     )
@@ -94,6 +76,8 @@ for filename in os.listdir(directory_path):
                         print(f"{fail_count}% Failed to update")
                     if already_count > 0:
                         print(f"{already_count}% already updated")
+                    if success_count + fail_count + already_count == 0:
+                        print("Something went wrong")
                 else:
                     print("The 'Update' column was not found in the Excel file.")
             else:
