@@ -119,8 +119,10 @@ while len(task_ids) > 0:
                 else:
                     raise Exception(res2.json())
             else:
-                logger.info("Task still pending, sleeping for 10 seconds")
-                logger.info(f"Progress: {data.get('progress')}")
-                time.sleep(10)
+                logger.info(
+                    f"Task still pending, sleeping for {100 - data.get('progress')} seconds"
+                )
+                logger.info(f"Progress: {data.get('progress')}%")
+                time.sleep(100 - data.get("progress"))
         except Exception as e:
             logger.error(f"Error: {e}")
