@@ -1,3 +1,10 @@
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+
 .env
 .idea
 playwright
