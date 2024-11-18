@@ -1,0 +1,33 @@
+name: Deploy to Azure VM
+
+on:
+  push:
+    branches:
+      - main  # Trigger on changes to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the repository
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Set up SSH
+    - name: Set up SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H your-vm-ip >> ~/.ssh/known_hosts
+
+    # Pull the latest changes on the VM
+    - name: Deploy to VM
+      run: |
+        ssh moshestern@cr-bot.westus2.cloudapp.azure.com "
+          cd cr-fn &&
+          git pull origin main &&
+          sudo systemctl restart cr-bot &&
+          sudo systemctl restart celery
+        "
