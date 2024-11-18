@@ -21,8 +21,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-@celery.task
-def process_update(file_content, update_type_str, instance):
+@celery.task(bind=True)
+def process_update(self, file_content, update_type_str, instance):
     logger.info(f"Starting process_update with type: {update_type_str}")
     try:
         file_data = base64.b64decode(file_content)
@@ -34,17 +34,15 @@ def process_update(file_content, update_type_str, instance):
         resources = get_resource_arr(update_type, df)
 
         if update_type == UpdateType.SCHEDULE:
-            updated_schedules = update_schedules(resources, instance)
+            updated_schedules = update_schedules(self, resources, instance)
             updated_file = get_updated_file(df, updated_schedules, "client_id")
         else:
-            updated_settings = update_auth_settings(resources, instance)
+            updated_settings = update_auth_settings(self, resources, instance)
             updated_file = get_updated_file(df, updated_settings, "resource_id")
-
-        # Save to a temporary file
         with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as temp_file:
             temp_file.write(updated_file.getvalue())
             logger.info(f"File saved to {temp_file.name}")
             return temp_file.name
     except Exception as e:
+        self.update_state(state="FAILURE", meta={"reason": str(e)})
         logger.error(f"Error in process_update: {e}")
-        raise

@@ -13,7 +13,7 @@ from src.modules.shared.start import start, get_world
 from src.resources import CRScheduleResource
 
 
-def update_schedules(resources: list[CRScheduleResource], instance: str):
+def update_schedules(celery_task, resources: list[CRScheduleResource], instance: str):
     with sync_playwright() as p:
         updated_resources: dict[int, Union[bool, None]] = {
             resource.client_id: None for resource in resources
@@ -23,8 +23,10 @@ def update_schedules(resources: list[CRScheduleResource], instance: str):
         world = get_world()
         page = world.page
         date_today = datetime.now().strftime("%Y-%m-%d")
-        for resource in resources:
+        for index, resource in enumerate(resources):
             appointments = get_appointments(world.cr_session, resource.client_id)
+            progress = ((index + 1) / len(resources)) * 100
+            celery_task.update_state(state="PENDING", meta={"progress": progress})
             if len(appointments) == 0:
                 raise Exception("No appointments scheduled for this resource")
             try:

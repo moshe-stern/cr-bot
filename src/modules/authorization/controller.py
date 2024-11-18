@@ -26,14 +26,17 @@ def check_task_status(task_id):
     task = celery.AsyncResult(task_id)
     response = {}
     if task.state == "PENDING":
-        response = {"state": task.state, "status": "Pending..."}
+        progress = task.info.get("progress")
+        response = {"state": task.state, "progress": progress}
     elif task.state == "SUCCESS":
         response = {
             "state": task.state,
             "file_url": f"/authorization/download/{task_id}",
         }
     elif task.state == "FAILURE":
-        response = {"state": task.state, "status": str(task.info)}  #
+        reason = task.info.get("reason")
+        task.forget()
+        response = {"state": task.state, "fail_reason": reason}
     return response
 
 
@@ -50,16 +53,13 @@ def download_file(task_id):
                 mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             )
             task.forget()
-            cleanup_file.apply_async(
-                (file_path,), countdown=30
-            )  # Cleanup task runs after 30 seconds
+            cleanup_file.apply_async((file_path,), countdown=30)
             return response
         except Exception as e:
             return jsonify({"error": f"Error serving file: {str(e)}"}), 500
     elif task.state == "PENDING":
         return jsonify({"error": "Task is still pending"}), 202
     elif task.state == "FAILURE":
-        task.forget()
-        return jsonify({"error": "Task failed"}), 400
+        return jsonify({"error": "Task has failed"}), 400
     else:
         return jsonify({"error": "Task not ready or invalid"}), 400

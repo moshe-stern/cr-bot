@@ -9,7 +9,9 @@ from src.modules.shared.start import get_world, start
 from src.resources import CRResource
 
 
-def update_auth_settings(resources_to_update: List[CRResource], instance: str):
+def update_auth_settings(
+    celery_task, resources_to_update: List[CRResource], instance: str
+):
     with sync_playwright() as p:
         start(p, instance)
         updated_resources: dict[int, Union[bool, None]] = {
@@ -18,8 +20,10 @@ def update_auth_settings(resources_to_update: List[CRResource], instance: str):
         world = get_world()
         page = world.page
         cr_session = world.cr_session
-        for resource in resources_to_update:
+        for index, resource in enumerate(resources_to_update):
             try:
+                progress = ((index + 1) / len(resources_to_update)) * 100
+                celery_task.update_state(state="PENDING", meta={"progress": progress})
                 auth_settings = load_auth_settings(cr_session, resource.resource_id)
                 if len(auth_settings) == 0:
                     raise Exception("No authorization settings found")

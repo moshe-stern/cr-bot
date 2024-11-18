@@ -1,14 +1,20 @@
 import argparse
 import io
+import sys
+import time
+from pathlib import Path
 
 import pandas as pd
 import requests
 import base64
 import os
 
+project_root = Path(__file__)
+sys.path.append(str(project_root.parent.parent))
+
 from dotenv import load_dotenv
 
-from src.celery_tasks.process_update import logger
+from logger_config import logger
 
 load_dotenv()
 parser = argparse.ArgumentParser(
@@ -29,20 +35,18 @@ args = parser.parse_args()
 environment = args.environment
 test_type = args.directory_path
 directory_path = "test-files" if test_type == "test" else "test-files/stress-test"
-prod = "https://bulk-auth-update-gsgdb6fsefcfbpbn.eastus-01.azurewebsites.net"
+prod = "http://cr-bot.westus2.cloudapp.azure.com"
 local = "http://localhost:8000"
 
 url = f"{local if environment == 'local' else prod}/authorization"
+task_ids = []
+headers = {"X-Secret-Key": os.getenv("SECRET_KEY")}
 for filename in os.listdir(directory_path):
     file_path = os.path.join(directory_path, filename)
     try:
         if os.path.isfile(file_path):
             with open(file_path, "rb") as file:
                 base64data = base64.b64encode(file.read()).decode("utf-8")
-            headers = {
-                "X-Secret-Key": os.getenv("SECRET_KEY"),
-                "Content-Type": "application/json",
-            }
             if "Switch back" in filename:
                 filename = filename.replace("Switch back", "").strip()
                 logger.info("Switching back: " + os.path.splitext(filename)[0])
@@ -56,42 +60,66 @@ for filename in os.listdir(directory_path):
                 "type": os.path.splitext(filename)[0],
                 "instance": "Kadiant",
             }
-            response = requests.post(url, headers=headers, json=data)
-            if response.status_code == 200:
-                file = io.BytesIO(response.content)
-                try:
-                    df = pd.read_excel(file, engine="openpyxl")
-                except Exception as e:
-                    raise Exception(
-                        "error: Failed to read Excel file. Please check the file format."
-                    )
-                if "status" in df.columns:
-                    total_count = len(df["status"])
-                    success_count = df["status"].eq("Successfully updated").sum()
-                    fail_count = df["status"].eq("Failed to update").sum()
-                    already_count = df["status"].eq("Already updated").sum()
-                    success_count = (
-                        (success_count / total_count) * 100 if total_count > 0 else 0
-                    )
-                    fail_count = (
-                        (fail_count / total_count) * 100 if total_count > 0 else 0
-                    )
-                    already_count = (
-                        (already_count / total_count) * 100 if total_count > 0 else 0
-                    )
-                    if success_count > 0:
-                        print(f"{success_count}% Successfully updated")
-                    if fail_count > 0:
-                        print(f"{fail_count}% Failed to update")
-                    if already_count > 0:
-                        print(f"{already_count}% already updated")
-                    if success_count + fail_count + already_count == 0:
-                        print("Something went wrong")
-                else:
-                    print("The 'Update' column was not found in the Excel file.")
-            elif response.status_code == 502:
-                raise Exception("Server overloaded")
-            else:
-                raise Exception(response.json())
+            response = requests.post(
+                url, headers={**headers, "Content-Type": "application/json"}, json=data
+            )
+            print(response.text)
+            if response.status_code == 202:
+                data = response.json()
+                task_ids.append(data.get("task_id"))
     except Exception as e:
         logger.error(f"Error: {e}")
+
+time.sleep(10)
+logger.info("sleeping for 10 seconds")
+while len(task_ids) > 0:
+    for task_id in task_ids:
+        try:
+            res = requests.get(url + "/status/" + task_id, headers=headers)
+            data = res.json()
+            if data.get("state") != "PENDING":
+                res2 = requests.get(url + "/download/" + task_id, headers=headers)
+                task_ids.remove(task_id)
+                if res2.status_code == 200:
+                    file = io.BytesIO(res2.content)
+                    try:
+                        df = pd.read_excel(file, engine="openpyxl")
+                    except Exception as e:
+                        raise Exception(
+                            "error: Failed to read Excel file. Please check the file format."
+                        )
+                    if "status" in df.columns:
+                        total_count = len(df["status"])
+                        success_count = df["status"].eq("Successfully updated").sum()
+                        fail_count = df["status"].eq("Failed to update").sum()
+                        already_count = df["status"].eq("Already updated").sum()
+                        success_count = (
+                            (success_count / total_count) * 100
+                            if total_count > 0
+                            else 0
+                        )
+                        fail_count = (
+                            (fail_count / total_count) * 100 if total_count > 0 else 0
+                        )
+                        already_count = (
+                            (already_count / total_count) * 100
+                            if total_count > 0
+                            else 0
+                        )
+                        if success_count > 0:
+                            print(f"{success_count}% Successfully updated")
+                        if fail_count > 0:
+                            print(f"{fail_count}% Failed to update")
+                        if already_count > 0:
+                            print(f"{already_count}% already updated")
+                        if success_count + fail_count + already_count == 0:
+                            print("Something went wrong")
+                    else:
+                        print("The 'Update' column was not found in the Excel file.")
+                else:
+                    raise Exception(res2.json())
+            else:
+                logger.info("Task still pending, sleeping for 10 seconds")
+                time.sleep(10)
+        except Exception as e:
+            logger.error(f"Error: {e}")
