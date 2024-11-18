@@ -26,7 +26,7 @@ def update_schedules(celery_task, resources: list[CRScheduleResource], instance:
         for index, resource in enumerate(resources):
             appointments = get_appointments(world.cr_session, resource.client_id)
             progress = ((index + 1) / len(resources)) * 100
-            celery_task.update_state(state="PENDING", meta={"progress": progress})
+            celery_task.update_state(state="PENDING", meta={"progress": int(progress)})
             if len(appointments) == 0:
                 raise Exception("No appointments scheduled for this resource")
             try:

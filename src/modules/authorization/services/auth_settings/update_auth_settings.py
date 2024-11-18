@@ -23,7 +23,9 @@ def update_auth_settings(
         for index, resource in enumerate(resources_to_update):
             try:
                 progress = ((index + 1) / len(resources_to_update)) * 100
-                celery_task.update_state(state="PENDING", meta={"progress": progress})
+                celery_task.update_state(
+                    state="PENDING", meta={"progress": int(progress)}
+                )
                 auth_settings = load_auth_settings(cr_session, resource.resource_id)
                 if len(auth_settings) == 0:
                     raise Exception("No authorization settings found")
