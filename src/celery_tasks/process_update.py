@@ -33,12 +33,12 @@ def process_update(self, file_content, update_type_str, instance):
 
         update_type = UpdateType(update_type_str)
         resources = get_resource_arr(update_type, df)
-        for resource in chunk_list(resources, 3):
+        for chunk in chunk_list(resources, 5):
             if update_type == UpdateType.SCHEDULE:
-                updated_schedules = update_schedules(self, [resource], instance)
+                updated_schedules = update_schedules(self, chunk, instance)
                 updated_file = get_updated_file(df, updated_schedules, "client_id")
             else:
-                updated_settings = update_auth_settings(self, [resource], instance)
+                updated_settings = update_auth_settings(self, chunk, instance)
                 updated_file = get_updated_file(df, updated_settings, "resource_id")
             with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as temp_file:
                 temp_file.write(updated_file.getvalue())
