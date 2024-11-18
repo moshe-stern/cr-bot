@@ -18,7 +18,6 @@ def update():
     update_type_str = data.get("type")
     base64_content = file.get("$content")
     task = process_update.apply_async(args=[base64_content, update_type_str, instance])
-    print(task.info)
     return jsonify({"task_id": task.id}), 202
 
 

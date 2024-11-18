@@ -6,6 +6,7 @@ from typing import Union
 from playwright.sync_api import sync_playwright
 from src.actions.schedule import get_appointments
 from src.api import API
+from src.celery_tasks.process_update import logger
 from src.modules.shared.log_in import log_in, check_for_multiple_login
 from src.modules.shared.start import start, get_world
 from src.resources import CRScheduleResource
@@ -64,6 +65,6 @@ def update_schedules(resources: list[CRScheduleResource], instance: str):
                     updated_resources[resource.client_id] = True
             except Exception as e:
                 updated_resources[resource.client_id] = False
-                print(f"Failed to update resource {resource.client_id}: {e}")
+                logger.error(f"Failed to update resource {resource.client_id}: {e}")
         world.close()
         return updated_resources

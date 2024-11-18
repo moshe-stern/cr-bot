@@ -16,7 +16,6 @@ def start(p: Playwright, instance: str):
     cr_instance = orgs[instance]
     if not cr_instance:
         raise Exception("Invalid cr instance")
-    print("hi", cr_instance)
     cr_session = CRSession(cr_instance)
     print(cr_session)
     context = browser.new_context()

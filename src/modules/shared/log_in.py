@@ -8,7 +8,6 @@ def log_in():
     world = get_world()
     page = world.page
     page.goto("https://login.centralreach.com/login")
-    print("Logging in")
     email = page.get_by_placeholder("Email address")
     email.wait_for(state="visible")
     email.fill("kadiant.automate@kadiant.com")

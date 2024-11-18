@@ -12,7 +12,6 @@ def update_payors(payor_resource: CRPayerResource):
     combo = page.get_by_role("combobox")
     combo.click()
     combo.select_option(payor_resource.global_payer)
-    print("selected payer")
     page.keyboard.press("Enter")
     page.get_by_role("button", name="Save", exact=True).click()
     if not global_payer:
@@ -33,5 +32,4 @@ def set_global_payer(page: Page, payer: str):
     combo.click()
     combo.select_option(global_payer)
     page.keyboard.press("Enter")
-    print("set global payer")
     page.get_by_role("button", name="Save Changes").click()

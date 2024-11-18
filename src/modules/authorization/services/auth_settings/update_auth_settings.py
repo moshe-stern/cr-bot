@@ -3,6 +3,7 @@ from typing import List, Union
 from playwright.sync_api import Page, sync_playwright
 from src.actions.auth_settings import load_auth_settings
 from src.api import API
+from src.celery_tasks.process_update import logger
 from src.modules.shared.log_in import log_in, check_for_multiple_login
 from src.modules.shared.start import get_world, start
 from src.resources import CRResource
@@ -36,14 +37,12 @@ def update_auth_settings(resources_to_update: List[CRResource], instance: str):
                     updated_resources[resource.resource_id] = updated_settings
             except Exception as e:
                 updated_resources[resource.resource_id] = False
-                print(f"Failed to update resource {resource.resource_id}: {e}")
+                logger.error(f"Failed to update resource {resource.resource_id}: {e}")
         world.close()
-        print("Finished")
         return updated_resources
 
 
 def goto_auth_settings(page: Page, authorization_page):
-    print("Navigate to main page")
     page.goto(authorization_page)
     if (
         page.url != authorization_page

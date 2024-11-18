@@ -8,6 +8,8 @@ import os
 
 from dotenv import load_dotenv
 
+from src.celery_tasks.process_update import logger
+
 load_dotenv()
 parser = argparse.ArgumentParser(
     description="Run the application in a specific environment."
@@ -43,9 +45,9 @@ for filename in os.listdir(directory_path):
             }
             if "Switch back" in filename:
                 filename = filename.replace("Switch back", "").strip()
-                print("Switching back: " + os.path.splitext(filename)[0])
+                logger.info("Switching back: " + os.path.splitext(filename)[0])
             else:
-                print(os.path.splitext(filename)[0])
+                logger.info(os.path.splitext(filename)[0])
             data = {
                 "file": {
                     "$content-type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -92,4 +94,4 @@ for filename in os.listdir(directory_path):
             else:
                 raise Exception(response.json())
     except Exception as e:
-        print(f"Error: {e}")
+        logger.error(f"Error: {e}")

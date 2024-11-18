@@ -7,7 +7,6 @@ from src.resources import CRCodeResource
 
 
 def update_service_codes(code_resource: CRCodeResource) -> bool:
-    print("update_service_codes")
     world = get_world()
     page = world.page
     cr_session = world.cr_session
@@ -17,11 +16,9 @@ def update_service_codes(code_resource: CRCodeResource) -> bool:
     updated_codes = [0, 0]
     for code in code_resource.to_add:
         if len(get_service_codes(cr_session, code)) == 0:
-            print("Code not found:", code)
             continue
         has_code = page.locator("#service-codes div").get_by_text(code, exact=True)
         if has_code.is_visible():
-            print("Has code:", code)
             continue
         add = page.get_by_role("link", name="Add service code")
         add.click()
@@ -31,7 +28,6 @@ def update_service_codes(code_resource: CRCodeResource) -> bool:
         time.sleep(2)
         page.keyboard.press("Enter")
         updated_codes[0] += 1
-        print("Adding code:", code)
     for code in code_resource.to_remove:
         remove = page.locator(".list-group-item").get_by_text(code, exact=True)
         is_remove = remove.is_visible()
@@ -41,9 +37,6 @@ def update_service_codes(code_resource: CRCodeResource) -> bool:
             delete_button.wait_for(state="visible")
             delete_button.click()
             updated_codes[1] += 1
-            print("Deleted:", code)
-        else:
-            print("Code not found:", code)
     page.get_by_role("button", name="Save", exact=True).click()
     return updated_codes[0] == len(code_resource.to_add) and updated_codes[1] == len(
         code_resource.to_remove
