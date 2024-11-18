@@ -3,7 +3,7 @@ from typing import List, Union
 from playwright.sync_api import Page, sync_playwright
 from src.actions.auth_settings import load_auth_settings
 from src.api import API
-from src.celery_tasks.process_update import logger
+from logger_config import logger
 from src.modules.shared.log_in import log_in, check_for_multiple_login
 from src.modules.shared.start import get_world, start
 from src.resources import CRResource
