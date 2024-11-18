@@ -1,48 +1,66 @@
-import base64
+import os
 import time
 
-from src.modules.authorization.services.schedule.update_schedules import (
-    update_schedules,
-)
-from src.modules.shared.helpers.get_data_frame import get_data_frame
-from src.modules.shared.helpers.get_json import get_json
-from src.modules.shared.helpers.get_updated_file import get_updated_file
-from src.resources import UpdateType
-from src.modules.shared.helpers.get_resource_arr import (
-    get_resource_arr,
-)
-from src.modules.authorization.services.auth_settings.update_auth_settings import (
-    update_auth_settings,
-)
 from flask import request, jsonify, send_file, Blueprint
+
+from celery_app import celery
+from src.celery_tasks.cleanup_file import cleanup_file
+from src.celery_tasks.process_update import process_update
 
 authorization = Blueprint("authorization", __name__, url_prefix="/authorization")
 
 
 @authorization.route("", methods=["POST"])
 def update():
-    data = get_json(request)
+    data = request.get_json()
     file = data.get("file")
     instance = data.get("instance")
-    base64_content = file.get("$content")
-    file_data = base64.b64decode(base64_content)
-    df = get_data_frame(file_data)
     update_type_str = data.get("type")
-    if update_type_str not in UpdateType:
-        return jsonify({"error": "Not valid update type specified"}), 400
-    update_type = UpdateType(update_type_str)
-    resources = get_resource_arr(update_type, df)
-    updated_file = None
-    if update_type == UpdateType.SCHEDULE:
-        updated_schedules = update_schedules(resources, instance)
-        updated_file = get_updated_file(df, updated_schedules, "client_id")
-    else:
-        updated_settings = update_auth_settings(resources, instance)
-        updated_file = get_updated_file(df, updated_settings, "resource_id")
+    base64_content = file.get("$content")
+    task = process_update.apply_async(args=[base64_content, update_type_str, instance])
+    print(task.info)
+    return jsonify({"task_id": task.id}), 202
 
-    return send_file(
-        updated_file,
-        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        as_attachment=True,
-        download_name="updated_file.xlsx",
-    )
+
+@authorization.route("/status/<task_id>", methods=["GET"])
+def check_task_status(task_id):
+    task = celery.AsyncResult(task_id)
+    response = {}
+    if task.state == "PENDING":
+        response = {"state": task.state, "status": "Pending..."}
+    elif task.state == "SUCCESS":
+        response = {
+            "state": task.state,
+            "file_url": f"/authorization/download/{task_id}",
+        }
+    elif task.state == "FAILURE":
+        response = {"state": task.state, "status": str(task.info)}  #
+    return response
+
+
+@authorization.route("/download/<task_id>", methods=["GET"])
+def download_file(task_id):
+    task = celery.AsyncResult(task_id)
+    if task.state == "SUCCESS":
+        file_path = task.result
+        try:
+            response = send_file(
+                file_path,
+                as_attachment=True,
+                download_name="updated_file.xlsx",
+                mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+            task.forget()
+            cleanup_file.apply_async(
+                (file_path,), countdown=30
+            )  # Cleanup task runs after 30 seconds
+            return response
+        except Exception as e:
+            return jsonify({"error": f"Error serving file: {str(e)}"}), 500
+    elif task.state == "PENDING":
+        return jsonify({"error": "Task is still pending"}), 202
+    elif task.state == "FAILURE":
+        task.forget()
+        return jsonify({"error": "Task failed"}), 400
+    else:
+        return jsonify({"error": "Task not ready or invalid"}), 400

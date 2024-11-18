@@ -4,9 +4,12 @@ from dataclasses import dataclass
 import requests
 import os
 
+from dotenv import load_dotenv
 from playwright.sync_api import Page
 
 from src.org import CrORG
+
+load_dotenv()
 
 
 @dataclass
@@ -27,6 +30,7 @@ class CRSession(requests.Session):
         )
         self._client_id: str = os.getenv(f"CR_API_ID_{org.org_str}_{org.org_type}")
         self._api_key: str = os.getenv(f"CR_API_KEY_{org.org_str}_{org.org_type}")
+        print(self._client_secret, self._client_id, self._client_id)
         self._cr_token_response: CR_TokenResponse = None
         self._csrf_token = None
         self._make_crsf_token()

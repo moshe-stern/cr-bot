@@ -14,13 +14,15 @@ def start(p: Playwright, instance: str):
     global world
     browser = p.chromium.launch(headless=not os.getenv("DEVELOPMENT"))
     cr_instance = orgs[instance]
+    if not cr_instance:
+        raise Exception("Invalid cr instance")
+    print("hi", cr_instance)
     cr_session = CRSession(cr_instance)
+    print(cr_session)
     context = browser.new_context()
     req = context.request
     playwright_make_cookies(req, cr_session.cr_token_response.access_token)
     page = context.new_page()
-    if not cr_instance:
-        raise Exception("Invalid cr instance")
     world = World(page, cr_session, browser)
 
 

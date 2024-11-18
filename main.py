@@ -1,12 +1,14 @@
 import os
 
+from celery import Celery
 from dotenv import load_dotenv
 from flask import Flask
 
 from src.modules.authorization.controller import authorization
 from src.modules.shared.error_handler import register_error_handlers
 
-load_dotenv()
+if not load_dotenv():
+    raise Exception("Failed to load dotenv")
 app = Flask(__name__)
 register_error_handlers(app)
 app.register_blueprint(authorization)
