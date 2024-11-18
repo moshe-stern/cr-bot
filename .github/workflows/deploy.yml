@@ -29,5 +29,4 @@ jobs:
           cd cr-fn &&
           git pull origin main &&
           sudo systemctl restart cr-bot &&
-          sudo systemctl restart celery
-        "
+          sudo systemctl restart celery"
