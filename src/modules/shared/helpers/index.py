@@ -16,9 +16,11 @@ class NoAppointmentsFound(Exception):
     pass
 
 
-def update_task_progress(task_id, progress):
+def update_task_progress(task_id, progress, child_id):
     parent_meta = celery.backend.get_task_meta(task_id)
-    meta = parent_meta.get("meta", {})
-    meta.setdefault("progress", 0)
-    meta["progress"] += progress
-    celery.backend.store_result(task_id, meta, "PENDING")
+    existing = parent_meta.get("result") or {}
+    if not existing.get(f"child_progress_{child_id}"):
+        existing[f"child_progress_{child_id}"] = progress
+    else:
+        existing[f"child_progress_{child_id}"] += progress
+    celery.backend.store_result(task_id, existing, "PENDING")

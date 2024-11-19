@@ -1,3 +1,4 @@
+import asyncio
 import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from concurrent.futures.process import ProcessPoolExecutor
@@ -8,7 +9,7 @@ import base64
 import logging
 import tempfile
 
-from playwright.sync_api import sync_playwright
+from playwright.async_api import async_playwright
 
 from celery_app import celery
 from src.modules.shared.helpers.get_data_frame import get_data_frame
@@ -33,6 +34,10 @@ logger = logging.getLogger(__name__)
 
 @celery.task(bind=True)
 def process_update(self, file_content, update_type_str, instance):
+    asyncio.run(_process_update(self, file_content, update_type_str, instance))
+
+
+async def _process_update(self, file_content, update_type_str, instance):
     logger.info(f"Starting process_update with type: {update_type_str}")
     try:
         file_data = base64.b64decode(file_content)
@@ -44,20 +49,30 @@ def process_update(self, file_content, update_type_str, instance):
         resources = get_resource_arr(update_type, df)
         chunks = chunk_list(resources, 3)
         combined_results = {}
-        with sync_playwright() as p:
-            start(p, instance)
-            with ThreadPoolExecutor() as executor:
-                futures = [
-                    executor.submit(process_chunk, self.request.id, chunk, update_type)
-                    for chunk in chunks
-                ]
-                for future in as_completed(futures):
-                    try:
-                        result = future.result()
-                        with lock:
-                            combined_results.update(result)
-                    except Exception as e:
-                        logger.error(f"Error processing chunk: {e}")
+        async with async_playwright() as p:
+            playwright_data = await start(p, instance)
+            context = playwright_data["context"]
+            session = playwright_data["session"]
+
+            async def process_chunk_wrapper(chunk, child_id):
+                """Wrapper to handle chunk processing with its own page."""
+                async with await context.new_page() as page:
+                    return await process_chunk(
+                        self.request.id, child_id, chunk, update_type, page, session
+                    )
+
+            chunk_results = await asyncio.gather(
+                *(
+                    process_chunk_wrapper(chunk, index + 1)
+                    for index, chunk in enumerate(chunks)
+                )
+            )
+            for result in chunk_results:
+                if isinstance(result, Exception):
+                    logger.error(f"Error processing chunk: {result}")
+                else:
+                    combined_results.update(result)
+
         key_column = (
             "client_id" if update_type == UpdateType.SCHEDULE else "resource_id"
         )
@@ -79,8 +94,11 @@ def process_update(self, file_content, update_type_str, instance):
         return "Failed"
 
 
-def process_chunk(parent_task_id, chunk, update_type):
+async def process_chunk(parent_task_id, child_id, chunk, update_type, page, cr_session):
+    print(child_id, "child_id")
     if update_type == UpdateType.SCHEDULE:
-        return update_schedules(parent_task_id, chunk)
+        return await update_schedules(parent_task_id, child_id, chunk, page, cr_session)
     else:
-        return update_auth_settings(parent_task_id, chunk)
+        return await update_auth_settings(
+            parent_task_id, child_id, chunk, page, cr_session
+        )

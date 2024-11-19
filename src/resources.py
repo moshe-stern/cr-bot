@@ -1,8 +1,9 @@
 import dataclasses
 from dataclasses import dataclass
-from typing import List, Callable, Union, TypeVar
+from typing import List, Callable, Union, TypeVar, Awaitable
 from enum import Enum
-from playwright.sync_api import Page
+
+from playwright.async_api import Page
 
 T = TypeVar("T", bound="CRResource")
 
@@ -15,9 +16,9 @@ class UpdateType(Enum):
 
 class CRResource:
     resource_id: int
-    update: Callable[[T], bool]
+    update: Callable[[T, Page], Awaitable[bool]]
 
-    def __init__(self, resource_id: int, update: Callable[[T], bool]):
+    def __init__(self, resource_id: int, update: Callable[[T, Page], Awaitable[bool]]):
         self.resource_id = resource_id
         self.update = update
 
@@ -29,7 +30,7 @@ class CRCodeResource(CRResource):
     def __init__(
         self,
         resource_id: int,
-        update: Callable[["CRCodeResource"], bool],
+        update: Callable[["CRCodeResource", Page], Awaitable[bool]],
         to_remove: List[str] = None,
         to_add: List[str] = None,
     ):
@@ -44,7 +45,7 @@ class CRPayerResource(CRResource):
     def __init__(
         self,
         resource_id: int,
-        update: Callable[["CRPayerResource"], bool],
+        update: Callable[["CRPayerResource", Page], Awaitable[bool]],
         global_payer: str,
     ):
         super().__init__(resource_id, update)

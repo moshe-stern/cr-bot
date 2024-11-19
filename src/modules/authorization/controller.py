@@ -1,4 +1,5 @@
 import os
+import re
 import time
 
 from flask import request, jsonify, send_file, Blueprint
@@ -26,8 +27,16 @@ def check_task_status(task_id):
     task = celery.AsyncResult(task_id)
     response = {}
     if task.state == "PENDING":
-        progress = task.info.get("progress")
-        response = {"state": task.state, "progress": progress}
+        child_progress_pattern = re.compile(r"^child_progress_")
+        total_child_progress = [
+            value
+            for key, value in task.info.items()
+            if child_progress_pattern.match(key)
+        ]
+        response = {
+            "state": task.state,
+            "progress": sum(total_child_progress) / len(total_child_progress),
+        }
     elif task.state == "SUCCESS":
         response = {
             "state": task.state,

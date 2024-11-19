@@ -1,4 +1,4 @@
-from playwright.sync_api import Page, Browser, Playwright, BrowserContext
+from playwright.async_api import Page, Browser, Playwright, BrowserContext
 
 from src.session import CRSession
 
