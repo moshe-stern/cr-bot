@@ -92,7 +92,9 @@ while len(task_ids) > 0:
                         total_count = len(df["status"])
                         success_count = df["status"].eq("Successfully updated").sum()
                         fail_count = df["status"].eq("Failed to update").sum()
-                        already_count = df["status"].eq("Already updated").sum()
+                        already_count = (
+                            df["status"].eq("Didn't fail, but didn't update").sum()
+                        )
                         success_count = (
                             (success_count / total_count) * 100
                             if total_count > 0
@@ -111,7 +113,7 @@ while len(task_ids) > 0:
                         if fail_count > 0:
                             print(f"{fail_count}% Failed to update")
                         if already_count > 0:
-                            print(f"{already_count}% already updated")
+                            print(f"{already_count}% Didn't fail, but didn't update")
                         if success_count + fail_count + already_count == 0:
                             print("Something went wrong")
                     else:
@@ -123,6 +125,6 @@ while len(task_ids) > 0:
                     f"Task still pending, sleeping for {100 - data.get('progress')} seconds"
                 )
                 logger.info(f"Progress: {data.get('progress')}%")
-                time.sleep(100 - data.get("progress"))
+                time.sleep(60)
         except Exception as e:
             logger.error(f"Error: {e}")

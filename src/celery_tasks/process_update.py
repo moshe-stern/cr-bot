@@ -17,7 +17,6 @@ from src.modules.authorization.services.auth_settings.update_auth_settings impor
 )
 
 
-# Logging setup
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 

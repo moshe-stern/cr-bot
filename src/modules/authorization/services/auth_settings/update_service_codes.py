@@ -17,6 +17,7 @@ def update_service_codes(code_resource: CRCodeResource) -> bool:
     for code in code_resource.to_add:
         if len(get_service_codes(cr_session, code)) == 0:
             continue
+        updated_codes[0] += 1
         has_code = page.locator("#service-codes div").get_by_text(code, exact=True)
         if has_code.is_visible():
             continue
@@ -27,7 +28,6 @@ def update_service_codes(code_resource: CRCodeResource) -> bool:
         page.expect_response(API.SERVICE_CODES.GET)
         time.sleep(2)
         page.keyboard.press("Enter")
-        updated_codes[0] += 1
     for code in code_resource.to_remove:
         remove = page.locator(".list-group-item").get_by_text(code, exact=True)
         is_remove = remove.is_visible()

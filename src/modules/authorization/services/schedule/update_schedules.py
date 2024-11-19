@@ -8,6 +8,7 @@ from playwright.sync_api import sync_playwright
 from logger_config import logger
 from src.actions.schedule import get_appointments
 from src.api import API
+from src.modules.shared.helpers.index import NoAppointmentsFound
 from src.modules.shared.log_in import log_in, check_for_multiple_login
 from src.modules.shared.start import start, get_world
 from src.resources import CRScheduleResource
@@ -18,17 +19,17 @@ def update_schedules(celery_task, resources: list[CRScheduleResource], instance:
         updated_resources: dict[int, Union[bool, None]] = {
             resource.client_id: None for resource in resources
         }
-        codes_added = 0
         start(p, instance)
         world = get_world()
         page = world.page
         date_today = datetime.now().strftime("%Y-%m-%d")
         for index, resource in enumerate(resources):
+            codes_added = 0
             appointments = get_appointments(world.cr_session, resource.client_id)
             progress = ((index + 1) / len(resources)) * 100
             celery_task.update_state(state="PENDING", meta={"progress": int(progress)})
             if len(appointments) == 0:
-                raise Exception("No appointments scheduled for this resource")
+                raise NoAppointmentsFound("No appointments scheduled for this resource")
             try:
                 for appointment in appointments:
                     page.goto(
@@ -65,9 +66,11 @@ def update_schedules(celery_task, resources: list[CRScheduleResource], instance:
                         "Update From Bot"
                     )
                     page.get_by_text("Save", exact=True).click()
-                    updated_resources[resource.client_id] = True
+            except NoAppointmentsFound as e:
+                logger.error(f"Failed to update resource {resource.client_id}: {e}")
             except Exception as e:
                 updated_resources[resource.client_id] = False
                 logger.error(f"Failed to update resource {resource.client_id}: {e}")
+            updated_resources[resource.client_id] = codes_added == len(resource.codes)
         world.close()
         return updated_resources

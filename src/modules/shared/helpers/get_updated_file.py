@@ -16,7 +16,7 @@ def get_updated_file(
             else (
                 "Failed to update"
                 if updated_settings[row[col_name]] == False
-                else "Already updated"
+                else "Didn't fail, but didn't update"
             )
         ),
         axis=1,
