@@ -1,14 +1,15 @@
 import time
 
+from playwright.sync_api import Page
+
 from src.actions.auth_settings import get_service_codes
 from src.api import API
 from src.modules.shared.start import get_world
 from src.resources import CRCodeResource
 
 
-def update_service_codes(code_resource: CRCodeResource) -> bool:
+def update_service_codes(code_resource: CRCodeResource, page: Page) -> bool:
     world = get_world()
-    page = world.page
     cr_session = world.cr_session
     service_codes = page.get_by_role("link", name="Service Code(s)")
     service_codes.wait_for(state="visible")

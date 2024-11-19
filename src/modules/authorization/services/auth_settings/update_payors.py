@@ -6,9 +6,7 @@ from src.resources import CRPayerResource
 global_payer = None
 
 
-def update_payors(payor_resource: CRPayerResource):
-    world = get_world()
-    page = world.page
+def update_payors(payor_resource: CRPayerResource, page: Page):
     combo = page.get_by_role("combobox")
     combo.click()
     combo.select_option(payor_resource.global_payer)

@@ -1,4 +1,4 @@
-from playwright.sync_api import Page, Browser, Playwright
+from playwright.sync_api import Page, Browser, Playwright, BrowserContext
 
 from src.session import CRSession
 
@@ -6,14 +6,8 @@ from src.session import CRSession
 class World:
     def __init__(
         self,
-        page: Page,
+        context: BrowserContext,
         cr_session: CRSession,
-        browser: Browser,
     ):
-        self.page = page
+        self.context = context
         self.cr_session = cr_session
-        self.browser = browser
-
-    def close(self):
-        self.page.close()
-        self.browser.close()

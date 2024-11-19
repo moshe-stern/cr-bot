@@ -17,12 +17,10 @@ def start(p: Playwright, instance: str):
     if not cr_instance:
         raise Exception("Invalid cr instance")
     cr_session = CRSession(cr_instance)
-    print(cr_session)
     context = browser.new_context()
     req = context.request
     playwright_make_cookies(req, cr_session.cr_token_response.access_token)
-    page = context.new_page()
-    world = World(page, cr_session, browser)
+    world = World(context, cr_session)
 
 
 def get_world() -> World:

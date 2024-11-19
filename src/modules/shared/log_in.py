@@ -1,12 +1,12 @@
 import time
 
+from playwright.sync_api import Page
+
 from src.api import API
 from src.modules.shared.start import get_world
 
 
-def log_in():
-    world = get_world()
-    page = world.page
+def log_in(page: Page):
     page.goto("https://login.centralreach.com/login")
     email = page.get_by_placeholder("Email address")
     email.wait_for(state="visible")
@@ -20,12 +20,10 @@ def log_in():
     cr_instance = page.get_by_test_id("ent-prod|kadiantadmin")
     cr_instance.wait_for(state="visible")
     cr_instance.click()
-    check_for_multiple_login()
+    check_for_multiple_login(page)
 
 
-def check_for_multiple_login():
-    world = get_world()
-    page = world.page
+def check_for_multiple_login(page: Page):
     home = page.get_by_text(
         "HomeContactsFilesBillingClaimsHRSchedulingClinicalInsightsKADIANT LLC"
     )

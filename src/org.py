@@ -1,5 +1,17 @@
 from dataclasses import dataclass
 
+from enum import Enum
+
+
+class CrORGType(Enum):
+    HOME = "HOME"
+    SCHOOL = "SCHOOL"
+
+
+class CrORGStr(Enum):
+    KADIANT = "KADIANT"
+    ATTAIN = "ATTAIN"
+
 
 @dataclass
 class CrORG:
@@ -10,6 +22,10 @@ class CrORG:
 
 
 orgs: dict[str, CrORG] = {
-    "Kadiant": CrORG(427999, "kadiantadmin", "HOME", "KADIANT"),
-    "Attain TSS": CrORG(1098187, "brightadmin", "HOME", "ATTAIN"),
+    "Kadiant": CrORG(
+        427999, "kadiantadmin", CrORGType.HOME.value, CrORGStr.KADIANT.value
+    ),
+    "Attain TSS": CrORG(
+        1098187, "brightadmin", CrORGType.HOME.value, CrORGStr.ATTAIN.value
+    ),
 }
