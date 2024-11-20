@@ -65,11 +65,11 @@ async def update_schedules(
                     "Update From Bot"
                 )
                 await page.get_by_text("Save", exact=True).click()
+            updated_resources[resource.client_id] = codes_added == len(resource.codes)
         except NoAppointmentsFound as e:
             logger.error(f"Failed to update resource {resource.client_id}: {e}")
         except Exception as e:
             updated_resources[resource.client_id] = False
             logger.error(f"Failed to update resource {resource.client_id}: {e}")
         update_task_progress(parent_task_id, index + 1, child_id)
-        updated_resources[resource.client_id] = codes_added == len(resource.codes)
     return updated_resources
