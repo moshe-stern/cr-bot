@@ -1,7 +1,4 @@
-import time
-from asyncio import wait_for
 from datetime import datetime
-from threading import Lock
 from typing import Union
 
 from playwright.async_api import Page
@@ -10,16 +7,12 @@ from logger_config import logger
 from src.actions.schedule import get_appointments
 from src.api import API
 from src.modules.shared.helpers.index import NoAppointmentsFound, update_task_progress
-from src.modules.shared.log_in import log_in, check_for_multiple_login
-from src.resources import CRScheduleResource, CRPayerResource
-from src.session import CRSession
-
-world_lock = Lock()
+from src.modules.shared.log_in import check_for_multiple_login
+from src.modules.shared.start import get_cr_session
 
 
-async def update_schedules(
-    parent_task_id, child_id, resources, page: Page, cr_session: CRSession
-):
+async def update_schedules(parent_task_id, child_id, resources, page: Page):
+    cr_session = get_cr_session()
     updated_resources: dict[int, Union[bool, None]] = {
         resource.client_id: None for resource in resources
     }

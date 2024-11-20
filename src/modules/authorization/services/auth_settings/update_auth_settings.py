@@ -11,17 +11,14 @@ from src.modules.shared.helpers.index import (
     update_task_progress,
 )
 from src.modules.shared.log_in import log_in, check_for_multiple_login
+from src.modules.shared.start import get_cr_session
 from src.resources import CRResource
-from src.session import CRSession
 
 
 async def update_auth_settings(
-    parent_task_id,
-    child_id,
-    resources_to_update: List[CRResource],
-    page: Page,
-    cr_session: CRSession,
+    parent_task_id, child_id, resources_to_update: List[CRResource], page: Page
 ):
+    cr_session = get_cr_session()
     updated_resources: dict[int, Union[bool, None]] = {
         resource.resource_id: None for resource in resources_to_update
     }

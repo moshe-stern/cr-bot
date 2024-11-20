@@ -52,15 +52,13 @@ async def _process_update(self, file_content, update_type_str, instance):
         chunks: list[list[CRResource]] = divide_list(resources, 8)
         combined_results = {}
         async with async_playwright() as p:
-            playwright_data = await start(p, instance)
-            context = playwright_data["context"]
-            session = playwright_data["session"]
+            context = await start(p, instance)
 
             async def process_chunk_wrapper(chunk, child_id):
                 """Wrapper to handle chunk processing with its own page."""
                 async with await context.new_page() as page:
                     return await process_chunk(
-                        self.request.id, child_id, chunk, update_type, page, session
+                        self.request.id, child_id, chunk, update_type, page
                     )
 
             chunk_results = await asyncio.gather(
@@ -96,10 +94,8 @@ async def _process_update(self, file_content, update_type_str, instance):
         return "Failed"
 
 
-async def process_chunk(parent_task_id, child_id, chunk, update_type, page, cr_session):
+async def process_chunk(parent_task_id, child_id, chunk, update_type, page):
     if update_type == UpdateType.SCHEDULE:
-        return await update_schedules(parent_task_id, child_id, chunk, page, cr_session)
+        return await update_schedules(parent_task_id, child_id, chunk, page)
     else:
-        return await update_auth_settings(
-            parent_task_id, child_id, chunk, page, cr_session
-        )
+        return await update_auth_settings(parent_task_id, child_id, chunk, page)

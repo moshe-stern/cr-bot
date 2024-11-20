@@ -4,13 +4,13 @@ from playwright.async_api import Page
 
 from src.actions.auth_settings import get_service_codes
 from src.api import API
+from src.modules.shared.start import get_cr_session
 from src.resources import CRCodeResource
 from src.session import CRSession
 
 
-async def update_service_codes(
-    code_resource: CRCodeResource, page: Page, cr_session: CRSession
-) -> bool:
+async def update_service_codes(code_resource: CRCodeResource, page: Page) -> bool:
+    cr_session = get_cr_session()
     service_codes = page.get_by_role("link", name="Service Code(s)")
     await service_codes.wait_for(state="visible")
     await service_codes.click()
