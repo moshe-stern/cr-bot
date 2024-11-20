@@ -27,8 +27,6 @@ async def update_auth_settings(
     }
     for index, resource in enumerate(resources_to_update):
         try:
-            progress = ((index + 1) / len(resources_to_update)) * 100
-            update_task_progress(parent_task_id, progress, child_id)
             auth_settings = load_auth_settings(cr_session, resource.resource_id)
             if len(auth_settings) == 0:
                 raise AuthorizationSettingsNotFound("No authorization settings found")
@@ -36,10 +34,9 @@ async def update_auth_settings(
             await goto_auth_settings(page, authorization_page)
             for auth_setting in auth_settings:
                 group = page.locator(f"#group-auth-{auth_setting['Id']}")
+                edit = group.locator("a").nth(1)
                 await group.wait_for(state="visible")
                 await group.hover()
-                edit = group.locator("a").nth(1)
-                await edit.wait_for(state="visible")
                 await edit.click()
                 page.expect_response(API.AUTH_SETTINGS.LOAD_SETTING)
                 updated_settings = await resource.update(resource, page)
@@ -49,6 +46,7 @@ async def update_auth_settings(
         except Exception as e:
             updated_resources[resource.resource_id] = False
             logger.error(f"Failed to update resource {resource.resource_id}: {e}")
+        update_task_progress(parent_task_id, index, child_id)
     return updated_resources
 
 

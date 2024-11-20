@@ -27,8 +27,6 @@ async def update_schedules(
     for index, resource in enumerate(resources):
         codes_added = 0
         appointments = get_appointments(cr_session, resource.client_id)
-        progress = ((index + 1) / len(resources)) * 100
-        update_task_progress(parent_task_id, progress, child_id)
         try:
             if len(appointments) == 0:
                 raise NoAppointmentsFound("No appointments scheduled for this resource")
@@ -72,5 +70,6 @@ async def update_schedules(
         except Exception as e:
             updated_resources[resource.client_id] = False
             logger.error(f"Failed to update resource {resource.client_id}: {e}")
+        update_task_progress(parent_task_id, index + 1, child_id)
         updated_resources[resource.client_id] = codes_added == len(resource.codes)
     return updated_resources

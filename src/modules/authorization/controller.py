@@ -33,9 +33,12 @@ def check_task_status(task_id):
             for key, value in task.info.items()
             if child_progress_pattern.match(key)
         ]
+        child_sum = sum(total_child_progress)
+        if child_sum == 0:
+            child_sum = 1
         response = {
             "state": task.state,
-            "progress": sum(total_child_progress) / len(total_child_progress),
+            "progress": f"{child_sum} / {task.result.get('total_resources')}",
         }
     elif task.state == "SUCCESS":
         response = {

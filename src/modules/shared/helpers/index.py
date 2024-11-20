@@ -1,11 +1,26 @@
 from celery_app import celery
 
 
-def chunk_list(lst, n):
-    """Split a list into n roughly equal chunks."""
-    chunk_size = max(1, len(lst) // n)
-    for i in range(0, len(lst), chunk_size):
-        yield lst[i : i + chunk_size]
+def divide_list(lst, n):
+    """
+    Divide a list into n approximately equal parts.
+
+    Args:
+        lst (list): The list to be divided.
+        n (int): Number of parts to divide the list into.
+
+    Returns:
+        list: A list of n sublists, each containing a portion of the input list.
+    """
+    avg = len(lst) // n
+    remainder = len(lst) % n
+    parts = []
+    start = 0
+    for i in range(n):
+        end = start + avg + (1 if i < remainder else 0)
+        parts.append(lst[start:end])
+        start = end
+    return parts
 
 
 class AuthorizationSettingsNotFound(Exception):
@@ -19,8 +34,5 @@ class NoAppointmentsFound(Exception):
 def update_task_progress(task_id, progress, child_id):
     parent_meta = celery.backend.get_task_meta(task_id)
     existing = parent_meta.get("result") or {}
-    if not existing.get(f"child_progress_{child_id}"):
-        existing[f"child_progress_{child_id}"] = progress
-    else:
-        existing[f"child_progress_{child_id}"] += progress
+    existing[f"child_progress_{child_id}"] = progress
     celery.backend.store_result(task_id, existing, "PENDING")

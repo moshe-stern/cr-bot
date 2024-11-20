@@ -1,8 +1,5 @@
 import asyncio
-import json
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from concurrent.futures.process import ProcessPoolExecutor
-from dataclasses import asdict
+
 
 from celery import Celery, group
 import base64
@@ -14,9 +11,9 @@ from playwright.async_api import async_playwright
 from celery_app import celery
 from src.modules.shared.helpers.get_data_frame import get_data_frame
 from src.modules.shared.helpers.get_updated_file import get_updated_file
-from src.modules.shared.helpers.index import chunk_list
+from src.modules.shared.helpers.index import divide_list
 from src.modules.shared.start import start
-from src.resources import UpdateType
+from src.resources import UpdateType, CRResource
 from src.modules.shared.helpers.get_resource_arr import get_resource_arr
 from src.modules.authorization.services.schedule.update_schedules import (
     update_schedules,
@@ -34,7 +31,8 @@ logger = logging.getLogger(__name__)
 
 @celery.task(bind=True)
 def process_update(self, file_content, update_type_str, instance):
-    asyncio.run(_process_update(self, file_content, update_type_str, instance))
+    val = asyncio.run(_process_update(self, file_content, update_type_str, instance))
+    return val
 
 
 async def _process_update(self, file_content, update_type_str, instance):
@@ -47,7 +45,11 @@ async def _process_update(self, file_content, update_type_str, instance):
 
         update_type = UpdateType(update_type_str)
         resources = get_resource_arr(update_type, df)
-        chunks = chunk_list(resources, 3)
+        task = celery.backend.get_task_meta(self.request.id)
+        task_results = task.get("result") or {}
+        task_results["total_resources"] = len(resources)
+        celery.backend.store_result(self.request.id, task_results, "PENDING")
+        chunks: list[list[CRResource]] = divide_list(resources, 8)
         combined_results = {}
         async with async_playwright() as p:
             playwright_data = await start(p, instance)
@@ -95,7 +97,6 @@ async def _process_update(self, file_content, update_type_str, instance):
 
 
 async def process_chunk(parent_task_id, child_id, chunk, update_type, page, cr_session):
-    print(child_id, "child_id")
     if update_type == UpdateType.SCHEDULE:
         return await update_schedules(parent_task_id, child_id, chunk, page, cr_session)
     else:
