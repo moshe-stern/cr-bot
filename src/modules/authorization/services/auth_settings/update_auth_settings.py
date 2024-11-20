@@ -10,11 +10,9 @@ from src.modules.shared.helpers.index import (
     AuthorizationSettingsNotFound,
     update_task_progress,
 )
-from src.modules.shared.log_in import log_in, check_for_multiple_login
+from src.modules.shared.log_in import handle_dialogs
 from src.modules.shared.start import get_cr_session
 from src.resources import CRResource
-
-checked_multiple_log_in = False
 
 
 async def update_auth_settings(
@@ -26,6 +24,8 @@ async def update_auth_settings(
     }
     for index, resource in enumerate(resources_to_update):
         try:
+            await handle_dialogs(page)
+            removed_handler = False
             auth_settings = load_auth_settings(cr_session, resource.resource_id)
             if len(auth_settings) == 0:
                 raise AuthorizationSettingsNotFound("No authorization settings found")
@@ -36,6 +36,9 @@ async def update_auth_settings(
                 group = page.locator(f"#group-auth-{auth_setting['Id']}")
                 edit = group.locator("a").nth(1)
                 await group.wait_for(state="visible")
+                if not removed_handler:
+                    await handle_dialogs(page, True)
+                    removed_handler = True
                 await group.hover()
                 await edit.click()
                 page.expect_response(API.AUTH_SETTINGS.LOAD_SETTING)
@@ -51,13 +54,9 @@ async def update_auth_settings(
 
 
 async def goto_auth_settings(page: Page, authorization_page):
-    global checked_multiple_log_in
     await page.goto(authorization_page)
     if (
         page.url != authorization_page
         or await page.locator("text=Resource Not Found").is_visible()
     ):
         raise Exception("Resource does not exist")
-    if not checked_multiple_log_in:
-        await check_for_multiple_login(page)
-        checked_multiple_log_in = True

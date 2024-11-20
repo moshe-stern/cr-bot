@@ -27,14 +27,13 @@ parser.add_argument(
 )
 parser.add_argument(
     "directory_path",
-    default="test-files",
-    choices=["test", "stress-test"],
+    choices=["Service Codes", "Payors", "Schedules"],
     help="Specify the directory path. Default is 'test-files'.",
 )
 args = parser.parse_args()
 environment = args.environment
 test_type = args.directory_path
-directory_path = "test-files" if test_type == "test" else "test-files/stress-test"
+directory_path = "test-files/" + test_type
 prod = "http://cr-bot.westus2.cloudapp.azure.com"
 local = "http://localhost:8000"
 
@@ -121,7 +120,7 @@ while len(task_ids) > 0:
                 else:
                     raise Exception(res2.json())
             else:
-                logger.info(f"Progress: {data.get('progress')}%")
-                time.sleep(60)
+                logger.info(f"Progress: {data.get('progress')}")
+                time.sleep(10)
         except Exception as e:
             logger.error(f"Error: {e}")

@@ -19,18 +19,21 @@ async def log_in(page: Page):
     cr_instance = page.get_by_test_id("ent-prod|kadiantadmin")
     await cr_instance.wait_for(state="visible")
     await cr_instance.click()
-    await check_for_multiple_login(page)
 
 
-async def check_for_multiple_login(page: Page):
-    home = page.get_by_text(
-        "HomeContactsFilesBillingClaimsHRSchedulingClinicalInsightsKADIANT LLC"
-    )
-    await home.wait_for(state="visible")
-    await page.wait_for_load_state("domcontentloaded")
-    page.expect_response(API.SERVICE_CODES.GET_PLACES_OF_SERVICE)
-    time.sleep(2)
-    continue_to_login = page.get_by_role("button", name="Continue To Login")
-    is_visible = await continue_to_login.is_visible()
-    if is_visible:
-        await continue_to_login.click()
+async def handle_dialogs(page: Page, remove: bool = False):
+    async def handler():
+        okay_got_it = page.get_by_role("button", name="Okay, Got It")
+        continue_to_login = page.get_by_role("button", name="Continue To Login")
+        close_button = page.locator('button[aria-label="Close"]')
+        if await okay_got_it.is_visible():
+            await okay_got_it.click()
+        if await continue_to_login.is_visible():
+            await continue_to_login.click()
+        if await close_button.is_visible():
+            await close_button.click()
+
+    if remove:
+        await page.remove_locator_handler(page.get_by_role("dialog"))
+    else:
+        await page.add_locator_handler(page.get_by_role("dialog"), handler)

@@ -7,14 +7,11 @@ from logger_config import logger
 from src.actions.schedule import get_appointments
 from src.api import API
 from src.modules.shared.helpers.index import NoAppointmentsFound, update_task_progress
-from src.modules.shared.log_in import check_for_multiple_login
+from src.modules.shared.log_in import handle_dialogs
 from src.modules.shared.start import get_cr_session
-
-checked_multiple_log_in = False
 
 
 async def update_schedules(parent_task_id, child_id, resources, page: Page):
-    global checked_multiple_log_in
     cr_session = get_cr_session()
     updated_resources: dict[int, Union[bool, None]] = {
         resource.client_id: None for resource in resources
@@ -27,12 +24,11 @@ async def update_schedules(parent_task_id, child_id, resources, page: Page):
             if len(appointments) == 0:
                 raise NoAppointmentsFound("No appointments scheduled for this resource")
             for appointment in appointments:
+                await handle_dialogs(page)
+                removed_handler = False
                 await page.goto(
                     f"https://members.centralreach.com/#scheduling/edit/a/{appointment['course']}/dt/{date_today}"
                 )
-                if not checked_multiple_log_in:
-                    await check_for_multiple_login(page)
-                    checked_multiple_log_in = True
                 page.expect_response(API.AUTHORIZATION.LOAD_AUTHS_CODES)
                 deletes_locator = page.get_by_role("button", name="")
                 await deletes_locator.first.wait_for(state="visible")
@@ -57,6 +53,9 @@ async def update_schedules(parent_task_id, child_id, resources, page: Page):
                 for item in filtered_items:
                     await item.get_by_role("button", name="Use this").click()
                     codes_added += 1
+                if not removed_handler:
+                    await handle_dialogs(page, True)
+                    removed_handler = True
                 await page.get_by_role("button", name="Update Appointment").click()
                 await page.get_by_placeholder("Reason for change", exact=True).click()
                 await page.get_by_placeholder("Reason for change", exact=True).fill(
