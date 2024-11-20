@@ -10,8 +10,11 @@ from src.modules.shared.helpers.index import NoAppointmentsFound, update_task_pr
 from src.modules.shared.log_in import check_for_multiple_login
 from src.modules.shared.start import get_cr_session
 
+checked_multiple_log_in = False
+
 
 async def update_schedules(parent_task_id, child_id, resources, page: Page):
+    global checked_multiple_log_in
     cr_session = get_cr_session()
     updated_resources: dict[int, Union[bool, None]] = {
         resource.client_id: None for resource in resources
@@ -27,7 +30,9 @@ async def update_schedules(parent_task_id, child_id, resources, page: Page):
                 await page.goto(
                     f"https://members.centralreach.com/#scheduling/edit/a/{appointment['course']}/dt/{date_today}"
                 )
-                await check_for_multiple_login(page)
+                if not checked_multiple_log_in:
+                    await check_for_multiple_login(page)
+                    checked_multiple_log_in = True
                 page.expect_response(API.AUTHORIZATION.LOAD_AUTHS_CODES)
                 deletes_locator = page.get_by_role("button", name="")
                 await deletes_locator.first.wait_for(state="visible")

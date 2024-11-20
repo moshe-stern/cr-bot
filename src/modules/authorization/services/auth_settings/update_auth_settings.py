@@ -14,6 +14,8 @@ from src.modules.shared.log_in import log_in, check_for_multiple_login
 from src.modules.shared.start import get_cr_session
 from src.resources import CRResource
 
+checked_multiple_log_in = False
+
 
 async def update_auth_settings(
     parent_task_id, child_id, resources_to_update: List[CRResource], page: Page
@@ -49,10 +51,13 @@ async def update_auth_settings(
 
 
 async def goto_auth_settings(page: Page, authorization_page):
+    global checked_multiple_log_in
     await page.goto(authorization_page)
     if (
         page.url != authorization_page
         or await page.locator("text=Resource Not Found").is_visible()
     ):
         raise Exception("Resource does not exist")
-    await check_for_multiple_login(page)
+    if not checked_multiple_log_in:
+        await check_for_multiple_login(page)
+        checked_multiple_log_in = True
