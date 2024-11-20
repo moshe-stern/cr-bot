@@ -2,7 +2,7 @@ from logger_config import logger
 from celery_app import celery
 
 
-@celery.task
+@celery.task(queue="cleanup_file")
 def cleanup_file(file_path):
     import os
 
