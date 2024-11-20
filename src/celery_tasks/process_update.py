@@ -29,10 +29,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-@celery.task(bind=True)
+@celery.task(bind=True, queue="cr-bot-queue")
 def process_update(self, file_content, update_type_str, instance):
-    val = asyncio.run(_process_update(self, file_content, update_type_str, instance))
-    return val
+    res = asyncio.run(_process_update(self, file_content, update_type_str, instance))
+    return res
 
 
 async def _process_update(self, file_content, update_type_str, instance):
