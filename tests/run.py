@@ -76,7 +76,7 @@ while len(task_ids) > 0:
         try:
             res = requests.get(url + "/status/" + task_id, headers=headers)
             data = res.json()
-            if data.get("state") != "PENDING":
+            if data.get("state") == "SUCCESS":
                 res2 = requests.get(url + "/download/" + task_id, headers=headers)
                 task_ids.remove(task_id)
                 if res2.status_code == 200:
