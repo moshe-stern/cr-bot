@@ -19,7 +19,8 @@ async def start(p: Playwright, instance: str):
     return context
 
 
-def get_cr_session() -> CRSession:
+async def get_cr_session() -> CRSession:
     if not _cr_session:
         raise Exception("cr_session not initialized")
+    await _cr_session.make_context_cookies()
     return _cr_session

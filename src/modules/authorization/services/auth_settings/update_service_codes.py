@@ -10,7 +10,7 @@ from src.session import CRSession
 
 
 async def update_service_codes(code_resource: CRCodeResource, page: Page) -> bool:
-    cr_session = get_cr_session()
+    cr_session = await get_cr_session()
     service_codes = page.get_by_role("link", name="Service Code(s)")
     await service_codes.wait_for(state="visible")
     await service_codes.click()

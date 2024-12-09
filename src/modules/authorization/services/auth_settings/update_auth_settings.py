@@ -18,7 +18,7 @@ from src.resources import CRResource
 async def update_auth_settings(
     parent_task_id, child_id, resources_to_update: List[CRResource], page: Page
 ):
-    cr_session = get_cr_session()
+    cr_session = await get_cr_session()
     updated_resources: dict[int, Union[bool, None]] = {
         resource.resource_id: None for resource in resources_to_update
     }

@@ -12,7 +12,7 @@ from src.modules.shared.start import get_cr_session
 
 
 async def update_schedules(parent_task_id, child_id, resources, page: Page):
-    cr_session = get_cr_session()
+    cr_session = await get_cr_session()
     updated_resources: dict[int, Union[bool, None]] = {
         resource.client_id: None for resource in resources
     }
