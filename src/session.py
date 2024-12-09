@@ -66,7 +66,6 @@ class CRSession(requests.Session):
         payload = {"token": self.cr_token_response.access_token}
         headers = {"Accept": "application/json", "Content-Type": "application/json"}
         response = self.post(url, headers=headers, json=payload)
-        self.context.post(url, headers=headers, data=payload)
         if response.status_code >= 400:
             raise Exception(
                 f"could not get cookies status code: {response.status_code}"
