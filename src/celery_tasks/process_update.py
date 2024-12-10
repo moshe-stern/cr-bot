@@ -47,7 +47,7 @@ async def _process_update(self, file_content, update_type_str, instance):
         task_results = task.get("result") or {}
         task_results["total_resources"] = len(resources)
         celery.backend.store_result(self.request.id, task_results, "PENDING")
-        chunks: list[list[CRResource]] = divide_list(resources, 30)
+        chunks: list[list[CRResource]] = divide_list(resources, 5)
         logger.info(f"Divided work into {len(chunks)} chunks")
         combined_results = {}
         async with async_playwright() as p:
