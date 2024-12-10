@@ -1,6 +1,6 @@
 from pandas import DataFrame
 
-from src.resources import (
+from src.classes.resources import (
     UpdateType,
     CRCodeResource,
     CRPayerResource,

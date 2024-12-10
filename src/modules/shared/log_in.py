@@ -1,8 +1,4 @@
-import time
-
 from playwright.async_api import Page
-
-from src.api import API
 
 
 async def log_in(page: Page):

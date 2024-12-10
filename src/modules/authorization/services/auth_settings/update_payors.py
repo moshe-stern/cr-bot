@@ -1,5 +1,5 @@
 from playwright.async_api import Page
-from src.resources import CRPayerResource
+from src.classes.resources import CRPayerResource
 
 global_payer = None
 

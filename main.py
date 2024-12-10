@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from flask import Flask
 
-from logger_config import logger
+from src.logger_config import logger
 from src.modules.authorization.controller import authorization
 from src.modules.shared.error_handler import register_error_handlers
 

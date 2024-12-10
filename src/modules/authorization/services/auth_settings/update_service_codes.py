@@ -3,10 +3,9 @@ import time
 from playwright.async_api import Page
 
 from src.actions.auth_settings import get_service_codes
-from src.api import API
+from src.classes.api import API
 from src.modules.shared.start import get_cr_session
-from src.resources import CRCodeResource
-from src.session import CRSession
+from src.classes.resources import CRCodeResource
 
 
 async def update_service_codes(code_resource: CRCodeResource, page: Page) -> bool:

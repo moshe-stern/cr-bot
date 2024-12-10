@@ -1,19 +1,17 @@
 import asyncio
 
-
-from celery import Celery, group
 import base64
 import logging
 import tempfile
 
 from playwright.async_api import async_playwright
 
-from celery_app import celery
+from src.celery_app import celery
 from src.modules.shared.helpers.get_data_frame import get_data_frame
 from src.modules.shared.helpers.get_updated_file import get_updated_file
 from src.modules.shared.helpers.index import divide_list
 from src.modules.shared.start import start
-from src.resources import UpdateType, CRResource
+from src.classes.resources import UpdateType, CRResource
 from src.modules.shared.helpers.get_resource_arr import get_resource_arr
 from src.modules.authorization.services.schedule.update_schedules import (
     update_schedules,

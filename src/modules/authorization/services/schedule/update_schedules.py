@@ -3,9 +3,9 @@ from typing import Union
 
 from playwright.async_api import Page
 
-from logger_config import logger
+from src.logger_config import logger
 from src.actions.schedule import get_appointments
-from src.api import API
+from src.classes.api import API
 from src.modules.shared.helpers.index import NoAppointmentsFound, update_task_progress
 from src.modules.shared.log_in import handle_dialogs
 from src.modules.shared.start import get_cr_session

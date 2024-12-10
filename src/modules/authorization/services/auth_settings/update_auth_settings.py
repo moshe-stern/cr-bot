@@ -1,18 +1,16 @@
-import time
 from typing import List, Union
 from playwright.async_api import Page
 
-from celery_app import celery
 from src.actions.auth_settings import load_auth_settings
-from src.api import API
-from logger_config import logger
+from src.classes.api import API
+from src.logger_config import logger
 from src.modules.shared.helpers.index import (
     AuthorizationSettingsNotFound,
     update_task_progress,
 )
 from src.modules.shared.log_in import handle_dialogs
 from src.modules.shared.start import get_cr_session
-from src.resources import CRResource
+from src.classes.resources import CRResource
 
 
 async def update_auth_settings(

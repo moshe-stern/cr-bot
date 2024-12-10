@@ -2,8 +2,8 @@ from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
 
-from src.api import API
-from src.session import CRSession
+from src.classes.api import API
+from src.classes.session import CRSession
 
 
 def get_appointments(session: CRSession, client_id: int):

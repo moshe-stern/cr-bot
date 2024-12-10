@@ -1,6 +1,6 @@
-from playwright.async_api import Page, Browser, Playwright, BrowserContext
+from playwright.async_api import BrowserContext
 
-from src.session import CRSession
+from src.classes.session import CRSession
 
 
 class World:

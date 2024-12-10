@@ -1,9 +1,8 @@
 import os
-from typing import Union, Sequence
+from typing import Union
 from playwright.async_api import Playwright
-from src.modules.shared.world import World
-from src.org import orgs
-from src.session import CRSession
+from src.classes.org import orgs
+from src.classes.session import CRSession
 
 _cr_session: Union[CRSession, None] = None
 

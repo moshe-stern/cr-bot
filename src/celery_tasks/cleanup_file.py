@@ -1,5 +1,5 @@
-from logger_config import logger
-from celery_app import celery
+from src.logger_config import logger
+from src.celery_app import celery
 
 
 @celery.task(queue="cleanup_file")

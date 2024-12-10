@@ -14,7 +14,7 @@ sys.path.append(str(project_root.parent.parent))
 
 from dotenv import load_dotenv
 
-from logger_config import logger
+from src.logger_config import logger
 
 load_dotenv()
 parser = argparse.ArgumentParser(
