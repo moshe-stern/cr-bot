@@ -28,6 +28,7 @@ jobs:
           ssh ${{ secrets.SSH_USER }}@${{ secrets.DOMAIN_NAME }} "
           cd cr-fn &&
           git pull origin main &&
+          sudo redis-cli FLUSHALL &&
           sudo pkill -9 -f 'celery' &&
           sudo systemctl restart cr-bot &&
           sudo systemctl restart celery"
