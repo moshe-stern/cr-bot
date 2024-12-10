@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from src.classes.org import CrORG
 
 if not load_dotenv():
-    raise Exception('Failed to load dotenv')
+    raise Exception("Failed to load dotenv")
 
 
 @dataclass
@@ -26,9 +26,7 @@ class CRSession(requests.Session):
     def __init__(self, org: CrORG, context: APIRequestContext):
         super().__init__()
         self.org = org
-        self._client_secret = os.getenv(
-            f"CR_API_SECRET_{org.org_str}_{org.org_type}"
-        )
+        self._client_secret = os.getenv(f"CR_API_SECRET_{org.org_str}_{org.org_type}")
         self._client_id = os.getenv(f"CR_API_ID_{org.org_str}_{org.org_type}")
         self._api_key = os.getenv(f"CR_API_KEY_{org.org_str}_{org.org_type}")
         self._cr_token_response: CR_TokenResponse | None = None
@@ -70,7 +68,7 @@ class CRSession(requests.Session):
             raise Exception(
                 f"could not get cookies status code: {response.status_code}"
             )
-        
+
     async def make_context_cookies(self):
         url = "https://members.centralreach.com/api/?framework.authtoken"
         payload = {"token": self.cr_token_response.access_token}
@@ -81,7 +79,7 @@ class CRSession(requests.Session):
             raise Exception(
                 f"could not get cookies status code: {response.status_code}"
             )
-        
+
     def _make_crsf_token(self):
         self._make_cookies()
         url = "https://members.centralreach.com/api/?framework.csrf"
