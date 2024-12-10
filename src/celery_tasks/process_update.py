@@ -4,7 +4,7 @@ import base64
 import logging
 import tempfile
 
-from playwright.async_api import async_playwright
+from playwright.async_api import async_playwright, Route
 
 from celery_app import celery
 from src.modules.shared.helpers.get_data_frame import get_data_frame
@@ -52,7 +52,13 @@ async def _process_update(self, file_content, update_type_str, instance):
         combined_results = {}
         async with async_playwright() as p:
             context = await start(p, instance)
+            async def handle_route(route: Route):
+                await route.abort()
 
+            await context.route(
+                "https://members.centralreach.com/crxapieks/session-lock/ping",
+                handle_route,
+            )
             async def process_chunk_wrapper(chunk, child_id):
                 """Wrapper to handle chunk processing with its own page."""
                 async with await context.new_page() as page:
