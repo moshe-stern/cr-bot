@@ -20,12 +20,12 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H cr-bot.westus2.cloudapp.azure.com >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ secrets.DOMAIN_NAME }} >> ~/.ssh/known_hosts
 
     # Pull the latest changes on the VM
     - name: Deploy to VM
       run: |
-          ssh moshestern@cr-bot.westus2.cloudapp.azure.com "
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.DOMAIN_NAME }} "
           cd cr-fn &&
           git pull origin main &&
           sudo systemctl restart cr-bot &&
