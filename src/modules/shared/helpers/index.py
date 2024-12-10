@@ -1,4 +1,4 @@
-from src.celery_app import celery
+from celery_app import celery
 
 
 def divide_list(lst, n):

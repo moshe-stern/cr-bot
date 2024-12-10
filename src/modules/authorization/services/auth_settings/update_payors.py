@@ -20,7 +20,7 @@ async def set_global_payer(page: Page, payer: str):
     global_payer = payer
     global_auth = page.get_by_text("Global Authorization Settings")
     edit = page.locator(".pull-right > a:nth-child(2)").first
-    await global_auth.hover()
+    await global_auth.first.hover()
     await edit.wait_for(state="visible")
     await edit.click()
     combo = page.get_by_role("combobox").first

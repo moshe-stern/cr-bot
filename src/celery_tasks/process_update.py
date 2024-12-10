@@ -6,7 +6,7 @@ import tempfile
 
 from playwright.async_api import async_playwright
 
-from src.celery_app import celery
+from celery_app import celery
 from src.modules.shared.helpers.get_data_frame import get_data_frame
 from src.modules.shared.helpers.get_updated_file import get_updated_file
 from src.modules.shared.helpers.index import divide_list
@@ -47,7 +47,7 @@ async def _process_update(self, file_content, update_type_str, instance):
         task_results = task.get("result") or {}
         task_results["total_resources"] = len(resources)
         celery.backend.store_result(self.request.id, task_results, "PENDING")
-        chunks: list[list[CRResource]] = divide_list(resources, 5)
+        chunks: list[list[CRResource]] = divide_list(resources, 30)
         logger.info(f"Divided work into {len(chunks)} chunks")
         combined_results = {}
         async with async_playwright() as p:

@@ -10,7 +10,7 @@ import base64
 import os
 
 project_root = Path(__file__)
-sys.path.append(str(project_root.parent.parent))
+sys.path.append(str(project_root.parent.parent.parent))
 
 from dotenv import load_dotenv
 
@@ -77,6 +77,7 @@ while len(task_ids) > 0:
             res = requests.get(url + "/status/" + task_id, headers=headers)
             data = res.json()
             if data.get("state") == "SUCCESS":
+                logger.info(f"Progress: {data.get('progress')}")
                 res2 = requests.get(url + "/download/" + task_id, headers=headers)
                 task_ids.remove(task_id)
                 if res2.status_code == 200:
