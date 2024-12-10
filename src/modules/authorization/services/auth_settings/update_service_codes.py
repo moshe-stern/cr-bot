@@ -8,7 +8,9 @@ from src.modules.shared.start import get_cr_session
 from src.classes.resources import CRCodeResource
 
 
-async def update_service_codes(code_resource: CRCodeResource, page: Page) -> bool:
+async def update_service_codes(
+    code_resource: CRCodeResource, page: Page
+) -> bool | None:
     cr_session = await get_cr_session()
     service_codes = page.get_by_role("link", name="Service Code(s)")
     await service_codes.wait_for(state="visible")
@@ -38,6 +40,9 @@ async def update_service_codes(code_resource: CRCodeResource, page: Page) -> boo
             await delete_button.click()
             updated_codes[1] += 1
     await page.get_by_role("button", name="Save", exact=True).click()
-    return updated_codes[0] == len(code_resource.to_add) and updated_codes[1] == len(
-        code_resource.to_remove
+    updated: bool | None = (
+        updated_codes[0] == len(code_resource.to_add)
+        and updated_codes[1] == len(code_resource.to_remove)
+        or None
     )
+    return updated

@@ -1,10 +1,11 @@
 from celery_app import celery
+from src.classes.resources import CRResource
 
 
-def divide_list(lst, n):
+def divide_list(lst: list[CRResource], n: int) -> list[list[CRResource]]:
     avg = len(lst) // n
     remainder = len(lst) % n
-    parts = []
+    parts: list[list[CRResource]] = []
     start = 0
     for i in range(n):
         end = start + avg + (1 if i < remainder else 0)

@@ -16,9 +16,11 @@ class UpdateType(Enum):
 
 class CRResource:
     resource_id: int
-    update: Callable[[T, Page], Awaitable[bool]]
+    update: Callable[[T, Page], Awaitable[bool | None]]
 
-    def __init__(self, resource_id: int, update: Callable[[T, Page], Awaitable[bool]]):
+    def __init__(
+        self, resource_id: int, update: Callable[[T, Page], Awaitable[bool | None]]
+    ):
         self.resource_id = resource_id
         self.update = update
 
@@ -30,7 +32,7 @@ class CRCodeResource(CRResource):
     def __init__(
         self,
         resource_id: int,
-        update: Callable[["CRCodeResource", Page], Awaitable[bool]],
+        update: Callable[["CRCodeResource", Page], Awaitable[bool | None]],
         to_remove: List[str] = None,
         to_add: List[str] = None,
     ):
@@ -45,7 +47,7 @@ class CRPayerResource(CRResource):
     def __init__(
         self,
         resource_id: int,
-        update: Callable[["CRPayerResource", Page], Awaitable[bool]],
+        update: Callable[["CRPayerResource", Page], Awaitable[bool | None]],
         global_payer: str,
     ):
         super().__init__(resource_id, update)

@@ -29,7 +29,7 @@ async def update_auth_settings(
                 raise AuthorizationSettingsNotFound("No authorization settings found")
             authorization_page = f"https://members.centralreach.com/#resources/details/?id={resource.resource_id}&tab=authorizations"
             await goto_auth_settings(page, authorization_page)
-            updated_settings = False
+            updated_settings: bool | None = False
             for auth_setting in auth_settings:
                 group = page.locator(f"#group-auth-{auth_setting['Id']}")
                 edit = group.locator("a").nth(1)

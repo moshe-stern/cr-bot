@@ -9,12 +9,12 @@ import requests
 import base64
 import os
 
+
 project_root = Path(__file__)
 sys.path.append(str(project_root.parent.parent.parent))
-
+from src.logger_config import logger
 from dotenv import load_dotenv
 
-from src.logger_config import logger
 
 load_dotenv()
 parser = argparse.ArgumentParser(
@@ -77,7 +77,6 @@ while len(task_ids) > 0:
             res = requests.get(url + "/status/" + task_id, headers=headers)
             data = res.json()
             if data.get("state") == "SUCCESS":
-                logger.info(f"Progress: {data.get('progress')}")
                 res2 = requests.get(url + "/download/" + task_id, headers=headers)
                 task_ids.remove(task_id)
                 if res2.status_code == 200:
@@ -93,7 +92,9 @@ while len(task_ids) > 0:
                         success_count = df["status"].eq("Successfully updated").sum()
                         fail_count = df["status"].eq("Failed to update").sum()
                         already_count = (
-                            df["status"].eq("Didn't fail, but didn't update").sum()
+                            df["status"]
+                            .eq("Didn't fail, but didn't update fully. Please verify")
+                            .sum()
                         )
                         success_count = (
                             (success_count / total_count) * 100
