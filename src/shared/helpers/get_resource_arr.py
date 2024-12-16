@@ -28,7 +28,7 @@ def get_resource_arr(update_type: UpdateType, df: DataFrame):
     if update_type == UpdateType.CODES:
         resources = [
             CRCodeResource(
-                resource_id=int(row["resource_id"]),
+                    resource_id=int(row["resource_id"]),
                 update=update_service_codes,
                 to_remove=[
                     str(code).strip() for code in row["codes_to_remove"].split(";")
