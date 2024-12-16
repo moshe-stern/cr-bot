@@ -54,9 +54,7 @@ async def handle_appointment(
     await items_locator.first.wait_for(state="visible")
     items = await items_locator.all()
     filtered_items = [
-        item
-        for item in items
-        if await is_item_visible(item, resource.codes)
+        item for item in items if await is_item_visible(item, resource.codes)
     ]
     for item in filtered_items:
         await item.get_by_role("button", name="Use this").click()
@@ -70,6 +68,7 @@ async def handle_appointment(
         "Update From Bot"
     )
     await page.get_by_text("Save", exact=True).click()
+
 
 async def is_item_visible(item, codes):
     for code in codes:

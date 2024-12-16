@@ -5,7 +5,7 @@ from src.classes import (
     CRCodeResource,
     CRPayerResource,
     CRScheduleResource,
-    CRResource
+    CRResource,
 )
 from src.modules.authorization.services.auth_settings.update_payors import update_payors
 from src.modules.authorization.services.auth_settings.update_service_codes import (
@@ -14,7 +14,7 @@ from src.modules.authorization.services.auth_settings.update_service_codes impor
 
 
 def get_resource_arr(update_type: UpdateType, df: DataFrame):
-    required_columns: set[str] = {''}
+    required_columns: set[str] = {""}
     resources: list[CRResource] = []
     if update_type == UpdateType.CODES:
         required_columns = {

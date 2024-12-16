@@ -4,6 +4,7 @@ from playwright.async_api import Page
 
 T = TypeVar("T", bound="CRAuthResource")
 
+
 class UpdateType(Enum):
     CODES = "Service Codes"
     PAYORS = "Payors"
@@ -54,6 +55,7 @@ class CRPayerResource(CRAuthResource["CRPayerResource"]):
     ):
         super().__init__(resource_id, update)
         self.global_payer = global_payer
+
 
 class CRScheduleResource(CRResource):
     def __init__(
