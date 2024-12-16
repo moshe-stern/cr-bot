@@ -1,10 +1,10 @@
 import os
+
 from dotenv import load_dotenv
 from flask import Flask
 
-from src.logger_config import logger
 from src.controllers.authorization.controller import authorization
-from src.shared.error_handler import register_error_handlers
+from src.shared import logger, register_error_handlers
 
 if not load_dotenv():
     raise Exception("Failed to load dotenv")

@@ -1,5 +1,4 @@
-from src.classes.api import API
-from src.classes.session import CRSession
+from src.classes import API, CRSession
 
 
 def load_auth_settings(session: CRSession, resources_id: int):

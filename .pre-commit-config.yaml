@@ -11,7 +11,7 @@ repos:
 #      - id: flake8
 
 
-#  - repo: https://github.com/pre-commit/mirrors-mypy
-#    rev: v1.5.1  # Use the latest version of mypy
-#    hooks:
-#      - id: mypy
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.5.1  # Use the latest version of mypy
+    hooks:
+      - id: mypy

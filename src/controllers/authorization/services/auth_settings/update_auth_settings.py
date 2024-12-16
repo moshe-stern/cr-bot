@@ -1,12 +1,10 @@
 from typing import List, Union
+
 from playwright.async_api import Page
 
 from src.actions.auth_settings import load_auth_settings
 from src.classes import API, CRAuthResource
-from src.logger_config import logger
-from src.shared import handle_dialogs
-from src.shared import get_cr_session
-from src.shared.helpers.index import update_task_progress
+from src.shared import get_cr_session, handle_dialogs, logger, update_task_progress
 
 
 async def update_auth_settings(

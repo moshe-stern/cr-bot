@@ -1,20 +1,17 @@
 import argparse
+import base64
 import io
+import os
 import sys
 import time
 from pathlib import Path
 
 import pandas as pd
 import requests
-import base64
-import os
 
-
-project_root = Path(__file__)
-sys.path.append(str(project_root.parent.parent.parent))
-from src.logger_config import logger
+sys.path.append(str(Path(__file__).parent.parent.parent))
+from src.shared import logger
 from dotenv import load_dotenv
-
 
 load_dotenv()
 parser = argparse.ArgumentParser(
@@ -74,10 +71,11 @@ logger.info("sleeping for 10 seconds")
 while len(task_ids) > 0:
     for task_id in task_ids:
         try:
-            res = requests.get( f"{url}/status/{task_id}" , headers=headers)
+            res = requests.get(f"{url}/status/{task_id}", headers=headers)
             data = res.json()
             if data.get("state") == "SUCCESS":
-                res2 = requests.get( f"{url}/download/{task_id}" , headers=headers)
+                logger.info(f"Progress: {data.get('progress')}")
+                res2 = requests.get(f"{url}/download/{task_id}", headers=headers)
                 task_ids.remove(task_id)
                 if res2.status_code == 200:
                     downloaded_file = io.BytesIO(res2.content)

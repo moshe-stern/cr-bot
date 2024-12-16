@@ -1,25 +1,25 @@
 import asyncio
-
 import base64
 import logging
 import tempfile
+import traceback
+from threading import Lock
 
-from playwright.async_api import async_playwright, Route
+from playwright.async_api import Route, async_playwright
 
 from celery_app import celery
-from src.shared.helpers.get_data_frame import get_data_frame
-from src.shared.helpers.get_updated_file import get_updated_file
-from src.shared.helpers.index import divide_list
-from src.shared.start import start
-from src.classes.resources import UpdateType
-from src.shared.helpers.get_resource_arr import get_resource_arr
-from src.controllers.authorization.services.schedule.update_schedules import (
-    update_schedules,
-)
+from src.classes import UpdateType
 from src.controllers.authorization.services.auth_settings.update_auth_settings import (
     update_auth_settings,
 )
-from threading import Lock
+from src.controllers.authorization.services.schedule.update_schedules import (
+    update_schedules,
+)
+from src.shared.helpers.get_data_frame import get_data_frame
+from src.shared.helpers.get_resource_arr import get_resource_arr
+from src.shared.helpers.get_updated_file import get_updated_file
+from src.shared.helpers.index import divide_list
+from src.shared.start import start
 
 lock = Lock()
 
@@ -98,6 +98,7 @@ async def _process_update(self, file_content, update_type_str, instance):
             },
         )
         logger.error(f"Error in process_update: {e}")
+        traceback.print_exc()
         return "Failed"
 
 

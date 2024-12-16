@@ -1,5 +1,6 @@
-from typing import Callable, Awaitable, List, Optional, TypeVar, Generic
 from enum import Enum
+from typing import Awaitable, Callable, Generic, List, Optional, TypeVar
+
 from playwright.async_api import Page
 
 T = TypeVar("T", bound="CRAuthResource")

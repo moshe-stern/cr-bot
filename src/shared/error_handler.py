@@ -1,5 +1,6 @@
 import os
-from flask import request, jsonify, abort
+
+from flask import abort, jsonify, request
 
 
 def register_error_handlers(app):

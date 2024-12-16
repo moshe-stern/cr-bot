@@ -1,3 +1,4 @@
+from celery.backends.redis import RedisBackend  # type: ignore
 from celery_app import celery
 from src.classes import CRResource
 
@@ -17,7 +18,7 @@ def divide_list(lst: list[CRResource], n: int) -> list[list[CRResource]]:
 
 
 def update_task_progress(task_id: int, progress: int, child_id: int):
-    backend = celery.backend
+    backend: RedisBackend = celery.backend
     parent_meta = backend.get_task_meta(task_id)
     existing = parent_meta.get("result") or {}
     existing[f"child_progress_{child_id}"] = progress

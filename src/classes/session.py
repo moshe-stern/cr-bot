@@ -1,13 +1,13 @@
-from datetime import datetime, timezone
+import os
 import time
 from dataclasses import dataclass
+from datetime import datetime, timezone
+
 import requests
-import os
+from dotenv import load_dotenv
 from playwright.async_api import APIRequestContext
 
-from dotenv import load_dotenv
-
-from src.classes.org import CrORG
+from src.classes import CrORG
 
 if not load_dotenv():
     raise Exception("Failed to load dotenv")
