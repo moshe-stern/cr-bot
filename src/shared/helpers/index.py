@@ -1,4 +1,5 @@
 from celery.backends.redis import RedisBackend  # type: ignore
+
 from celery_app import celery
 from src.classes import CRResource
 

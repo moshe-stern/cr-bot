@@ -9,12 +9,10 @@ from playwright.async_api import Route, async_playwright
 
 from celery_app import celery
 from src.classes import UpdateType
-from src.controllers.authorization.services.auth_settings.update_auth_settings import (
-    update_auth_settings,
-)
-from src.controllers.authorization.services.schedule.update_schedules import (
-    update_schedules,
-)
+from src.controllers.authorization.services.auth_settings.update_auth_settings import \
+    update_auth_settings
+from src.controllers.authorization.services.schedule.update_schedules import \
+    update_schedules
 from src.shared.helpers.get_data_frame import get_data_frame
 from src.shared.helpers.get_resource_arr import get_resource_arr
 from src.shared.helpers.get_updated_file import get_updated_file

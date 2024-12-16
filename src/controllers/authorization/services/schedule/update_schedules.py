@@ -4,9 +4,9 @@ from typing import Union
 from playwright.async_api import Page
 
 from src.actions.schedule import get_appointments
-from src.classes import CRScheduleResource
-from src.classes import API
-from src.shared import get_cr_session, handle_dialogs, logger, update_task_progress
+from src.classes import API, CRScheduleResource
+from src.shared import (get_cr_session, handle_dialogs, logger,
+                        update_task_progress)
 
 
 async def update_schedules(parent_task_id, child_id, resources, page: Page):

@@ -1,18 +1,11 @@
 from pandas import DataFrame
 
-from src.classes import (
-    CRCodeResource,
-    CRPayerResource,
-    CRResource,
-    CRScheduleResource,
-    UpdateType,
-)
-from src.controllers.authorization.services.auth_settings.update_payors import (
-    update_payors,
-)
-from src.controllers.authorization.services.auth_settings.update_service_codes import (
-    update_service_codes,
-)
+from src.classes import (CRCodeResource, CRPayerResource, CRResource,
+                         CRScheduleResource, UpdateType)
+from src.controllers.authorization.services.auth_settings.update_payors import \
+    update_payors
+from src.controllers.authorization.services.auth_settings.update_service_codes import \
+    update_service_codes
 
 
 def get_resource_arr(update_type: UpdateType, df: DataFrame):

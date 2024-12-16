@@ -3,7 +3,7 @@ from typing import Union
 
 from playwright.async_api import Playwright
 
-from src.classes import orgs, CRSession
+from src.classes import CRSession, orgs
 
 _cr_session: Union[CRSession, None] = None
 

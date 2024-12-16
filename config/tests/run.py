@@ -10,8 +10,9 @@ import pandas as pd
 import requests
 
 sys.path.append(str(Path(__file__).parent.parent.parent))
-from src.shared import logger
 from dotenv import load_dotenv
+
+from src.shared import logger
 
 load_dotenv()
 parser = argparse.ArgumentParser(
