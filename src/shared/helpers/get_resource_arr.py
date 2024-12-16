@@ -7,8 +7,8 @@ from src.classes import (
     CRScheduleResource,
     CRResource,
 )
-from src.modules.authorization.services.auth_settings.update_payors import update_payors
-from src.modules.authorization.services.auth_settings.update_service_codes import (
+from src.controllers.authorization.services.auth_settings.update_payors import update_payors
+from src.controllers.authorization.services.auth_settings.update_service_codes import (
     update_service_codes,
 )
 

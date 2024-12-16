@@ -5,8 +5,9 @@ from src.classes import CRScheduleResource
 from src.logger_config import logger
 from src.actions.schedule import get_appointments
 from src.classes.api import API
-from src.modules.shared.log_in import handle_dialogs
-from src.modules.shared import get_cr_session, update_task_progress
+from src.shared.helpers.index import update_task_progress
+from src.shared.log_in import handle_dialogs
+from src.shared import get_cr_session
 
 
 async def update_schedules(parent_task_id, child_id, resources, page: Page):

@@ -7,16 +7,16 @@ import tempfile
 from playwright.async_api import async_playwright, Route
 
 from celery_app import celery
-from src.modules.shared.helpers.get_data_frame import get_data_frame
-from src.modules.shared.helpers.get_updated_file import get_updated_file
-from src.modules.shared.helpers.helpers import divide_list
-from src.modules.shared.start import start
+from src.shared.helpers.get_data_frame import get_data_frame
+from src.shared.helpers.get_updated_file import get_updated_file
+from src.shared.helpers.index import divide_list
+from src.shared.start import start
 from src.classes.resources import UpdateType
-from src.modules.shared.helpers.get_resource_arr import get_resource_arr
-from src.modules.authorization.services.schedule.update_schedules import (
+from src.shared.helpers.get_resource_arr import get_resource_arr
+from src.controllers.authorization.services.schedule.update_schedules import (
     update_schedules,
 )
-from src.modules.authorization.services.auth_settings.update_auth_settings import (
+from src.controllers.authorization.services.auth_settings.update_auth_settings import (
     update_auth_settings,
 )
 from threading import Lock

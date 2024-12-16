@@ -74,15 +74,15 @@ logger.info("sleeping for 10 seconds")
 while len(task_ids) > 0:
     for task_id in task_ids:
         try:
-            res = requests.get(url + "/status/" + task_id, headers=headers)
+            res = requests.get( f"{url}/status/{task_id}" , headers=headers)
             data = res.json()
             if data.get("state") == "SUCCESS":
-                res2 = requests.get(url + "/download/" + task_id, headers=headers)
+                res2 = requests.get( f"{url}/download/{task_id}" , headers=headers)
                 task_ids.remove(task_id)
                 if res2.status_code == 200:
-                    file = io.BytesIO(res2.content)
+                    downloaded_file = io.BytesIO(res2.content)
                     try:
-                        df = pd.read_excel(file, engine="openpyxl")
+                        df = pd.read_excel(downloaded_file, engine="openpyxl")
                     except Exception as e:
                         raise Exception(
                             "error: Failed to read Excel file. Please check the file format."
@@ -97,15 +97,15 @@ while len(task_ids) > 0:
                             .sum()
                         )
                         success_count = (
-                            (success_count / total_count) * 100
+                            (success_count // total_count) * 100
                             if total_count > 0
                             else 0
                         )
                         fail_count = (
-                            (fail_count / total_count) * 100 if total_count > 0 else 0
+                            (fail_count // total_count) * 100 if total_count > 0 else 0
                         )
                         already_count = (
-                            (already_count / total_count) * 100
+                            (already_count // total_count) * 100
                             if total_count > 0
                             else 0
                         )

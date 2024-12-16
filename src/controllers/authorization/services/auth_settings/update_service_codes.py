@@ -2,7 +2,7 @@ import time
 from playwright.async_api import Page
 from src.actions.auth_settings import get_service_codes
 from src.classes import API
-from src.modules.shared import get_cr_session
+from src.shared import get_cr_session
 from src.classes import CRCodeResource
 
 
