@@ -31,6 +31,8 @@ def update_task_progress(task_id: int, progress: int, child_id: int):
 
 
 def get_task_progress(task: AsyncResult):
+    if task.info is None:
+        return 'task is still queued'
     child_progress_pattern = re.compile(r"^child_progress_")
     total_child_progress = [
         value for key, value in task.info.items() if child_progress_pattern.match(key)

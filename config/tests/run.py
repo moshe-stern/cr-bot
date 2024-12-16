@@ -74,9 +74,7 @@ while len(task_ids) > 0:
         try:
             res = requests.get(f"{url}/status/{task_id}", headers=headers)
             data = res.json()
-            print(data)
             if data.get("state") == "SUCCESS":
-                print("downloading...")
                 logger.info(f"Progress: {data.get('progress')}")
                 res2 = requests.get(f"{url}/download/{task_id}", headers=headers)
                 task_ids.remove(task_id)
