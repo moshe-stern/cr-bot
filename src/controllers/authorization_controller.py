@@ -1,13 +1,11 @@
-import re
-from ast import Bytes
-from typing import Any, Tuple
+from typing import Any
 
 from celery.result import AsyncResult
 from flask import Blueprint, Response, jsonify, request, send_file
 
 from celery_app import celery
 from src.celery_tasks.cleanup_file import cleanup_file
-from src.celery_tasks.process_update import process_update
+from src.celery_tasks.process_update.process_update import process_update
 from src.shared import get_task_progress
 
 authorization = Blueprint("authorization", __name__, url_prefix="/authorization")

@@ -1,15 +1,19 @@
 from datetime import datetime
-from typing import Union
+from typing import Union, Sequence
 
 from playwright.async_api import Page
 
 from src.actions.schedule import get_appointments
-from src.classes import API, CRScheduleResource
-from src.shared import (get_cr_session, handle_dialogs, logger,
-                        update_task_progress)
+from src.classes import API, CRScheduleResource, CRAuthResource
+from src.shared import get_cr_session, handle_dialogs, logger, update_task_progress
 
 
-async def update_schedules(parent_task_id, child_id, resources, page: Page):
+async def update_schedules(
+    parent_task_id: int,
+    child_id: int,
+    resources: list[CRScheduleResource],
+    page: Page,
+):
     cr_session = await get_cr_session()
     updated_resources: dict[int, Union[bool, None]] = {
         resource.client_id: None for resource in resources

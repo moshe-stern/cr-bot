@@ -4,12 +4,14 @@ from playwright.async_api import Page
 
 from src.actions.auth_settings import load_auth_settings
 from src.classes import API, CRAuthResource
-from src.shared import (get_cr_session, handle_dialogs, logger,
-                        update_task_progress)
+from src.shared import get_cr_session, handle_dialogs, logger, update_task_progress
 
 
 async def update_auth_settings(
-    parent_task_id, child_id, resources_to_update: List[CRAuthResource], page: Page
+    parent_task_id: int,
+    child_id: int,
+    resources_to_update: List[CRAuthResource],
+    page: Page,
 ):
     cr_session = await get_cr_session()
     updated_resources: dict[int, Union[bool, None]] = {

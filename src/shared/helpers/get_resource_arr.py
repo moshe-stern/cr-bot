@@ -1,14 +1,16 @@
 from pandas import DataFrame
 
-from src.classes import (CRCodeResource, CRPayerResource, CRResource,
-                         CRScheduleResource, UpdateType)
+from src.classes import (
+    CRCodeResource,
+    CRPayerResource,
+    CRResource,
+    CRScheduleResource,
+    UpdateType,
+)
 
 
 def get_resource_arr(update_type: UpdateType, df: DataFrame):
-    from src.controllers.authorization.services.auth_settings.update_payors import \
-        update_payors
-    from src.controllers.authorization.services.auth_settings.update_service_codes import \
-        update_service_codes
+    from src.controllers.services import update_payors, update_service_codes
 
     required_columns: set[str] = {""}
     resources: list[CRResource] = []
