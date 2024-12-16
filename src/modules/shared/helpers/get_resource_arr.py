@@ -1,10 +1,11 @@
 from pandas import DataFrame
 
-from src.classes.resources import (
+from src.classes import (
     UpdateType,
     CRCodeResource,
     CRPayerResource,
     CRScheduleResource,
+    CRResource
 )
 from src.modules.authorization.services.auth_settings.update_payors import update_payors
 from src.modules.authorization.services.auth_settings.update_service_codes import (
@@ -13,8 +14,8 @@ from src.modules.authorization.services.auth_settings.update_service_codes impor
 
 
 def get_resource_arr(update_type: UpdateType, df: DataFrame):
-    required_columns = {}
-    resources = None
+    required_columns: set[str] = {''}
+    resources: list[CRResource] = []
     if update_type == UpdateType.CODES:
         required_columns = {
             "resource_id",
@@ -32,7 +33,7 @@ def get_resource_arr(update_type: UpdateType, df: DataFrame):
     if update_type == UpdateType.CODES:
         resources = [
             CRCodeResource(
-                resource_id=row["resource_id"],
+                resource_id=int(row["resource_id"].item()),
                 update=update_service_codes,
                 to_remove=[
                     str(code).strip() for code in row["codes_to_remove"].split(";")
@@ -44,16 +45,16 @@ def get_resource_arr(update_type: UpdateType, df: DataFrame):
     elif update_type == UpdateType.PAYORS:
         resources = [
             CRPayerResource(
-                resource_id=row["resource_id"],
+                resource_id=int(row["resource_id"].item()),
                 update=update_payors,
-                global_payer=row["global_payor"],
+                global_payer=str(row["global_payor"]),
             )
             for _, row in df.iterrows()
         ]
     elif update_type == UpdateType.SCHEDULE:
         resources = [
             CRScheduleResource(
-                client_id=row["client_id"],
+                client_id=int(row["client_id"].item()),
                 codes=[str(code).strip() for code in row["codes_to_add"].split(";")],
             )
             for _, row in df.iterrows()

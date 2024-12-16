@@ -23,12 +23,6 @@ def set_auth_setting(session: CRSession, auth_setting):
     return session.post(API.AUTH_SETTINGS.SET_SETTING, json=auth_setting)
 
 
-def get_auth(session: CRSession, resource_id: int, service_code_id: int):
-    auth_post = {}
-    auth = {**auth_post, "settingsId": resource_id, "serviceCodeId": service_code_id}
-    return session.post(API.AUTHORIZATION.GET, json=auth)
-
-
 def get_service_codes(session: CRSession, code: str):
     return session.post(
         API.SERVICE_CODES.GET,

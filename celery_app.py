@@ -3,9 +3,6 @@ from pathlib import Path
 
 from celery import Celery
 
-project_root = Path(__file__).resolve().parent
-sys.path.append(str(project_root))
-
 celery = Celery(
     "cr-bot", broker="redis://localhost:6379/0", backend="redis://localhost:6379/0"
 )

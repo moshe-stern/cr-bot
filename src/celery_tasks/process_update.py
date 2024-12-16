@@ -9,9 +9,9 @@ from playwright.async_api import async_playwright, Route
 from celery_app import celery
 from src.modules.shared.helpers.get_data_frame import get_data_frame
 from src.modules.shared.helpers.get_updated_file import get_updated_file
-from src.modules.shared.helpers.index import divide_list
+from src.modules.shared.helpers.helpers import divide_list
 from src.modules.shared.start import start
-from src.classes.resources import UpdateType, CRResource
+from src.classes.resources import UpdateType
 from src.modules.shared.helpers.get_resource_arr import get_resource_arr
 from src.modules.authorization.services.schedule.update_schedules import (
     update_schedules,
@@ -40,21 +40,19 @@ async def _process_update(self, file_content, update_type_str, instance):
         df = get_data_frame(file_data)
         if update_type_str not in UpdateType:
             raise ValueError("Invalid update type specified.")
-
         update_type = UpdateType(update_type_str)
         resources = get_resource_arr(update_type, df)
         task = celery.backend.get_task_meta(self.request.id)
         task_results = task.get("result") or {}
         task_results["total_resources"] = len(resources)
         celery.backend.store_result(self.request.id, task_results, "PENDING")
-        chunks: list[list[CRResource]] = divide_list(resources, 5)
+        chunks = divide_list(resources, 5)
         logger.info(f"Divided work into {len(chunks)} chunks")
         combined_results = {}
         async with async_playwright() as p:
             context = await start(p, instance)
             async def handle_route(route: Route):
                 await route.abort()
-
             await context.route(
                 "https://members.centralreach.com/crxapieks/session-lock/ping",
                 handle_route,
@@ -77,6 +75,7 @@ async def _process_update(self, file_content, update_type_str, instance):
                     logger.error(f"Error processing chunk: {result}")
                 else:
                     combined_results.update(result)
+            context.close()
 
         key_column = (
             "client_id" if update_type == UpdateType.SCHEDULE else "resource_id"

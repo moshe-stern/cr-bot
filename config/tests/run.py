@@ -37,7 +37,7 @@ directory_path = "test-files/" + test_type
 prod = "http://cr-bot.westus2.cloudapp.azure.com"
 local = "http://localhost:8000"
 
-url = f"{local if environment == 'local' else prod}/authorization"
+url: str = f"{local if environment == 'local' else prod}/authorization"
 task_ids = []
 headers = {"X-Secret-Key": os.getenv("SECRET_KEY")}
 for filename in os.listdir(directory_path):

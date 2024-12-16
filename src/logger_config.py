@@ -1,5 +1,6 @@
 import logging
 
+
 # Set up a basic logger
 logging.basicConfig(
     level=logging.INFO,  # Set the logging level
@@ -8,3 +9,4 @@ logging.basicConfig(
 
 # Create a logger instance
 logger = logging.getLogger("cr-bot")
+

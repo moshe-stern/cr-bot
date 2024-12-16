@@ -28,7 +28,6 @@ async def handle_dialogs(page: Page, remove: bool = False):
             await continue_to_login.click()
         if await close_button.is_visible():
             await close_button.click()
-
     if remove:
         await page.remove_locator_handler(page.get_by_role("dialog"))
     else:

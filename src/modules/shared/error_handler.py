@@ -1,7 +1,6 @@
 import os
 from flask import request, jsonify, abort
 
-
 def register_error_handlers(app):
     @app.before_request
     def before_request():
