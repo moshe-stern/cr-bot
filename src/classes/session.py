@@ -56,7 +56,7 @@ class CRSession(requests.Session):
                 f"could not get access token status code: {response.status_code}"
             )
         self._cr_token_response = CR_TokenResponse(
-            **response.json(), creation_time=time.time()
+            **response.json(), creation_time=int(time.time())
         )
 
     def _make_cookies(self):

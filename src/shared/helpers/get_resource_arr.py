@@ -2,13 +2,14 @@ from pandas import DataFrame
 
 from src.classes import (CRCodeResource, CRPayerResource, CRResource,
                          CRScheduleResource, UpdateType)
-from src.controllers.authorization.services.auth_settings.update_payors import \
-    update_payors
-from src.controllers.authorization.services.auth_settings.update_service_codes import \
-    update_service_codes
 
 
 def get_resource_arr(update_type: UpdateType, df: DataFrame):
+    from src.controllers.authorization.services.auth_settings.update_payors import \
+        update_payors
+    from src.controllers.authorization.services.auth_settings.update_service_codes import \
+        update_service_codes
+
     required_columns: set[str] = {""}
     resources: list[CRResource] = []
     if update_type == UpdateType.CODES:
@@ -28,7 +29,7 @@ def get_resource_arr(update_type: UpdateType, df: DataFrame):
     if update_type == UpdateType.CODES:
         resources = [
             CRCodeResource(
-                    resource_id=int(row["resource_id"]),
+                resource_id=int(row["resource_id"]),
                 update=update_service_codes,
                 to_remove=[
                     str(code).strip() for code in row["codes_to_remove"].split(";")

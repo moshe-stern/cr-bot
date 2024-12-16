@@ -3,8 +3,8 @@ import base64
 import logging
 import tempfile
 import traceback
-from threading import Lock
 
+from celery.backends.redis import RedisBackend
 from playwright.async_api import Route, async_playwright
 
 from celery_app import celery
@@ -19,19 +19,16 @@ from src.shared.helpers.get_updated_file import get_updated_file
 from src.shared.helpers.index import divide_list
 from src.shared.start import start
 
-lock = Lock()
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 @celery.task(bind=True, queue="cr-bot-queue")
-def process_update(self, file_content, update_type_str, instance):
-    res = asyncio.run(_process_update(self, file_content, update_type_str, instance))
-    return res
+def process_update(self, file_content: bytes, update_type_str: str, instance: str):
+    return asyncio.run(_process_update(self, file_content, update_type_str, instance))
 
 
-async def _process_update(self, file_content, update_type_str, instance):
+async def _process_update(self, file_content, update_type_str, instance) -> str:
     logger.info(f"Starting process_update with type: {update_type_str}")
     try:
         file_data = base64.b64decode(file_content)
@@ -40,10 +37,11 @@ async def _process_update(self, file_content, update_type_str, instance):
             raise ValueError("Invalid update type specified.")
         update_type = UpdateType(update_type_str)
         resources = get_resource_arr(update_type, df)
-        task = celery.backend.get_task_meta(self.request.id)
+        backend: RedisBackend = celery.backend
+        task = backend.get_task_meta(self.request.id)
         task_results = task.get("result") or {}
         task_results["total_resources"] = len(resources)
-        celery.backend.store_result(self.request.id, task_results, "PENDING")
+        backend.store_result(self.request.id, task_results, "PENDING")
         chunks = divide_list(resources, 5)
         logger.info(f"Divided work into {len(chunks)} chunks")
         combined_results = {}
@@ -59,7 +57,6 @@ async def _process_update(self, file_content, update_type_str, instance):
             )
 
             async def process_chunk_wrapper(chunk, child_id):
-                """Wrapper to handle chunk processing with its own page."""
                 async with await context.new_page() as page:
                     return await process_chunk(
                         self.request.id, child_id, chunk, update_type, page
@@ -76,7 +73,7 @@ async def _process_update(self, file_content, update_type_str, instance):
                     logger.error(f"Error processing chunk: {result}")
                 else:
                     combined_results.update(result)
-            context.close()
+            await context.close()
 
         key_column = (
             "client_id" if update_type == UpdateType.SCHEDULE else "resource_id"

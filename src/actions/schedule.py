@@ -22,11 +22,3 @@ def get_appointments(session: CRSession, client_id: int):
             "_utcOffsetMinutes": 300,
         },
     ).json()["items"]
-
-
-def load_events(course_id):
-    print(API.SCHEDULE.LOAD_EVENTS)
-
-
-def update_events(course_id):
-    print(API.SCHEDULE.UPDATE_EVENTS)
