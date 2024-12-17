@@ -1,9 +1,10 @@
 import asyncio
-from typing import cast
 
-from playwright.async_api import Page, async_playwright, Route
-from src.classes import CRResource, UpdateType, CRScheduleResource, CRAuthResource
-from src.controllers.services import update_auth_settings, update_schedules
+from playwright.async_api import Page, Route, async_playwright
+
+from src.classes import CRResource, UpdateType
+from src.services import (update_auth_settings, update_billings,
+                          update_schedules)
 from src.shared import divide_list, logger, start
 
 
@@ -51,10 +52,8 @@ async def process_chunk(
     page: Page,
 ) -> dict[int, bool | None]:
     if update_type == UpdateType.SCHEDULE:
-        return await update_schedules(
-            parent_task_id, child_id, cast(list[CRScheduleResource], chunk), page
-        )
-    else:
-        return await update_auth_settings(
-            parent_task_id, child_id, cast(list[CRAuthResource], chunk), page
-        )
+        return await update_schedules(parent_task_id, child_id, chunk, page)
+    elif update_type == UpdateType.CODES or update_type.PAYORS:
+        return await update_auth_settings(parent_task_id, child_id, chunk, page)
+    elif update_type == UpdateType.BILLING:
+        return await update_billings(parent_task_id, child_id, chunk, page)

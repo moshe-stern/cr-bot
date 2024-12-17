@@ -1,11 +1,14 @@
 import re
+from dataclasses import fields
 from typing import Any
 
 from celery.backends.redis import RedisBackend
 from celery.result import AsyncResult
+from pandas import DataFrame
 
 from celery_app import celery
-from src.classes import CRResource
+from src.classes import (BillingUpdateKeys, CRResource, PayorUpdateKeys,
+                         ScheduleUpdateKeys, ServiceCodeUpdateKeys, UpdateType)
 
 
 def divide_list(lst: list[CRResource], n: int) -> list[list[CRResource]]:
@@ -32,7 +35,7 @@ def update_task_progress(task_id: int, progress: int, child_id: int):
 
 def get_task_progress(task: AsyncResult):
     if task.info is None:
-        return 'task is still queued'
+        return "task is still queued"
     child_progress_pattern = re.compile(r"^child_progress_")
     total_child_progress = [
         value for key, value in task.info.items() if child_progress_pattern.match(key)
@@ -44,3 +47,27 @@ def get_task_progress(task: AsyncResult):
         return f"{child_sum} / {task.result.get('total_resources')}"
     else:
         return "Invalid task result"
+
+
+def check_required_cols(update_type: UpdateType, df: DataFrame):
+    required_columns: list[str] = []
+    if update_type == UpdateType.CODES:
+        required_columns = ["resource_id"] + list(
+            ServiceCodeUpdateKeys.__annotations__.keys()
+        )
+    elif update_type == UpdateType.PAYORS:
+        required_columns = ["resource_id"] + list(
+            PayorUpdateKeys.__annotations__.keys()
+        )
+    elif update_type == UpdateType.SCHEDULE:
+        required_columns = ["client_id"] + list(
+            ScheduleUpdateKeys.__annotations__.keys()
+        )
+    elif update_type == UpdateType.BILLING:
+        required_columns = ["client_id"] + list(
+            BillingUpdateKeys.__annotations__.keys()
+        )
+    if not set(required_columns).issubset(df.columns):
+        raise Exception(
+            f"Missing required columns. Required columns are: {required_columns}", 400
+        )

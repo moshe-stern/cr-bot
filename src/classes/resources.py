@@ -1,68 +1,48 @@
+import dataclasses
+import datetime
 from enum import Enum
-from typing import Awaitable, Callable, Generic, List, Optional, TypeVar
-
-from playwright.async_api import Page
-
-T = TypeVar("T", bound="CRAuthResource")
+from typing import Tuple
 
 
 class UpdateType(Enum):
     CODES = "Service Codes"
     PAYORS = "Payors"
     SCHEDULE = "Schedules"
+    BILLING = "Billing"
 
 
-class CRResource:
+class UpdateKeys:
     pass
 
 
-class CRAuthResource(CRResource, Generic[T]):
-    resource_id: int
-    update: Callable[[T, Page], Awaitable[bool | None]]
-
-    def __init__(
-        self,
-        resource_id: int,
-        update: Callable[[T, Page], Awaitable[bool | None]],
-    ):
-        self.resource_id = resource_id
-        self.update = update
+@dataclasses.dataclass
+class CRResource:
+    id: int
+    update_type: UpdateType
+    updates: UpdateKeys
 
 
-class CRCodeResource(CRAuthResource["CRCodeResource"]):
-    to_remove: List[str]
-    to_add: List[str]
-
-    def __init__(
-        self,
-        resource_id: int,
-        update: Callable[["CRCodeResource", Page], Awaitable[bool | None]],
-        to_remove: Optional[List[str]] = None,
-        to_add: Optional[List[str]] = None,
-    ):
-        super().__init__(resource_id, update)
-        self.to_remove = to_remove if to_remove is not None else []
-        self.to_add = to_add if to_add is not None else []
+@dataclasses.dataclass
+class ServiceCodeUpdateKeys(UpdateKeys):
+    to_add: list[str]
+    to_remove: list[str]
 
 
-class CRPayerResource(CRAuthResource["CRPayerResource"]):
+@dataclasses.dataclass
+class ScheduleUpdateKeys(UpdateKeys):
+    codes: list[str]
+
+
+@dataclasses.dataclass
+class PayorUpdateKeys(UpdateKeys):
     global_payer: str
 
-    def __init__(
-        self,
-        resource_id: int,
-        update: Callable[["CRPayerResource", Page], Awaitable[bool | None]],
-        global_payer: str,
-    ):
-        super().__init__(resource_id, update)
-        self.global_payer = global_payer
 
-
-class CRScheduleResource(CRResource):
-    def __init__(
-        self,
-        client_id: int,
-        codes: List[str],
-    ):
-        self.client_id = client_id
-        self.codes = codes
+@dataclasses.dataclass
+class BillingUpdateKeys(UpdateKeys):
+    start_date: str
+    end_date: str
+    insurance_id: int
+    authorization_name: str
+    place_of_service: str
+    service_address: str

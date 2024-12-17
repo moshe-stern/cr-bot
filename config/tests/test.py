@@ -25,7 +25,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "directory_path",
-    choices=["Service Codes", "Payors", "Schedules"],
+    choices=["Service Codes", "Payors", "Schedules", "Billing"],
     help="Specify the directory path. Default is 'test-files'.",
 )
 args = parser.parse_args()

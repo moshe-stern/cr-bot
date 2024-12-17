@@ -1,59 +1,63 @@
 from pandas import DataFrame
 
-from src.classes import (
-    CRCodeResource,
-    CRPayerResource,
-    CRResource,
-    CRScheduleResource,
-    UpdateType,
-)
+from src.classes import (BillingUpdateKeys, CRResource, PayorUpdateKeys,
+                         ScheduleUpdateKeys, ServiceCodeUpdateKeys, UpdateType)
+
+from .index import check_required_cols
 
 
 def get_resource_arr(update_type: UpdateType, df: DataFrame):
-    from src.controllers.services import update_payors, update_service_codes
-
-    required_columns: set[str] = {""}
+    check_required_cols(update_type, df)
     resources: list[CRResource] = []
     if update_type == UpdateType.CODES:
-        required_columns = {
-            "resource_id",
-            "codes_to_remove",
-            "codes_to_add",
-        }
-    elif update_type == UpdateType.PAYORS:
-        required_columns = {"resource_id", "global_payor"}
-    elif update_type == UpdateType.SCHEDULE:
-        required_columns = {"client_id", "codes_to_add"}
-    if not required_columns.issubset(df.columns):
-        raise Exception(
-            f"Missing required columns. Required columns are: {required_columns}", 400
-        )
-    if update_type == UpdateType.CODES:
         resources = [
-            CRCodeResource(
-                resource_id=int(row["resource_id"]),
-                update=update_service_codes,
-                to_remove=[
-                    str(code).strip() for code in row["codes_to_remove"].split(";")
-                ],
-                to_add=[str(code).strip() for code in row["codes_to_add"].split(";")],
+            CRResource(
+                id=1,
+                update_type=UpdateType.CODES,
+                updates=ServiceCodeUpdateKeys(
+                    to_remove=[
+                        str(code).strip() for code in row["codes_to_remove"].split(";")
+                    ],
+                    to_add=[
+                        str(code).strip() for code in row["codes_to_add"].split(";")
+                    ],
+                ),
             )
             for _, row in df.iterrows()
         ]
     elif update_type == UpdateType.PAYORS:
         resources = [
-            CRPayerResource(
-                resource_id=int(row["resource_id"]),
-                update=update_payors,
-                global_payer=str(row["global_payor"]),
+            CRResource(
+                id=row["resource_id"].iloc[0],
+                update_type=UpdateType.PAYORS,
+                updates=PayorUpdateKeys(global_payer=str(row["global_payor"])),
             )
             for _, row in df.iterrows()
         ]
     elif update_type == UpdateType.SCHEDULE:
         resources = [
-            CRScheduleResource(
-                client_id=int(row["client_id"]),
-                codes=[str(code).strip() for code in row["codes_to_add"].split(";")],
+            CRResource(
+                id=row["client_id"].iloc[0],
+                updates=ScheduleUpdateKeys(
+                    codes=[str(code).strip() for code in row["codes_to_add"].split(";")]
+                ),
+                update_type=UpdateType.SCHEDULE,
+            )
+            for _, row in df.iterrows()
+        ]
+    elif update_type == UpdateType.BILLING:
+        resources = [
+            CRResource(
+                id=row["client_id"].iloc[0],
+                updates=BillingUpdateKeys(
+                    start_date=str(row["start_date"]),
+                    end_date=str(row["end_date"]),
+                    insurance_id=row["insurance_id"].iloc[0],
+                    authorization_name=str(row["authorization"]),
+                    place_of_service=str(row["place_of_service"]),
+                    service_address=str(row["service_address"]),
+                ),
+                update_type=UpdateType.SCHEDULE,
             )
             for _, row in df.iterrows()
         ]

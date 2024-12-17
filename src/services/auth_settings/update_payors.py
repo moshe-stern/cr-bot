@@ -1,18 +1,21 @@
+from typing import cast
+
 from playwright.async_api import Page
 
-from src.classes import CRPayerResource
+from src.classes import CRResource, PayorUpdateKeys
 
 global_payer = None
 
 
-async def update_payors(payor_resource: CRPayerResource, page: Page):
+async def update_payors(payor_resource: CRResource, page: Page):
+    resource_global_payer = cast(PayorUpdateKeys, payor_resource.updates).global_payer
     combo = page.get_by_role("combobox")
     await combo.click()
-    await combo.select_option(payor_resource.global_payer)
+    await combo.select_option()
     await page.keyboard.press("Enter")
     await page.get_by_role("button", name="Save", exact=True).click()
     if not global_payer:
-        await set_global_payer(page, payor_resource.global_payer)
+        await set_global_payer(page, str(resource_global_payer))
     return True
 
 

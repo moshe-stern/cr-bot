@@ -1,4 +1,5 @@
 BASE_URL = "https://members.centralreach.com/api/"
+BASE_URL_CRX = "https://members.centralreach.com/crxapi/"
 
 
 class AuthSettings:
@@ -12,9 +13,7 @@ class AuthSettings:
 class ServiceCodes:
     def __init__(self):
         self.GET = f"{BASE_URL}?resources.getservicecodes"
-        self.GET_PLACES_OF_SERVICE = (
-            "https://members.centralreach.com/crxapieks/placesofservice"
-        )
+        self.GET_PLACES_OF_SERVICE = f"{BASE_URL_CRX}placesofservice"
 
 
 class Authorization:
@@ -30,8 +29,19 @@ class Schedule:
         self.GET_APPOINTMENTS = f"{BASE_URL}?contacts.loadcontactappointments"
 
 
+class Billing:
+    def __init__(self):
+        self.GET = f"{BASE_URL_CRX}internal/billing/query"
+        self.SET_PAYOR = f"{BASE_URL}?billingmanager.setpayor"
+        self.GET_CLIENT_PAYORS = f"{BASE_URL}?billingmanager.loadclientspayors"
+        self.GET_AUTH_CODES = (
+            f"{BASE_URL}?billingmanager.loadprocedurecodesandauthorizations"
+        )
+
+
 class API:
     AUTH_SETTINGS = AuthSettings()
     SERVICE_CODES = ServiceCodes()
     AUTHORIZATION = Authorization()
     SCHEDULE = Schedule()
+    BILLING = Billing()

@@ -2,29 +2,33 @@ from typing import List, Union
 
 from playwright.async_api import Page
 
-from src.actions.auth_settings import load_auth_settings
-from src.classes import API, CRAuthResource
-from src.shared import get_cr_session, handle_dialogs, logger, update_task_progress
+from src.api import API
+from src.api.auth_settings import load_auth_settings
+from src.classes import CRResource, UpdateType
+from src.shared import (get_cr_session, handle_dialogs, logger,
+                        update_task_progress)
 
 
 async def update_auth_settings(
     parent_task_id: int,
     child_id: int,
-    resources_to_update: List[CRAuthResource],
+    resources_to_update: List[CRResource],
     page: Page,
 ):
+    from src.services import update_payors, update_service_codes
+
     cr_session = await get_cr_session()
     updated_resources: dict[int, Union[bool, None]] = {
-        resource.resource_id: None for resource in resources_to_update
+        resource.id: None for resource in resources_to_update
     }
     for index, resource in enumerate(resources_to_update):
         try:
             await handle_dialogs(page)
             removed_handler = False
-            auth_settings = load_auth_settings(cr_session, resource.resource_id)
+            auth_settings = load_auth_settings(cr_session, resource.id)
             updated_settings: bool | None = None
             if len(auth_settings) > 0:
-                authorization_page = f"https://members.centralreach.com/#resources/details/?id={resource.resource_id}&tab=authorizations"
+                authorization_page = f"https://members.centralreach.com/#resources/details/?id={resource.id}&tab=authorizations"
                 await goto_auth_settings(page, authorization_page)
                 for auth_setting in auth_settings:
                     group = page.locator(f"#group-auth-{auth_setting['Id']}")
@@ -36,11 +40,14 @@ async def update_auth_settings(
                     await group.hover()
                     await edit.click()
                     page.expect_response(API.AUTH_SETTINGS.LOAD_SETTING)
-                    updated_settings = await resource.update(resource, page)
-            updated_resources[resource.resource_id] = updated_settings
+                    if resource.update_type == UpdateType.PAYORS:
+                        updated_settings = await update_payors(resource, page)
+                    elif resource.update_type == UpdateType.CODES:
+                        updated_settings = await update_service_codes(resource, page)
+            updated_resources[resource.id] = updated_settings
         except Exception as e:
-            updated_resources[resource.resource_id] = False
-            logger.error(f"Failed to update resource {resource.resource_id}: {e}")
+            updated_resources[resource.id] = False
+            logger.error(f"Failed to update resource {resource.id}: {e}")
         update_task_progress(parent_task_id, index, child_id)
     return updated_resources
 
