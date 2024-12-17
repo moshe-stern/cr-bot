@@ -8,7 +8,7 @@ global_payer = None
 
 
 async def update_payors(payor_resource: CRResource, page: Page):
-    resource_global_payer = cast(PayorUpdateKeys, payor_resource.updates).global_payer
+    resource_global_payer = cast(PayorUpdateKeys, payor_resource.updates).global_payor
     combo = page.get_by_role("combobox")
     await combo.click()
     await combo.select_option()

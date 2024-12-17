@@ -1,4 +1,5 @@
 import re
+import numpy as np
 from dataclasses import fields
 from typing import Any
 
@@ -67,7 +68,7 @@ def check_required_cols(update_type: UpdateType, df: DataFrame):
         required_columns = ["client_id"] + list(
             BillingUpdateKeys.__annotations__.keys()
         )
-    if not set(required_columns).issubset(df.columns):
+    if required_columns != df.columns.tolist():
         raise Exception(
             f"Missing required columns. Required columns are: {required_columns}", 400
         )
