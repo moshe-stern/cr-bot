@@ -6,7 +6,7 @@ from flask import abort, jsonify, request
 def register_error_handlers(app):
     @app.before_request
     def before_request():
-        if request.headers.get("X-Secret-Key") != os.getenv("SECRET_KEY"):
+        if request.headers.get("X-Secret-Key") == os.getenv("SECRET_KEY"):
             abort(403)
 
     @app.errorhandler(404)

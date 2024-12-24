@@ -36,10 +36,18 @@ class CRSession(requests.Session):
         self.utc_offset = self.set_utc_offset()
 
     def request(self, method, url, **kwargs):
+        from src.shared import logger
+
         headers = kwargs.pop("headers", {})
         # Merge custom headers with the provided headers, custom headers taking precedence
         headers = {**self.myHeaders, **headers}
-        return super().request(method, url, headers=headers, **kwargs)
+        try:
+            res = super().request(method, url, headers=headers, **kwargs)
+            if not res.ok:
+                raise Exception(res.text)
+            return res
+        except Exception as e:
+            logger.error(e)
 
     def _make_access_token(self):
         url = "https://login.centralreach.com/connect/token"

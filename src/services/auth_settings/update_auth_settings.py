@@ -5,8 +5,7 @@ from playwright.async_api import Page
 from src.api import API
 from src.api.auth_settings import load_auth_settings
 from src.classes import CRResource, UpdateType
-from src.shared import (get_cr_session, handle_dialogs, logger,
-                        update_task_progress)
+from src.shared import get_cr_session, handle_dialogs, logger, update_task_progress
 
 
 async def update_auth_settings(

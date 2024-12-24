@@ -1,14 +1,17 @@
 from datetime import date, datetime
 
+from typing import TypedDict
+
 from src.api import API
 from src.classes import CRSession
 
 
-class Billing:
+class Billing(TypedDict):
     Id: int
     DateOfService: date
     ClientId: int
     ProviderId: int
+    ProcedureCodeString: str
 
 
 def get_billings(session: CRSession, client_id: int, start_date: str, end_date: str):
@@ -22,8 +25,8 @@ def get_billings(session: CRSession, client_id: int, start_date: str, end_date: 
             "startdate": start_date,
             "enddate": end_date,
         },
-    ).json()
-    return items
+    )
+    return items.json()["items"] if items else []
 
 
 def set_billing_payor(session: CRSession, billing_id: int, insurance_id: int):
@@ -44,9 +47,9 @@ def get_auth_codes(session: CRSession, billing: Billing):
     return session.post(
         API.BILLING.GET_AUTH_CODES,
         json={
-            "clientId": billing.ClientId,
-            "providerId": billing.ProviderId,
-            "dateOfService": billing.DateOfService,
+            "clientId": billing["ClientId"],
+            "providerId": billing["ProviderId"],
+            "dateOfService": billing["DateOfService"],
             "segmentId": "",
             "includeRequiresConversion": True,
             "_utcOffsetMinutes": 300,

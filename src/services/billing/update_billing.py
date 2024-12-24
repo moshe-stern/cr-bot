@@ -1,3 +1,6 @@
+import re
+import time
+import traceback
 from typing import Union, cast
 
 from playwright.async_api import Page
@@ -23,37 +26,41 @@ async def update_billings(
                 billing_updates.start_date,
                 billing_updates.end_date,
             )
+            print(len(billings))
             for billing in billings:
-                set_billing_payor(cr_session, billing.Id, billing_updates.insurance_id)
-                await update_billing(
-                    page,
-                    billing.Id,
-                    billing_updates.authorization_name,
-                    billing_updates.place_of_service,
-                    billing_updates.service_address,
+                res = set_billing_payor(
+                    cr_session, billing["Id"], billing_updates.insurance_id
                 )
+                if not res["success"]:
+                    raise Exception("Failed to set Payor")
+                await update_billing(page, billing, billing_updates)
             updated_resources[resource.id] = True
-            update_task_progress(parent_task_id, index + 1, child_id)
+            # update_task_progress(parent_task_id, index + 1, child_id)
         except Exception as e:
             updated_resources[resource.id] = False
             logger.error(f"Failed to update resource {resource.id}: {e}")
+            traceback.print_exc()
     return updated_resources
 
 
 async def update_billing(
     page: Page,
-    billing_id: int,
-    authorization: str,
-    place_of_service: str,
-    service_address: str,
+    billing: Billing,
+    updates: BillingUpdateKeys,
 ):
     await page.goto(
-        f"https://members.centralreach.com/#billingmanager/timesheeteditor/?&id={billing_id}"
+        f"https://members.centralreach.com/#billingmanager/timesheeteditor/?&id={billing['Id']}"
     )
-    await page.locator(".MuiBox-root > .text-muted").click()
-    await page.locator("a").filter(has_text=authorization).click()
-    await page.get_by_test_id("timesheet-placeofservice").select_option(
-        place_of_service
-    )
-    await page.locator("#selectedServiceAddressId").select_option(service_address)
-    await page.get_by_role("button", name="SUBMIT").click()
+    await page.locator("div").filter(
+        has_text=re.compile(rf"^ServiceCode{billing['ProcedureCodeString']}$")
+    ).locator("a").click()
+    new_auth = page.locator("a").filter(has_text="kjkkjkj")
+    time.sleep(5)
+    if await new_auth.is_visible():
+        await page.get_by_test_id("timesheet-placeofservice").select_option(
+            updates.place_of_service, timeout=1
+        )
+        await page.locator("#selectedServiceAddressId").select_option(
+            updates.service_address, timeout=1
+        )
+        await page.get_by_role("button", name="SUBMIT").click()

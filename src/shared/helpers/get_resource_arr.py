@@ -1,18 +1,24 @@
 from pandas import DataFrame
 
-from src.classes import (BillingUpdateKeys, CRResource, PayorUpdateKeys,
-                         ScheduleUpdateKeys, ServiceCodeUpdateKeys, UpdateType)
-
+from src.classes import (
+    BillingUpdateKeys,
+    CRResource,
+    PayorUpdateKeys,
+    ScheduleUpdateKeys,
+    ServiceCodeUpdateKeys,
+    UpdateType,
+)
 
 
 def get_resource_arr(update_type: UpdateType, df: DataFrame):
     from .index import check_required_cols
+
     check_required_cols(update_type, df)
     resources: list[CRResource] = []
     if update_type == UpdateType.CODES:
         resources = [
             CRResource(
-                id=row['resource_id'],
+                id=row["resource_id"],
                 update_type=UpdateType.CODES,
                 updates=ServiceCodeUpdateKeys(
                     to_remove=[
@@ -57,7 +63,7 @@ def get_resource_arr(update_type: UpdateType, df: DataFrame):
                     place_of_service=str(row["place_of_service"]),
                     service_address=str(row["service_address"]),
                 ),
-                update_type=UpdateType.SCHEDULE,
+                update_type=UpdateType.BILLING,
             )
             for _, row in df.iterrows()
         ]
