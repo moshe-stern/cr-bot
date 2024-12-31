@@ -17,7 +17,7 @@ async def update_service_codes(code_resource: CRResource, page: Page) -> bool | 
     await service_codes.click()
     updated_codes = [0, 0]
     for code in service_code_updates.to_add:
-        if len(get_service_codes(cr_session, code)) == 0:
+        if len(await get_service_codes(cr_session, code)) == 0:
             continue
         updated_codes[0] += 1
         has_code = page.locator("#service-codes div").get_by_text(code, exact=True)
