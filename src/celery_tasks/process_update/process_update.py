@@ -7,7 +7,6 @@ import traceback
 from celery.backends.redis import RedisBackend
 
 from celery_app import celery
-from src.celery_tasks import handle_updates
 from src.celery_tasks.process_update.start_playwright import start_playwright
 from src.classes import UpdateType
 from src.shared.helpers import get_data_frame, get_resource_arr, get_updated_file
@@ -22,6 +21,7 @@ def process_update(self, file_content: bytes, update_type_str: str, instance: st
 
 
 async def _process_update(self, file_content, update_type_str, instance) -> str:
+    from src.celery_tasks import handle_updates
     logger.info(f"Starting process_update with type: {update_type_str}")
     try:
         file_data = base64.b64decode(file_content)

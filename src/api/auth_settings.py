@@ -11,8 +11,11 @@ async def load_auth_settings(
         {"resourceId": resources_id, "_utcOffsetMinutes": 300},
         session,
     )
-    return res.json()["authorizationSettings"] if res.ok else []
-
+    if res.ok:
+        data = await res.json()
+        return data["authorizationSettings"]
+    else:
+        return []
 
 def load_auth_setting(session: CRSession, authorization_setting_id: int):
     return session.post(
@@ -37,5 +40,8 @@ async def get_service_codes(session: CRSession, code: str) -> list[int]:
         {"search": code, "searchTerm": code, "_utcOffsetMinutes": 300},
         session,
     )
-    data = [item["Id"] for item in response.json()["codes"]] if response.ok else []
-    return data
+    if response.ok:
+        data = await response.json()
+        return [item["Id"] for item in data["codes"]]
+    else:
+        return []
