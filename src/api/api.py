@@ -18,7 +18,8 @@ class ServiceCodes:
 
 class Authorization:
     def __init__(self):
-        self.GET = f"{BASE_URL}?resources.setresourceauthorization"
+        self.SET = f"{BASE_URL}?resources.setresourceauthorization"
+        self.DELETE = f"{BASE_URL}?resources.deleteResourceAuthorization"
         self.LOAD_AUTHS_CODES = f"{BASE_URL}?scheduling.loadauthsandcodes"
 
 

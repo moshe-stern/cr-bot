@@ -24,13 +24,13 @@ async def update_auth_settings(
         try:
             await handle_dialogs(page)
             removed_handler = False
-            auth_settings = load_auth_settings(cr_session, resource.id)
+            auth_settings = await load_auth_settings(cr_session, resource.id)
             updated_settings: bool | None = None
             if len(auth_settings) > 0:
                 authorization_page = f"https://members.centralreach.com/#resources/details/?id={resource.id}&tab=authorizations"
                 await goto_auth_settings(page, authorization_page)
                 for auth_setting in auth_settings:
-                    group = page.locator(f"#group-auth-{auth_setting['Id']}")
+                    group = page.locator(f"#group-auth-{auth_setting.Id}")
                     edit = group.locator("a").nth(1)
                     await group.wait_for(state="visible")
                     if not removed_handler:
@@ -41,8 +41,6 @@ async def update_auth_settings(
                     page.expect_response(API.AUTH_SETTINGS.LOAD_SETTING)
                     if resource.update_type == UpdateType.PAYORS:
                         updated_settings = await update_payors(resource, page)
-                    elif resource.update_type == UpdateType.CODES:
-                        updated_settings = await update_service_codes(resource, page)
             updated_resources[resource.id] = updated_settings
         except Exception as e:
             updated_resources[resource.id] = False

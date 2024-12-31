@@ -3,16 +3,22 @@ import asyncio
 from playwright.async_api import Page, Route, async_playwright
 
 from src.classes import CRResource, UpdateType
-from src.services import update_auth_settings, update_billings, update_schedules
+from src.services import (
+    update_auth_settings,
+    update_billings,
+    update_schedules,
+    update_service_codes_v2,
+)
 from src.shared import divide_list, logger, start
 
 
 async def start_playwright(
-    req_id: int, instance: str, update_type: UpdateType, resources: list[CRResource]
+    chunks: list[list[CRResource]],
+    req_id: int,
+    instance: str,
+    update_type: UpdateType,
+    combined_results: dict,
 ):
-    chunks = divide_list(resources, 5)
-    combined_results = {}
-    logger.info(f"Divided work into {len(chunks)} chunks")
     async with async_playwright() as p:
 
         async def handle_route(route: Route):
@@ -27,7 +33,6 @@ async def start_playwright(
             "https://members.centralreach.com/crxapieks/session-lock/ping",
             handle_route,
         )
-
         chunk_results = await asyncio.gather(
             *(
                 process_chunk_wrapper(chunk, index + 1)
@@ -40,7 +45,6 @@ async def start_playwright(
             else:
                 combined_results.update(result)
         await context.close()
-        return combined_results
 
 
 async def process_chunk(

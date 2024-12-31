@@ -7,6 +7,7 @@ import traceback
 from celery.backends.redis import RedisBackend
 
 from celery_app import celery
+from src.celery_tasks import handle_updates
 from src.celery_tasks.process_update.start_playwright import start_playwright
 from src.classes import UpdateType
 from src.shared.helpers import get_data_frame, get_resource_arr, get_updated_file
@@ -34,8 +35,8 @@ async def _process_update(self, file_content, update_type_str, instance) -> str:
         task_results = task.get("result") or {}
         task_results["total_resources"] = len(resources)
         backend.store_result(self.request.id, task_results, "PENDING")
-        combined_results = await start_playwright(
-            self.request.id, instance, update_type, resources
+        combined_results = await handle_updates(
+            resources, self.request.id, instance, update_type
         )
         key_column = (
             "client_id" if update_type == UpdateType.SCHEDULE else "resource_id"
