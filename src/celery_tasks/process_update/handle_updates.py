@@ -10,7 +10,7 @@ async def handle_updates(
 ):
     from src.celery_tasks import start_playwright
 
-    chunks = divide_list(resources, 20)
+    chunks = divide_list(resources, 5)
     combined_results: dict = {}
     logger.info(f"Divided work into {len(chunks)} chunks")
     update_results = await start_playwright(chunks, req_id, instance, update_type)
