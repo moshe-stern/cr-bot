@@ -26,6 +26,7 @@ jobs:
     - name: Deploy to VM
       run: |
         ssh ${{ secrets.SSH_USER }}@${{ secrets.DOMAIN_NAME }} "
+        bash &&
         cd cr-fn &&
         git pull origin main &&
         source myenv/bin/activate &&
