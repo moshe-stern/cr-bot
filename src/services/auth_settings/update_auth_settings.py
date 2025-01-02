@@ -31,14 +31,15 @@ async def update_auth_settings(
             if len(auth_settings) > 0:
                 authorization_page = f"https://members.centralreach.com/#resources/details/?id={resource.id}&tab=authorizations"
                 await goto_auth_settings(page, authorization_page)
-                if resource.update_type == UpdateType.PAYORS:
+                for index_2, auth_setting in enumerate(auth_settings):
                     if not removed_handler:
+                        time.sleep(2)
                         await handle_dialogs(page, True)
                         removed_handler = True
-                    await set_global_payer(
-                        page, cast(PayorUpdateKeys, resource.updates).global_payor
-                    )
-                for auth_setting in auth_settings:
+                    if resource.update_type == UpdateType.PAYORS and index_2 == 0:
+                        await set_global_payer(
+                            page, cast(PayorUpdateKeys, resource.updates).global_payor
+                        )
                     group = page.locator(f"#group-auth-{auth_setting['Id']}")
                     edit = group.locator("a").nth(1)
                     await group.wait_for(state="visible")
