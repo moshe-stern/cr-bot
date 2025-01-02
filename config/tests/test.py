@@ -49,6 +49,7 @@ for filename in os.listdir(directory_path):
                 logger.info("Switching back: " + os.path.splitext(filename)[0])
             else:
                 logger.info(os.path.splitext(filename)[0])
+            print("hello", url)
             data = {
                 "file": {
                     "$content-type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

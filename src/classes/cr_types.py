@@ -11,3 +11,13 @@ class Authorization:
 class AuthSetting:
     Id: int
     Authorizations: list[Authorization]
+
+
+@dataclasses.dataclass()
+class AuthorizationSettingPayload:
+    resourceId: int
+    insuranceCompanyId: int
+    authorizationSettingId: int
+    frequency: str
+    endDate: str
+    startDate: str

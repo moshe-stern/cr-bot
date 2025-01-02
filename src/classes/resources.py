@@ -47,9 +47,11 @@ class ScheduleUpdateKeys(UpdateKeys):
 
 class PayorUpdateKeys(UpdateKeys):
     global_payor: str
+    insurance_company_id: int
 
     def __init__(self, **kwargs) -> None:
         self.global_payor = kwargs.get("global_payor", "")
+        self.insurance_company_id = kwargs.get("insurance_company_id", 0)
 
 
 class BillingUpdateKeys(UpdateKeys):

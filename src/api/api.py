@@ -8,6 +8,7 @@ class AuthSettings:
         self.LOAD_SETTING = f"{BASE_URL}?resources.loadresourceauthorizationsetting"
         self.DELETE = f"{BASE_URL}?resources.deleteresourceauthorizationsetting"
         self.SET_SETTING = f"{BASE_URL}?resources.setresourceauthorizationsetting"
+        self.SET_GLOBAL_SETTING = f"{BASE_URL}?resources.setglobalauthorizationsettings"
 
 
 class ServiceCodes:

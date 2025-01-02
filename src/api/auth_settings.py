@@ -1,21 +1,23 @@
+from cryptography.hazmat.primitives.keywrap import aes_key_wrap
+
 from src.api import API
 from src.api.index import do_cr_post
-from src.classes import CRSession, AuthSetting
+from src.classes import CRSession, AuthSetting, AuthorizationSettingPayload
 
 
-async def load_auth_settings(
+def load_auth_settings(
     session: CRSession, resources_id: int
-) -> list[AuthSetting]:
-    res = await do_cr_post(
+) -> list[dict[str, str]]:
+    res = session.post(
         API.AUTH_SETTINGS.LOAD_SETTINGS,
-        {"resourceId": resources_id, "_utcOffsetMinutes": 300},
-        session,
+        json={"resourceId": resources_id, "_utcOffsetMinutes": 300},
     )
     if res.ok:
-        data = await res.json()
-        return data["authorizationSettings"]
+        data = res.json()
+        return data.get("authorizationSettings")
     else:
         return []
+
 
 def load_auth_setting(session: CRSession, authorization_setting_id: int):
     return session.post(
@@ -27,11 +29,27 @@ def load_auth_setting(session: CRSession, authorization_setting_id: int):
     ).json()
 
 
-def set_auth_setting(session: CRSession, service_code: int, setting_id: int):
-    return session.post(
+async def set_auth_setting(session: CRSession, payload: AuthorizationSettingPayload):
+    res = await do_cr_post(
         API.AUTH_SETTINGS.SET_SETTING,
-        json={"serviceCodeId": service_code, "settingsId": setting_id},
+        {
+            "resourceId": payload.resourceId,
+            "insuranceCompanyId": payload.insuranceCompanyId,
+            "authorizationSettingId": payload.authorizationSettingId,
+            "frequency": payload.frequency,
+            "endDate": payload.endDate,
+            "startDate": payload.startDate,
+        },
+        session,
     )
+    data = {"success": False}
+    if res.ok:
+        data = await res.json()
+    return {
+        "resource": payload.resourceId,
+        "setting": payload.authorizationSettingId,
+        "updated": data["success"],
+    }
 
 
 async def get_service_codes(session: CRSession, code: str) -> list[int]:

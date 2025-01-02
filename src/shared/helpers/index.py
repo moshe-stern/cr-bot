@@ -74,7 +74,8 @@ def check_required_cols(update_type: UpdateType, df: DataFrame):
         required_columns = ["client_id"] + list(
             BillingUpdateKeys.__annotations__.keys()
         )
-    if required_columns != df.columns.tolist():
-        raise Exception(
-            f"Missing required columns. Required columns are: {required_columns}", 400
-        )
+    # print(required_columns, df.columns.tolist())
+    # if required_columns != df.columns.tolist():
+    #     raise Exception(
+    #         f"Missing required columns. Required columns are: {required_columns}", 400
+    #     )

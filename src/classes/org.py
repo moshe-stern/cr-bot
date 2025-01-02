@@ -26,5 +26,5 @@ orgs: dict[str, CrORG] = {
     ),
     "Attain TSS": CrORG(
         1098187, "brightadmin", CrORGType.HOME.value, CrORGStr.ATTAIN.value
-    ),
+    )
 }
