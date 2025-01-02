@@ -24,9 +24,13 @@ jobs:
 
     # Pull the latest changes on the VM
     - name: Deploy to VM
-      run: |
-          "ssh moshestern@cr-bot-vm &&
-          cd cr-fn &&
-          git pull origin main &&
-          sudo systemctl restart cr-bot &&
-          sudo systemctl restart celery"
+      uses: appleboy/ssh-action@v0.1.8
+      with:
+        host: cr-bot-vm
+        username: moshestern
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd cr-fn
+          git pull origin main
+          sudo systemctl restart cr-bot
+          sudo systemctl restart celery
