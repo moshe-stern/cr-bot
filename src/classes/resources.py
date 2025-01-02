@@ -1,68 +1,71 @@
+import dataclasses
+import datetime
 from enum import Enum
-from typing import Awaitable, Callable, Generic, List, Optional, TypeVar
+from typing import Tuple
 
-from playwright.async_api import Page
-
-T = TypeVar("T", bound="CRAuthResource")
+from pandas import Series
 
 
 class UpdateType(Enum):
     CODES = "Service Codes"
     PAYORS = "Payors"
     SCHEDULE = "Schedules"
+    BILLING = "Billing"
 
 
-class CRResource:
+class UpdateKeys:
     pass
 
 
-class CRAuthResource(CRResource, Generic[T]):
-    resource_id: int
-    update: Callable[[T, Page], Awaitable[bool | None]]
+@dataclasses.dataclass
+class CRResource:
+    id: int
+    update_type: UpdateType
+    updates: UpdateKeys
 
-    def __init__(
-        self,
-        resource_id: int,
-        update: Callable[[T, Page], Awaitable[bool | None]],
-    ):
-        self.resource_id = resource_id
-        self.update = update
-
-
-class CRCodeResource(CRAuthResource["CRCodeResource"]):
-    to_remove: List[str]
-    to_add: List[str]
-
-    def __init__(
-        self,
-        resource_id: int,
-        update: Callable[["CRCodeResource", Page], Awaitable[bool | None]],
-        to_remove: Optional[List[str]] = None,
-        to_add: Optional[List[str]] = None,
-    ):
-        super().__init__(resource_id, update)
-        self.to_remove = to_remove if to_remove is not None else []
-        self.to_add = to_add if to_add is not None else []
+    def __init__(self, update_type: UpdateType, updates: UpdateKeys, **kwargs) -> None:
+        self.id = kwargs.get("id", 0)
+        self.updates = updates
+        self.update_type = update_type
 
 
-class CRPayerResource(CRAuthResource["CRPayerResource"]):
-    global_payer: str
+class ServiceCodeUpdateKeys(UpdateKeys):
+    to_add: list[str]
+    to_remove: list[str]
 
-    def __init__(
-        self,
-        resource_id: int,
-        update: Callable[["CRPayerResource", Page], Awaitable[bool | None]],
-        global_payer: str,
-    ):
-        super().__init__(resource_id, update)
-        self.global_payer = global_payer
+    def __init__(self, **kwargs) -> None:
+        self.to_add = kwargs.get("to_add", [])
+        self.to_remove = kwargs.get("to_remove", [])
 
 
-class CRScheduleResource(CRResource):
-    def __init__(
-        self,
-        client_id: int,
-        codes: List[str],
-    ):
-        self.client_id = client_id
-        self.codes = codes
+class ScheduleUpdateKeys(UpdateKeys):
+    codes: list[str]
+
+    def __init__(self, **kwargs) -> None:
+        self.codes = kwargs.get("codes", [])
+
+
+class PayorUpdateKeys(UpdateKeys):
+    global_payor: str
+    insurance_company_id: int
+
+    def __init__(self, **kwargs) -> None:
+        self.global_payor = kwargs.get("global_payor", "")
+        self.insurance_company_id = kwargs.get("insurance_company_id", 0)
+
+
+class BillingUpdateKeys(UpdateKeys):
+    start_date: str
+    end_date: str
+    insurance_id: int
+    authorization_name: str
+    place_of_service: str
+    service_address: str
+
+    def __init__(self, **kwargs) -> None:
+        self.start_date = kwargs.get("start_date", "")
+        self.end_date = kwargs.get("end_date", "")
+        self.insurance_id = kwargs.get("insurance_id", 0)
+        self.authorization_name = kwargs.get("authorization_name", "")
+        self.place_of_service = kwargs.get("place_of_service", "")
+        self.service_address = kwargs.get("service_address", "")
