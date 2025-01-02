@@ -112,20 +112,20 @@ if os.getenv("DEVELOPMENT") == "TRUE":
             async with async_playwright() as p:
                 data = request.files["file"]
                 file = pd.read_excel(data)
-                check_required_cols(UpdateType.PAYORS, file)
-                payor_resources = get_resource_arr(UpdateType.PAYORS, file)
+                check_required_cols(UpdateType.SCHEDULE, file)
+                payor_resources = get_resource_arr(UpdateType.SCHEDULE, file)
                 try:
                     chunks = divide_list(payor_resources, 20)
                     combined_results = {}
                     update_results = await start_playwright(
-                        chunks, None, "Attain TSS", UpdateType.PAYORS
+                        chunks, None, "Kadiant", UpdateType.SCHEDULE
                     )
                     for result in update_results:
                         if isinstance(result, Exception):
                             logger.error(f"Error processing chunk: {result}")
                         else:
                             combined_results.update(result)
-                    get_updated_file(file,combined_results, "resource_id")
+                    get_updated_file(file,combined_results, "client_id")
                     output_folder = "./output"
                     os.makedirs(output_folder, exist_ok=True)
                     output_file_path = os.path.join(output_folder, os.path.basename('results.csv'))

@@ -87,11 +87,11 @@ while len(task_ids) > 0:
                             "error: Failed to read Excel file. Please check the file format."
                         )
                     if "updated" in df.columns:
-                        total_count = len(df["status"])
-                        success_count = df["status"].eq("Successfully updated").sum()
-                        fail_count = df["status"].eq("Failed to update").sum()
+                        total_count = len(df["updated"])
+                        success_count = df["updated"].eq("Successfully updated").sum()
+                        fail_count = df["updated"].eq("Failed to update").sum()
                         already_count = (
-                            df["status"]
+                            df["updated"]
                             .eq("Didn't fail, but didn't update fully. Please verify")
                             .sum()
                         )

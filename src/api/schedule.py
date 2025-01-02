@@ -22,4 +22,8 @@ def get_appointments(session: CRSession, client_id: int):
             "pageSize": 20,
             "_utcOffsetMinutes": 300,
         },
-    ).json()
+    )
+    if res.ok:
+        data = res.json()
+        return data.get("items")
+    return []
