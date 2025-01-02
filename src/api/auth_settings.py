@@ -5,9 +5,7 @@ from src.api.index import do_cr_post
 from src.classes import CRSession, AuthSetting, AuthorizationSettingPayload
 
 
-def load_auth_settings(
-    session: CRSession, resources_id: int
-) -> list[dict[str, str]]:
+def load_auth_settings(session: CRSession, resources_id: int) -> list[dict[str, str]]:
     res = session.post(
         API.AUTH_SETTINGS.LOAD_SETTINGS,
         json={"resourceId": resources_id, "_utcOffsetMinutes": 300},

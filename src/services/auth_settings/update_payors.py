@@ -6,7 +6,6 @@ from src.classes import CRResource, PayorUpdateKeys
 from src.shared import logger
 
 
-
 async def update_payors(payor_resource: CRResource, page: Page):
     resource_global_payer = cast(PayorUpdateKeys, payor_resource.updates).global_payor
     combo = page.get_by_role("combobox")

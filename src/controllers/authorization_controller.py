@@ -25,7 +25,8 @@ from src.shared import (
     get_task_progress,
     start,
     get_cr_session,
-    logger, divide_list,
+    logger,
+    divide_list,
 )
 import pandas as pd
 import numpy as np
@@ -107,22 +108,22 @@ if os.getenv("DEVELOPMENT") == "TRUE":
             async with async_playwright() as p:
                 context = await start(p, "Attain TSS")
                 cr_session = await get_cr_session()
-                data = request.files['file']
+                data = request.files["file"]
                 print(data)
                 file = pd.read_excel(data)
                 payor_resources = [
                     CRResource(
-                        id=getattr(row,"id", 0),
+                        id=getattr(row, "id", 0),
                         update_type=UpdateType.PAYORS,
-                        updates=PayorUpdateKeys(
-                            global_payor=getattr(row, "payor", "")
-                        ),
+                        updates=PayorUpdateKeys(global_payor=getattr(row, "payor", "")),
                     )
                     for row in file.itertuples()
                 ]
                 try:
                     chunks = divide_list(payor_resources, 20)
-                    payor_results = await start_playwright(chunks,1, "Attain TSS",UpdateType.PAYORS)
+                    payor_results = await start_playwright(
+                        chunks, 1, "Attain TSS", UpdateType.PAYORS
+                    )
                     return {"results": payor_results}
                 except Exception as e:
                     logger.error(e)

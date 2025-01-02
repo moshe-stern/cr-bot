@@ -35,7 +35,9 @@ async def update_auth_settings(
                     if not removed_handler:
                         await handle_dialogs(page, True)
                         removed_handler = True
-                    await set_global_payer(page, cast(PayorUpdateKeys, resource.updates).global_payor)
+                    await set_global_payer(
+                        page, cast(PayorUpdateKeys, resource.updates).global_payor
+                    )
                 for auth_setting in auth_settings:
                     group = page.locator(f"#group-auth-{auth_setting['Id']}")
                     edit = group.locator("a").nth(1)
