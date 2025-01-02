@@ -22,10 +22,10 @@ def get_resource_arr(update_type: UpdateType, df: DataFrame):
                 update_type=UpdateType.CODES,
                 updates=ServiceCodeUpdateKeys(
                     to_remove=[
-                        str(code).strip() for code in row["codes_to_remove"].split(";")
+                        str(code).strip() for code in row["to_remove"].split(";")
                     ],
                     to_add=[
-                        str(code).strip() for code in row["codes_to_add"].split(";")
+                        str(code).strip() for code in row["to_add"].split(";")
                     ],
                 ),
             )
@@ -45,7 +45,7 @@ def get_resource_arr(update_type: UpdateType, df: DataFrame):
             CRResource(
                 id=row["client_id"],
                 updates=ScheduleUpdateKeys(
-                    codes=[str(code).strip() for code in row["codes_to_add"].split(";")]
+                    codes=[str(code).strip() for code in row["codes"].split(";")]
                 ),
                 update_type=UpdateType.SCHEDULE,
             )
