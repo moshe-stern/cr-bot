@@ -25,7 +25,7 @@ jobs:
     # Pull the latest changes on the VM
     - name: Deploy to VM
       run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.DOMAIN_NAME_SSH }} "
+          ssh moshestern@cr-bot-vm &&
           cd cr-fn &&
           git pull origin main &&
           sudo systemctl restart cr-bot &&
