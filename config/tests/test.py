@@ -55,7 +55,7 @@ for filename in os.listdir(directory_path):
                     "$content": base64data,
                 },
                 "type": os.path.splitext(filename)[0],
-                "instance": "Kadiant",
+                "instance": "Attain TSS",
             }
             response = requests.post(
                 url, headers={**headers, "Content-Type": "application/json"}, json=data

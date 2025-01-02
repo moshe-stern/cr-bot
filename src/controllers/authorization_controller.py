@@ -118,7 +118,7 @@ if os.getenv("DEVELOPMENT") == "TRUE":
                     chunks = divide_list(payor_resources, 20)
                     combined_results = {}
                     update_results = await start_playwright(
-                        chunks, None, "Kadiant", UpdateType.SCHEDULE
+                        chunks, None, "Attain TSS", UpdateType.SCHEDULE
                     )
                     for result in update_results:
                         if isinstance(result, Exception):

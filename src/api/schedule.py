@@ -25,5 +25,5 @@ def get_appointments(session: CRSession, client_id: int):
     )
     if res.ok:
         data = res.json()
-        return data.get("items")
+        return data.get("items") or []
     return []
