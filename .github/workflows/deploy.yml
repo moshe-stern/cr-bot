@@ -26,10 +26,8 @@ jobs:
     - name: Deploy to VM
       run: |
         ssh ${{ secrets.SSH_USER }}@${{ secrets.DOMAIN_NAME }} "
-        bash &&
         cd cr-fn &&
         git pull origin main &&
-        source myenv/bin/activate &&
-        pip install -r requirements.txt &&
+        bash -c "source myenv/bin/activate && pip install -r requirements.txt" &&
         sudo systemctl restart cr-bot &&
         sudo systemctl restart celery"
