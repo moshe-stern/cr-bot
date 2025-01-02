@@ -25,7 +25,7 @@ jobs:
     # Pull the latest changes on the VM
     - name: Deploy to VM
       run: |
-        ssh moshestern@cr-bot-vm << EOF
+        ssh moshestern@${{ secrets.DOMAIN_NAME }}<< EOF
           set -e
           cd cr-fn
           git pull origin main
