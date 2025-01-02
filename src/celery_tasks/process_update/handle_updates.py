@@ -9,6 +9,7 @@ async def handle_updates(
     resources: list[CRResource], req_id: int, instance: str, update_type: UpdateType
 ):
     from src.celery_tasks import start_playwright
+
     chunks = divide_list(resources, 20)
     combined_results: dict = {}
     logger.info(f"Divided work into {len(chunks)} chunks")
