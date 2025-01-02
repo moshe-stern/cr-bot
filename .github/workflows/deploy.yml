@@ -24,7 +24,7 @@ jobs:
     # Pull the latest changes on the VM
     - name: Deploy to VM
       run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.DOMAIN_NAME }} "
+          ssh moshestern@cr-bot.westus2.cloudapp.azure.com "
           cd cr-fn &&
           git pull origin main &&
           sudo systemctl restart cr-bot &&
