@@ -1,8 +1,4 @@
 import re
-import numpy as np
-from dataclasses import fields
-from typing import Any
-
 from celery.backends.redis import RedisBackend
 from celery.result import AsyncResult
 from pandas import DataFrame
@@ -33,7 +29,12 @@ def divide_list(lst: list[CRResource], n: int) -> list[list[CRResource]]:
 
 
 def update_task_progress(task_id: int, progress: int, child_id: int):
+    from src.shared import logger
+
     backend: RedisBackend = celery.backend
+    if not task_id:
+        logger.info("Finished resource")
+        return
     parent_meta = backend.get_task_meta(task_id)
     existing = parent_meta.get("result") or {}
     existing[f"child_progress_{child_id}"] = progress
@@ -74,8 +75,7 @@ def check_required_cols(update_type: UpdateType, df: DataFrame):
         required_columns = ["client_id"] + list(
             BillingUpdateKeys.__annotations__.keys()
         )
-    # print(required_columns, df.columns.tolist())
-    # if required_columns != df.columns.tolist():
-    #     raise Exception(
-    #         f"Missing required columns. Required columns are: {required_columns}", 400
-    #     )
+    if required_columns != df.columns.tolist():
+        raise Exception(
+            f"Missing required columns. Required columns are: {required_columns}", 400
+        )

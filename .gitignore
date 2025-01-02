@@ -5,6 +5,8 @@ __pycache__/
 *.pyd
 
 
+output
+
 .env
 .idea
 playwright

@@ -1,4 +1,3 @@
-
 from src.api import API
 from src.api.index import do_cr_post
 from src.classes import CRSession, AuthSetting, AuthorizationSettingPayload

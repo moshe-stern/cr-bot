@@ -6,6 +6,7 @@ from operator import itemgetter
 from typing import Any, cast
 from celery.result import AsyncResult
 from flask import Blueprint, Response, jsonify, request, send_file
+from openpyxl.styles.builtins import output
 from playwright.async_api import async_playwright
 
 from celery_app import celery
@@ -27,9 +28,12 @@ from src.shared import (
     get_cr_session,
     logger,
     divide_list,
+    get_resource_arr, get_updated_file,
 )
 import pandas as pd
 import numpy as np
+
+from src.shared.helpers.index import check_required_cols
 
 authorization = Blueprint("authorization", __name__, url_prefix="/authorization")
 
@@ -106,27 +110,30 @@ if os.getenv("DEVELOPMENT") == "TRUE":
     def test():
         async def run_test():
             async with async_playwright() as p:
-                context = await start(p, "Attain TSS")
-                cr_session = await get_cr_session()
                 data = request.files["file"]
-                print(data)
                 file = pd.read_excel(data)
-                payor_resources = [
-                    CRResource(
-                        id=getattr(row, "id", 0),
-                        update_type=UpdateType.PAYORS,
-                        updates=PayorUpdateKeys(global_payor=getattr(row, "payor", "")),
-                    )
-                    for row in file.itertuples()
-                ]
+                check_required_cols(UpdateType.PAYORS, file)
+                payor_resources = get_resource_arr(UpdateType.PAYORS, file)
                 try:
                     chunks = divide_list(payor_resources, 20)
-                    payor_results = await start_playwright(
-                        chunks, 1, "Attain TSS", UpdateType.PAYORS
+                    combined_results = {}
+                    update_results = await start_playwright(
+                        chunks, None, "Attain TSS", UpdateType.PAYORS
                     )
-                    return {"results": payor_results}
+                    for result in update_results:
+                        if isinstance(result, Exception):
+                            logger.error(f"Error processing chunk: {result}")
+                        else:
+                            combined_results.update(result)
+                    get_updated_file(file,combined_results, "resource_id")
+                    output_folder = "./output"
+                    os.makedirs(output_folder, exist_ok=True)
+                    output_file_path = os.path.join(output_folder, os.path.basename('results.csv'))
+                    file.to_csv(output_file_path, index=False)
+                    print(f"File saved to: {output_file_path}")
+                    return {"results": combined_results}
                 except Exception as e:
                     logger.error(e)
-                    return {"error": e}
+                    return {"error": "Failed to update"}
 
         return asyncio.run(run_test())

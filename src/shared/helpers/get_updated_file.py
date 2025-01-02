@@ -6,15 +6,15 @@ from pandas import DataFrame
 
 
 def get_updated_file(
-    df: DataFrame, updated_settings: dict[int, list[Union[bool, None]]], col_name: str
+    df: DataFrame, updated_settings: dict[int, Union[bool, None]], col_name: str
 ) -> io.BytesIO:
-    df["status"] = df.apply(
+    df["updated"] = df.apply(
         lambda row: (
             "Successfully updated"
-            if updated_settings[row[col_name]] == True
+            if updated_settings.get(row[col_name]) == True
             else (
                 "Failed to update"
-                if updated_settings[row[col_name]] == False
+                if updated_settings.get(row[col_name]) == False
                 else "Didn't fail, but didn't update fully. Please verify"
             )
         ),

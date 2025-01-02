@@ -15,7 +15,6 @@ async def update_schedules(
     resources: list[CRResource],
     page: Page,
 ):
-    print("hello")
     cr_session = await get_cr_session()
     updated_resources: dict[int, Union[bool, None]] = {
         resource.id: None for resource in resources
@@ -34,7 +33,7 @@ async def update_schedules(
         except Exception as e:
             updated_resources[resource.id] = False
             logger.error(f"Failed to update resource {resource.id}: {e}")
-        # update_task_progress(parent_task_id, index + 1, child_id)
+        update_task_progress(parent_task_id, index + 1, child_id)
     return updated_resources
 
 

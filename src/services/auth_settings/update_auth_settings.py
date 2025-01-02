@@ -25,17 +25,13 @@ async def update_auth_settings(
     for index, resource in enumerate(resources_to_update):
         try:
             await handle_dialogs(page)
-            removed_handler = False
             auth_settings = load_auth_settings(cr_session, resource.id)
             updated_settings: bool | None = None
             if len(auth_settings) > 0:
                 authorization_page = f"https://members.centralreach.com/#resources/details/?id={resource.id}&tab=authorizations"
                 await goto_auth_settings(page, authorization_page)
+                await handle_dialogs(page, True)
                 for index_2, auth_setting in enumerate(auth_settings):
-                    if not removed_handler:
-                        time.sleep(2)
-                        await handle_dialogs(page, True)
-                        removed_handler = True
                     if resource.update_type == UpdateType.PAYORS and index_2 == 0:
                         await set_global_payer(
                             page, cast(PayorUpdateKeys, resource.updates).global_payor
