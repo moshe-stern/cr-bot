@@ -25,7 +25,9 @@ async def update_service_codes_v2(resources_to_update: List[CRResource]):
             asyncio.create_task(process_settings(auth_settings, resource, cr_session))
             for auth_settings, resource in zip(auth_settings_list, resources_to_update)
         ]
-        updates: list[dict[str, int | bool | None]] = await asyncio.gather(*process_tasks)
+        updates: list[dict[str, int | bool | None]] = await asyncio.gather(
+            *process_tasks
+        )
 
         return updates
 

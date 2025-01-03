@@ -4,7 +4,13 @@ from playwright.async_api import Page
 
 from src.services.api import API
 from src.services.api import load_auth_settings
-from src.classes import CRResource, UpdateType, PayorUpdateKeys, AuthSetting, AIOHTTPClientSession
+from src.classes import (
+    CRResource,
+    UpdateType,
+    PayorUpdateKeys,
+    AuthSetting,
+    AIOHTTPClientSession,
+)
 from src.services.auth_settings.update_payors import set_global_payer
 from src.services.shared import (
     handle_dialogs,
@@ -21,6 +27,7 @@ async def update_auth_settings(
     page: Page,
 ):
     from src.services.auth_settings import update_payors, update_service_codes
+
     updated_resources: dict[int, Union[bool, None]] = {
         resource.id: None for resource in resources_to_update
     }
@@ -41,7 +48,8 @@ async def update_auth_settings(
                     for index_2, auth_setting in enumerate(auth_settings):
                         if resource.update_type == UpdateType.PAYORS and index_2 == 0:
                             await set_global_payer(
-                                page, cast(PayorUpdateKeys, resource.updates).global_payor
+                                page,
+                                cast(PayorUpdateKeys, resource.updates).global_payor,
                             )
                         group = page.locator(f"#group-auth-{auth_setting.Id}")
                         edit = group.locator("a").nth(1)
@@ -52,7 +60,9 @@ async def update_auth_settings(
                         if resource.update_type == UpdateType.PAYORS:
                             updated_settings = await update_payors(resource, page)
                         elif resource.update_type == UpdateType.CODES:
-                            updated_settings = await update_service_codes(resource, page, client)
+                            updated_settings = await update_service_codes(
+                                resource, page, client
+                            )
                 updated_resources[resource.id] = updated_settings
             except Exception as e:
                 updated_resources[resource.id] = False

@@ -10,7 +10,7 @@ _cr_session: Union[CRSession, None] = None
 
 async def start(p: Playwright, instance: str):
     global _cr_session
-    browser = await p.chromium.launch(headless=not os.getenv('DEVELOPMENT'))
+    browser = await p.chromium.launch(headless=not os.getenv("DEVELOPMENT"))
     cr_instance = orgs[instance]
     if not cr_instance:
         raise Exception("Invalid cr instance")

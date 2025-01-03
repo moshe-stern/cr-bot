@@ -8,7 +8,9 @@ from src.services.api import get_service_codes
 from src.classes import CRResource, ServiceCodeUpdateKeys, AIOHTTPClientSession
 
 
-async def update_service_codes(code_resource: CRResource, page: Page, client: AIOHTTPClientSession) -> bool | None:
+async def update_service_codes(
+    code_resource: CRResource, page: Page, client: AIOHTTPClientSession
+) -> bool | None:
     service_code_updates = cast(ServiceCodeUpdateKeys, code_resource.updates)
     service_codes = page.get_by_role("link", name="Service Code(s)")
     await service_codes.wait_for(state="visible")

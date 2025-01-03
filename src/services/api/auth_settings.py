@@ -21,10 +21,8 @@ async def load_auth_settings(
             AuthSetting(
                 auth_setting["Id"],
                 [
-                    Authorization(
-                        auth.get("ServiceCodeId"), auth.get("Id")
-                    )
-                    for auth in auth_setting.get('Authorizations')
+                    Authorization(auth.get("ServiceCodeId"), auth.get("Id"))
+                    for auth in auth_setting.get("Authorizations")
                 ],
             )
             for auth_setting in data.get("authorizationSettings")

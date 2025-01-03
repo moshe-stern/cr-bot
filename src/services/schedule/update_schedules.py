@@ -32,9 +32,12 @@ async def update_schedules(
                 appointments = get_appointments(cr_session, resource.id)
                 if len(appointments) > 0:
                     for appointment in appointments:
-                        await handle_appointment(appointment, page, codes_added, resource)
+                        await handle_appointment(
+                            appointment, page, codes_added, resource
+                        )
                     updated_resources[resource.id] = (
-                        codes_added == len(cast(ScheduleUpdateKeys, resource.updates).codes)
+                        codes_added
+                        == len(cast(ScheduleUpdateKeys, resource.updates).codes)
                         or None
                     )
             except Exception as e:
