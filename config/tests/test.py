@@ -26,7 +26,7 @@ args = parser.parse_args()
 environment = args.environment
 prod = "http://cr-bot.westus2.cloudapp.azure.com"
 local = "http://localhost:8000"
-url: str = f"{local if environment == 'local' else prod}/authorization"
+url: str = f"{local if environment == 'local' else prod}"
 task_ids = []
 headers = {"X-Secret-Key": os.getenv("SECRET_KEY")}
 choices = ["Service Codes", "Payors", "Schedules", "Billing"]
@@ -56,7 +56,7 @@ def handle_files(test_type: str):
                     "instance": "Kadiant",
                 }
                 response = requests.post(
-                    url,
+                    url+'/authorization',
                     headers={**headers, "Content-Type": "application/json"},
                     json=data,
                 )
