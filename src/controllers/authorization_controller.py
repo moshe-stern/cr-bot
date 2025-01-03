@@ -105,6 +105,7 @@ def download_file(task_id) -> Response | tuple[Response, int]:
 
 # for quick testing when adding new services
 if os.getenv("DEVELOPMENT") == "TRUE":
+
     @authorization.route("/test", methods=["POST"])
     def test():
         async def run_test():
