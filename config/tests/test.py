@@ -56,7 +56,7 @@ def handle_files(test_type: str):
                     "instance": "Kadiant",
                 }
                 response = requests.post(
-                    url+'/authorization',
+                    url + "/authorization",
                     headers={**headers, "Content-Type": "application/json"},
                     json=data,
                 )
