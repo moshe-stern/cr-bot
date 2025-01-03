@@ -36,7 +36,7 @@ class CRSession(requests.Session):
         self.utc_offset = self.set_utc_offset()
 
     def request(self, method, url, **kwargs):
-        from src.shared import logger
+        from src.services.shared import logger
 
         headers = kwargs.pop("headers", {})
         # Merge custom headers with the provided headers, custom headers taking precedence

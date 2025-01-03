@@ -28,7 +28,7 @@ jobs:
         ssh ${{ secrets.SSH_USER }}@${{ secrets.DOMAIN_NAME }} "
         cd cr-fn &&
         git pull origin main &&
-        bash -c \"source myenv/bin/activate && pip install -r requirements.txt && sudo redis-cli FLUSHALL && pgrep -f 'celery' && sudo pkill -9 -f 'celery'\" &&
+        bash -c \"source myenv/bin/activate && pip install -r requirements.txt\" &&
         sudo systemctl daemon-reload &&
         sudo systemctl restart cr-bot &&
         sudo systemctl restart celery"

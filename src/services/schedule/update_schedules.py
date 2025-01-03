@@ -1,12 +1,12 @@
 from datetime import datetime
-from typing import Sequence, Union, cast
+from typing import Union, cast
 
 from playwright.async_api import Page
 
-from src.api import API
-from src.api.schedule import get_appointments
+from src.services.api import API
+from src.services.api.schedule import get_appointments
 from src.classes import CRResource, ScheduleUpdateKeys
-from src.shared import (
+from src.services.shared import (
     get_cr_session_and_client,
     handle_dialogs,
     logger,

@@ -3,10 +3,10 @@ from typing import cast
 
 from playwright.async_api import Page
 
-from src.api import API
-from src.api.auth_settings import get_service_codes
-from src.classes import CRResource, ServiceCodeUpdateKeys, AIOHTTPClientSession
-from src.shared.start import get_cr_session_and_client
+from src.services.api import API
+from src.services.api import get_service_codes
+from src.classes import CRResource, ServiceCodeUpdateKeys
+from src.services.shared import get_cr_session_and_client
 
 
 async def update_service_codes(code_resource: CRResource, page: Page) -> bool | None:

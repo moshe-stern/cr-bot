@@ -33,7 +33,7 @@ choices = ["Service Codes", "Payors", "Schedules", "Billing"]
 
 
 def handle_files(test_type: str):
-    from src.shared import logger
+    from src.services.shared import logger
 
     directory_path = "test-files/" + test_type
     for filename in os.listdir(directory_path):

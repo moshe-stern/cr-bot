@@ -2,7 +2,7 @@ from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
 
-from src.api import API
+from src.services.api import API
 from src.classes import CRSession
 
 

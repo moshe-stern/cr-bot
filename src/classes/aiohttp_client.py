@@ -30,7 +30,7 @@ class AIOHTTPClientSession:
             self.client = None
 
     async def do_cr_post(self, api_url: str, data: dict):
-        from src.shared import logger
+        from src.services.shared import logger
 
         try:
             if not self.client:

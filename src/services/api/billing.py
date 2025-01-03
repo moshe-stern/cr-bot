@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 from typing import TypedDict
 
-from src.api import API
+from src.services.api import API
 from src.classes import CRSession
 
 

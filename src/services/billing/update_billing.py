@@ -5,10 +5,10 @@ from typing import Union, cast
 
 from playwright.async_api import Page
 
-from src.api import Billing, get_billings, set_billing_payor
+from src.services.api import Billing, get_billings, set_billing_payor
 from src.classes import BillingUpdateKeys, CRResource
-from src.shared import logger, update_task_progress
-from src.shared.start import get_cr_session_and_client
+from src.services.shared import logger, update_task_progress
+from src.services.shared import get_cr_session_and_client
 
 
 async def update_billings(

@@ -5,16 +5,14 @@ from typing import cast
 
 import numpy as np
 
-from src.api import set_auth_setting, load_auth_settings
+from src.services.api import set_auth_setting, load_auth_settings
 from src.classes import (
     CRResource,
-    PayorUpdateKeys,
     AuthorizationSettingPayload,
-    CRSession,
     AIOHTTPClientSession,
 )
 from src.classes.resources_v2 import PayorUpdateKeysV2
-from src.shared import logger
+from src.services.shared import logger
 
 
 async def update_payors_v2(resources: list[CRResource], client: AIOHTTPClientSession):

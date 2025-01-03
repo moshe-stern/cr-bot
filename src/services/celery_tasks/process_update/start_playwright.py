@@ -3,12 +3,12 @@ import asyncio
 from playwright.async_api import Page, Route, async_playwright, BrowserContext
 
 from src.classes import CRResource, UpdateType
-from src.services import (
-    update_billings,
-    update_schedules,
+from src.services.auth_settings import (
     update_auth_settings,
 )
-from src.shared import logger, start
+from src.services.billing import update_billings
+from src.services.schedule import update_schedules
+from src.services.shared import start
 
 
 async def start_playwright(

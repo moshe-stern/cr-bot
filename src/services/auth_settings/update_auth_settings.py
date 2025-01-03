@@ -1,19 +1,17 @@
-import time
 from typing import List, Union, cast
 
 from playwright.async_api import Page
 
-from src.api import API
-from src.api.auth_settings import load_auth_settings
+from src.services.api import API
+from src.services.api import load_auth_settings
 from src.classes import CRResource, UpdateType, PayorUpdateKeys, AuthSetting
 from src.services.auth_settings.update_payors import set_global_payer
-from src.shared import (
-    get_cr_session_and_client,
+from src.services.shared import (
     handle_dialogs,
     logger,
     update_task_progress,
 )
-from src.shared.start import get_cr_session_and_client
+from src.services.shared import get_cr_session_and_client
 
 
 async def update_auth_settings(
@@ -22,7 +20,7 @@ async def update_auth_settings(
     resources_to_update: List[CRResource],
     page: Page,
 ):
-    from src.services import update_payors, update_service_codes
+    from src.services.auth_settings import update_payors, update_service_codes
 
     cr_session, client = await get_cr_session_and_client()
     updated_resources: dict[int, Union[bool, None]] = {

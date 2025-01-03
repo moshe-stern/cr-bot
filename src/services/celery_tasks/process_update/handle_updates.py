@@ -1,14 +1,11 @@
-import asyncio
-
 from src.classes import CRResource, UpdateType
-from src.services.v2 import update_service_codes_v2
-from src.shared import divide_list, logger
+from src.services.shared import divide_list, logger
 
 
 async def handle_updates(
     resources: list[CRResource], req_id: int, instance: str, update_type: UpdateType
 ):
-    from src.celery_tasks import start_playwright
+    from src.services.celery_tasks import start_playwright
 
     chunks = divide_list(resources, 5)
     combined_results: dict = {}

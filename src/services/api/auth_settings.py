@@ -1,4 +1,4 @@
-from src.api import API
+from src.services.api import API
 from src.classes import (
     CRSession,
     AuthSetting,

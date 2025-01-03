@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from flask import Flask
 
 from src.controllers.authorization_controller import authorization
-from src.shared import logger, register_error_handlers
+from src.services.shared import logger, register_error_handlers
 
 if not load_dotenv():
     raise Exception("Failed to load dotenv")

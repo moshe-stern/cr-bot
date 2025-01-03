@@ -1,4 +1,3 @@
-import os
 from typing import Union
 
 from playwright.async_api import Playwright

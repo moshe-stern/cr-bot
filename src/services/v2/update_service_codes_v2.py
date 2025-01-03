@@ -1,16 +1,15 @@
 from typing import List, cast, Coroutine
-from src.api import API
-from src.api.auth_settings import load_auth_settings, get_service_codes
+from src.services.api import API
+from src.services.api import load_auth_settings, get_service_codes
 from src.classes import (
     CRResource,
     ServiceCodeUpdateKeys,
-    CRSession,
     AuthSetting,
     AIOHTTPClientSession,
 )
 import asyncio
 
-from src.shared.start import get_cr_session_and_client
+from src.services.shared import get_cr_session_and_client
 
 
 async def update_service_codes_v2(resources_to_update: List[CRResource]):

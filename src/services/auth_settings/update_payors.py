@@ -1,9 +1,7 @@
-import time
 from typing import cast
 
 from playwright.async_api import Page
 from src.classes import CRResource, PayorUpdateKeys
-from src.shared import logger
 
 
 async def update_payors(payor_resource: CRResource, page: Page):

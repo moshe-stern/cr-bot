@@ -1,39 +1,26 @@
 import asyncio
-import io
 import os
-from itertools import groupby
-from operator import itemgetter
-from typing import Any, cast
+from typing import Any
 from celery.result import AsyncResult
 from flask import Blueprint, Response, jsonify, request, send_file
-from openpyxl.styles.builtins import output
 from playwright.async_api import async_playwright
 
 from celery_app import celery
-from src.api import load_auth_settings, set_auth_setting
-from src.celery_tasks import process_update, cleanup_file, start_playwright
+from src.services.celery_tasks import process_update, cleanup_file, start_playwright
 from src.classes import (
-    CRResource,
     UpdateType,
-    PayorUpdateKeys,
-    AuthorizationSettingPayload,
-    ServiceCodeUpdateKeys,
-    ScheduleUpdateKeys,
 )
-from src.services import update_payors, update_auth_settings, update_schedules
-from src.shared import (
+from src.services.shared import (
     get_json,
     get_task_progress,
-    start,
     logger,
     divide_list,
     get_resource_arr,
     get_updated_file,
 )
 import pandas as pd
-import numpy as np
 
-from src.shared.helpers.index import check_required_cols
+from src.services.shared import check_required_cols
 
 authorization = Blueprint("authorization", __name__, url_prefix="/authorization")
 
