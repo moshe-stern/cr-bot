@@ -34,6 +34,7 @@ choices = ["Service Codes", "Payors", "Schedules", "Billing"]
 
 def handle_files(test_type: str):
     from src.shared import logger
+
     directory_path = "test-files/" + test_type
     for filename in os.listdir(directory_path):
         file_path = os.path.join(directory_path, filename)

@@ -1,10 +1,9 @@
 import aiohttp
 
 
-
-
 class AIOHTTPClientSession:
     from src.classes import CRSession
+
     def __init__(self, session: CRSession):
         self.session = session
         self.client = None
@@ -32,6 +31,7 @@ class AIOHTTPClientSession:
 
     async def do_cr_post(self, api_url: str, data: dict):
         from src.shared import logger
+
         try:
             if not self.client:
                 raise Exception("Client not initialized")
