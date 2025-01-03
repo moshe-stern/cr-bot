@@ -4,14 +4,14 @@ from playwright.async_api import Page
 
 from src.services.api import API
 from src.services.api import load_auth_settings
-from src.classes import CRResource, UpdateType, PayorUpdateKeys, AuthSetting
+from src.classes import CRResource, UpdateType, PayorUpdateKeys, AuthSetting, AIOHTTPClientSession
 from src.services.auth_settings.update_payors import set_global_payer
 from src.services.shared import (
     handle_dialogs,
     logger,
     update_task_progress,
 )
-from src.services.shared import get_cr_session_and_client
+from src.services.shared.start import get_cr_session
 
 
 async def update_auth_settings(
@@ -21,42 +21,43 @@ async def update_auth_settings(
     page: Page,
 ):
     from src.services.auth_settings import update_payors, update_service_codes
-
-    cr_session, client = await get_cr_session_and_client()
     updated_resources: dict[int, Union[bool, None]] = {
         resource.id: None for resource in resources_to_update
     }
-    for index, resource in enumerate(resources_to_update):
-        try:
-            await handle_dialogs(page)
-            auth_settings: list[AuthSetting] = await load_auth_settings(
-                client, resource.id
-            )
-            updated_settings: bool | None = None
-            if len(auth_settings) > 0:
-                authorization_page = f"https://members.centralreach.com/#resources/details/?id={resource.id}&tab=authorizations"
-                await goto_auth_settings(page, authorization_page)
-                await handle_dialogs(page, True)
-                for index_2, auth_setting in enumerate(auth_settings):
-                    if resource.update_type == UpdateType.PAYORS and index_2 == 0:
-                        await set_global_payer(
-                            page, cast(PayorUpdateKeys, resource.updates).global_payor
-                        )
-                    group = page.locator(f"#group-auth-{auth_setting.Id}")
-                    edit = group.locator("a").nth(1)
-                    await group.wait_for(state="visible")
-                    await group.hover()
-                    await edit.click()
-                    page.expect_response(API.AUTH_SETTINGS.LOAD_SETTING)
-                    if resource.update_type == UpdateType.PAYORS:
-                        updated_settings = await update_payors(resource, page)
-                    elif resource.update_type == UpdateType.CODES:
-                        updated_settings = await update_service_codes(resource, page)
-            updated_resources[resource.id] = updated_settings
-        except Exception as e:
-            updated_resources[resource.id] = False
-            logger.error(f"Failed to update resource {resource.id}: {e}")
-        update_task_progress(parent_task_id, index, child_id)
+    session = await get_cr_session()
+    client = AIOHTTPClientSession(session)
+    async with client.managed_session():
+        for index, resource in enumerate(resources_to_update):
+            try:
+                await handle_dialogs(page)
+                auth_settings: list[AuthSetting] = await load_auth_settings(
+                    client, resource.id
+                )
+                updated_settings: bool | None = None
+                if len(auth_settings) > 0:
+                    authorization_page = f"https://members.centralreach.com/#resources/details/?id={resource.id}&tab=authorizations"
+                    await goto_auth_settings(page, authorization_page)
+                    await handle_dialogs(page, True)
+                    for index_2, auth_setting in enumerate(auth_settings):
+                        if resource.update_type == UpdateType.PAYORS and index_2 == 0:
+                            await set_global_payer(
+                                page, cast(PayorUpdateKeys, resource.updates).global_payor
+                            )
+                        group = page.locator(f"#group-auth-{auth_setting.Id}")
+                        edit = group.locator("a").nth(1)
+                        await group.wait_for(state="visible")
+                        await group.hover()
+                        await edit.click()
+                        page.expect_response(API.AUTH_SETTINGS.LOAD_SETTING)
+                        if resource.update_type == UpdateType.PAYORS:
+                            updated_settings = await update_payors(resource, page)
+                        elif resource.update_type == UpdateType.CODES:
+                            updated_settings = await update_service_codes(resource, page, client)
+                updated_resources[resource.id] = updated_settings
+            except Exception as e:
+                updated_resources[resource.id] = False
+                logger.error(f"Failed to update resource {resource.id}: {e}")
+            update_task_progress(parent_task_id, index, child_id)
     return updated_resources
 
 

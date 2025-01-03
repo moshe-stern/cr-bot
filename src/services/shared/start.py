@@ -1,3 +1,4 @@
+import os
 from typing import Union
 
 from playwright.async_api import Playwright
@@ -9,7 +10,7 @@ _cr_session: Union[CRSession, None] = None
 
 async def start(p: Playwright, instance: str):
     global _cr_session
-    browser = await p.chromium.launch()
+    browser = await p.chromium.launch(headless=not os.getenv('DEVELOPMENT'))
     cr_instance = orgs[instance]
     if not cr_instance:
         raise Exception("Invalid cr instance")
@@ -18,10 +19,8 @@ async def start(p: Playwright, instance: str):
     return context
 
 
-async def get_cr_session_and_client():
+async def get_cr_session():
     if not _cr_session:
         raise Exception("cr_session not initialized")
     await _cr_session.make_context_cookies()
-    client = AIOHTTPClientSession(_cr_session)
-    await client.initialize_aiohttp_session()
-    return _cr_session, client
+    return _cr_session

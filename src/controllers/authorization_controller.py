@@ -38,33 +38,33 @@ if os.getenv("DEVELOPMENT") == "TRUE":
     @authorization.route("/test", methods=["POST"])
     def test():
         async def run_test():
-            async with async_playwright() as p:
-                data = request.files["file"]
-                file = pd.read_excel(data)
-                check_required_cols(UpdateType.SCHEDULE, file)
-                payor_resources = get_resource_arr(UpdateType.SCHEDULE, file)
-                try:
-                    chunks = divide_list(payor_resources, 20)
-                    combined_results = {}
-                    update_results = await start_playwright(
-                        chunks, None, "Attain TSS", UpdateType.SCHEDULE
-                    )
-                    for result in update_results:
-                        if isinstance(result, Exception):
-                            logger.error(f"Error processing chunk: {result}")
-                        else:
-                            combined_results.update(result)
-                    get_updated_file(file, combined_results, "client_id")
-                    output_folder = "./output"
-                    os.makedirs(output_folder, exist_ok=True)
-                    output_file_path = os.path.join(
-                        output_folder, os.path.basename("results.csv")
-                    )
-                    file.to_csv(output_file_path, index=False)
-                    print(f"File saved to: {output_file_path}")
-                    return {"results": combined_results}
-                except Exception as e:
-                    logger.error(e)
-                    return {"error": "Failed to update"}
+            data = request.files["file"]
+            file = pd.read_excel(data)
+            update_type = UpdateType.CODES
+            check_required_cols(update_type, file)
+            payor_resources = get_resource_arr(update_type, file)
+            try:
+                chunks = divide_list(payor_resources, 20)
+                combined_results = {}
+                update_results = await start_playwright(
+                    chunks, None, "Kadiant", update_type
+                )
+                for result in update_results:
+                    if isinstance(result, Exception):
+                        logger.error(f"Error processing chunk: {result}")
+                    else:
+                        combined_results.update(result)
+                get_updated_file(file, combined_results, "resource_id")
+                output_folder = "./output"
+                os.makedirs(output_folder, exist_ok=True)
+                output_file_path = os.path.join(
+                    output_folder, os.path.basename("results.csv")
+                )
+                file.to_csv(output_file_path, index=False)
+                print(f"File saved to: {output_file_path}")
+                return {"results": combined_results}
+            except Exception as e:
+                logger.error(e)
+                return {"error": "Failed to update"}
 
         return asyncio.run(run_test())

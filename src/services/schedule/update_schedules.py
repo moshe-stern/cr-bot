@@ -5,9 +5,9 @@ from playwright.async_api import Page
 
 from src.services.api import API
 from src.services.api.schedule import get_appointments
-from src.classes import CRResource, ScheduleUpdateKeys
+from src.classes import CRResource, ScheduleUpdateKeys, AIOHTTPClientSession
 from src.services.shared import (
-    get_cr_session_and_client,
+    get_cr_session,
     handle_dialogs,
     logger,
     update_task_progress,
@@ -20,25 +20,27 @@ async def update_schedules(
     resources: list[CRResource],
     page: Page,
 ):
-    cr_session, client = await get_cr_session_and_client()
+    cr_session, client = await get_cr_session()
     updated_resources: dict[int, Union[bool, None]] = {
         resource.id: None for resource in resources
     }
-    for index, resource in enumerate(resources):
-        codes_added = 0
-        try:
-            appointments = get_appointments(cr_session, resource.id)
-            if len(appointments) > 0:
-                for appointment in appointments:
-                    await handle_appointment(appointment, page, codes_added, resource)
-                updated_resources[resource.id] = (
-                    codes_added == len(cast(ScheduleUpdateKeys, resource.updates).codes)
-                    or None
-                )
-        except Exception as e:
-            updated_resources[resource.id] = False
-            logger.error(f"Failed to update resource {resource.id}: {e}")
-        update_task_progress(parent_task_id, index + 1, child_id)
+    client = AIOHTTPClientSession(cr_session)
+    async with client.managed_session():
+        for index, resource in enumerate(resources):
+            codes_added = 0
+            try:
+                appointments = get_appointments(cr_session, resource.id)
+                if len(appointments) > 0:
+                    for appointment in appointments:
+                        await handle_appointment(appointment, page, codes_added, resource)
+                    updated_resources[resource.id] = (
+                        codes_added == len(cast(ScheduleUpdateKeys, resource.updates).codes)
+                        or None
+                    )
+            except Exception as e:
+                updated_resources[resource.id] = False
+                logger.error(f"Failed to update resource {resource.id}: {e}")
+            update_task_progress(parent_task_id, index + 1, child_id)
     return updated_resources
 
 

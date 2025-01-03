@@ -9,24 +9,25 @@ from src.classes import (
 )
 import asyncio
 
-from src.services.shared import get_cr_session_and_client
+from src.services.shared import get_cr_session
 
 
 async def update_service_codes_v2(resources_to_update: List[CRResource]):
-    cr_session, client = await get_cr_session_and_client()
+    cr_session = await get_cr_session()
+    client = AIOHTTPClientSession(cr_session)
+    async with client.managed_session():
+        load_tasks = [
+            asyncio.create_task(load_auth_settings(client, resource.id))
+            for resource in resources_to_update
+        ]
+        auth_settings_list: list[list[AuthSetting]] = await asyncio.gather(*load_tasks)
+        process_tasks = [
+            asyncio.create_task(process_settings(auth_settings, resource, cr_session))
+            for auth_settings, resource in zip(auth_settings_list, resources_to_update)
+        ]
+        updates: list[dict[str, int | bool | None]] = await asyncio.gather(*process_tasks)
 
-    load_tasks = [
-        asyncio.create_task(load_auth_settings(client, resource.id))
-        for resource in resources_to_update
-    ]
-    auth_settings_list: list[list[AuthSetting]] = await asyncio.gather(*load_tasks)
-    process_tasks = [
-        asyncio.create_task(process_settings(auth_settings, resource, cr_session))
-        for auth_settings, resource in zip(auth_settings_list, resources_to_update)
-    ]
-    updates: list[dict[str, int | bool | None]] = await asyncio.gather(*process_tasks)
-
-    return updates
+        return updates
 
 
 async def process_settings(

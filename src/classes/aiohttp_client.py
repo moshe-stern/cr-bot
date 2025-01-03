@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 import aiohttp
 
 
@@ -52,3 +54,14 @@ class AIOHTTPClientSession:
                 f"An error occurred while making POST request to {api_url}: {e}"
             )
             return False
+
+    @asynccontextmanager
+    async def managed_session(self, headers=None, connector=None, timeout=None):
+        """
+        Context manager for the aiohttp.ClientSession.
+        """
+        await self.initialize_aiohttp_session(headers, connector, timeout)
+        try:
+            yield
+        finally:
+            await self.close_aiohttp_session()
