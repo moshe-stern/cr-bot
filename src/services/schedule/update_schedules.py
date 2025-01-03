@@ -20,7 +20,7 @@ async def update_schedules(
     resources: list[CRResource],
     page: Page,
 ):
-    cr_session, client = await get_cr_session()
+    cr_session = await get_cr_session()
     updated_resources: dict[int, Union[bool, None]] = {
         resource.id: None for resource in resources
     }

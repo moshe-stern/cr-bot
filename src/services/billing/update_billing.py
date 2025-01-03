@@ -14,7 +14,7 @@ from src.services.shared.start import get_cr_session
 async def update_billings(
     parent_task_id: int, child_id: int, resources: list[CRResource], page: Page
 ):
-    session, client = await get_cr_session()
+    session = await get_cr_session()
     updated_resources: dict[int, Union[bool, None]] = {
         resource.id: None for resource in resources
     }
