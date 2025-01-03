@@ -6,7 +6,12 @@ from playwright.async_api import Page
 from src.api import API
 from src.api.schedule import get_appointments
 from src.classes import CRResource, ScheduleUpdateKeys
-from src.shared import get_cr_session, handle_dialogs, logger, update_task_progress
+from src.shared import (
+    get_cr_session_and_client,
+    handle_dialogs,
+    logger,
+    update_task_progress,
+)
 
 
 async def update_schedules(
@@ -15,14 +20,14 @@ async def update_schedules(
     resources: list[CRResource],
     page: Page,
 ):
-    cr_session = await get_cr_session()
+    cr_session, client = await get_cr_session_and_client()
     updated_resources: dict[int, Union[bool, None]] = {
         resource.id: None for resource in resources
     }
     for index, resource in enumerate(resources):
         codes_added = 0
-        appointments = get_appointments(cr_session, resource.id)
         try:
+            appointments = get_appointments(cr_session, resource.id)
             if len(appointments) > 0:
                 for appointment in appointments:
                     await handle_appointment(appointment, page, codes_added, resource)

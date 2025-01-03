@@ -7,13 +7,14 @@ from playwright.async_api import Page
 
 from src.api import Billing, get_billings, set_billing_payor
 from src.classes import BillingUpdateKeys, CRResource
-from src.shared import get_cr_session, logger, update_task_progress
+from src.shared import logger, update_task_progress
+from src.shared.start import get_cr_session_and_client
 
 
 async def update_billings(
     parent_task_id: int, child_id: int, resources: list[CRResource], page: Page
 ):
-    cr_session = await get_cr_session()
+    cr_session, client = await get_cr_session_and_client()
     updated_resources: dict[int, Union[bool, None]] = {
         resource.id: None for resource in resources
     }
@@ -26,7 +27,6 @@ async def update_billings(
                 billing_updates.start_date,
                 billing_updates.end_date,
             )
-            print(len(billings))
             for billing in billings:
                 res = set_billing_payor(
                     cr_session, billing["Id"], billing_updates.insurance_id
@@ -35,7 +35,7 @@ async def update_billings(
                     raise Exception("Failed to set Payor")
                 await update_billing(page, billing, billing_updates)
             updated_resources[resource.id] = True
-            # update_task_progress(parent_task_id, index + 1, child_id)
+            update_task_progress(parent_task_id, index + 1, child_id)
         except Exception as e:
             updated_resources[resource.id] = False
             logger.error(f"Failed to update resource {resource.id}: {e}")

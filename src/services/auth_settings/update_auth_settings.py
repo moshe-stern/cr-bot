@@ -5,9 +5,15 @@ from playwright.async_api import Page
 
 from src.api import API
 from src.api.auth_settings import load_auth_settings
-from src.classes import CRResource, UpdateType, PayorUpdateKeys
+from src.classes import CRResource, UpdateType, PayorUpdateKeys, AuthSetting
 from src.services.auth_settings.update_payors import set_global_payer
-from src.shared import get_cr_session, handle_dialogs, logger, update_task_progress
+from src.shared import (
+    get_cr_session_and_client,
+    handle_dialogs,
+    logger,
+    update_task_progress,
+)
+from src.shared.start import get_cr_session_and_client
 
 
 async def update_auth_settings(
@@ -18,14 +24,16 @@ async def update_auth_settings(
 ):
     from src.services import update_payors, update_service_codes
 
-    cr_session = await get_cr_session()
+    cr_session, client = await get_cr_session_and_client()
     updated_resources: dict[int, Union[bool, None]] = {
         resource.id: None for resource in resources_to_update
     }
     for index, resource in enumerate(resources_to_update):
         try:
             await handle_dialogs(page)
-            auth_settings = load_auth_settings(cr_session, resource.id)
+            auth_settings: list[AuthSetting] = await load_auth_settings(
+                client, resource.id
+            )
             updated_settings: bool | None = None
             if len(auth_settings) > 0:
                 authorization_page = f"https://members.centralreach.com/#resources/details/?id={resource.id}&tab=authorizations"
@@ -36,7 +44,7 @@ async def update_auth_settings(
                         await set_global_payer(
                             page, cast(PayorUpdateKeys, resource.updates).global_payor
                         )
-                    group = page.locator(f"#group-auth-{auth_setting['Id']}")
+                    group = page.locator(f"#group-auth-{auth_setting.Id}")
                     edit = group.locator("a").nth(1)
                     await group.wait_for(state="visible")
                     await group.hover()

@@ -1,21 +1,26 @@
 from typing import List, cast, Coroutine
 from src.api import API
 from src.api.auth_settings import load_auth_settings, get_service_codes
-from src.api.index import do_cr_post
-from src.classes import CRResource, ServiceCodeUpdateKeys, CRSession, AuthSetting
-from src.shared import get_cr_session
+from src.classes import (
+    CRResource,
+    ServiceCodeUpdateKeys,
+    CRSession,
+    AuthSetting,
+    AIOHTTPClientSession,
+)
 import asyncio
+
+from src.shared.start import get_cr_session_and_client
 
 
 async def update_service_codes_v2(resources_to_update: List[CRResource]):
-    cr_session = await get_cr_session()
+    cr_session, client = await get_cr_session_and_client()
 
     load_tasks = [
-        asyncio.create_task(load_auth_settings(cr_session, resource.id))
+        asyncio.create_task(load_auth_settings(client, resource.id))
         for resource in resources_to_update
     ]
-    auth_settings_list = await asyncio.gather(*load_tasks)
-
+    auth_settings_list: list[list[AuthSetting]] = await asyncio.gather(*load_tasks)
     process_tasks = [
         asyncio.create_task(process_settings(auth_settings, resource, cr_session))
         for auth_settings, resource in zip(auth_settings_list, resources_to_update)
@@ -26,17 +31,17 @@ async def update_service_codes_v2(resources_to_update: List[CRResource]):
 
 
 async def process_settings(
-    auth_settings: list[AuthSetting], resource: CRResource, session: CRSession
+    auth_settings: list[AuthSetting], resource: CRResource, client: AIOHTTPClientSession
 ):
     service_code_updates = cast(ServiceCodeUpdateKeys, resource.updates)
 
     async def process_setting(setting: AuthSetting):
         update_tasks = [
-            update_codes(code, setting, "SET", session)
+            update_codes(code, setting, "SET", client)
             for code in service_code_updates.to_add
         ]
         delete_tasks = [
-            update_codes(code, setting, "DELETE", session)
+            update_codes(code, setting, "DELETE", client)
             for code in service_code_updates.to_remove
         ]
         results = await asyncio.gather(*update_tasks, *delete_tasks)
@@ -51,9 +56,9 @@ async def process_settings(
 
 
 async def update_codes(
-    code: str, setting: AuthSetting, update_type: str, session: CRSession
+    code: str, setting: AuthSetting, update_type: str, client: AIOHTTPClientSession
 ):
-    codes = await get_service_codes(session, code)
+    codes = await get_service_codes(client, code)
     authorization_to_update = [
         auth for auth in setting.Authorizations if auth.ServiceCodeId in codes
     ]
@@ -63,13 +68,12 @@ async def update_codes(
         API.AUTHORIZATION.SET if update_type == "SET" else API.AUTHORIZATION.DELETE
     )
     tasks: list[Coroutine] = [
-        do_cr_post(
+        client.do_cr_post(
             api_url,
             {
                 "serviceCodeId": auth.ServiceCodeId,
                 "settingsId": auth.authorizationId,
             },
-            session,
         )
         for auth in authorization_to_update
     ]

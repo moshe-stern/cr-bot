@@ -3,7 +3,7 @@ from typing import Union
 
 from playwright.async_api import Playwright
 
-from src.classes import CRSession, orgs
+from src.classes import CRSession, orgs, AIOHTTPClientSession
 
 _cr_session: Union[CRSession, None] = None
 
@@ -19,8 +19,10 @@ async def start(p: Playwright, instance: str):
     return context
 
 
-async def get_cr_session() -> CRSession:
+async def get_cr_session_and_client():
     if not _cr_session:
         raise Exception("cr_session not initialized")
     await _cr_session.make_context_cookies()
-    return _cr_session
+    client = AIOHTTPClientSession(_cr_session)
+    await client.initialize_aiohttp_session()
+    return _cr_session, client

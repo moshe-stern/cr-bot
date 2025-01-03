@@ -24,9 +24,7 @@ def get_resource_arr(update_type: UpdateType, df: DataFrame):
                     to_remove=[
                         str(code).strip() for code in row["to_remove"].split(";")
                     ],
-                    to_add=[
-                        str(code).strip() for code in row["to_add"].split(";")
-                    ],
+                    to_add=[str(code).strip() for code in row["to_add"].split(";")],
                 ),
             )
             for _, row in df.iterrows()

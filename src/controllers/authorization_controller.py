@@ -25,10 +25,10 @@ from src.shared import (
     get_json,
     get_task_progress,
     start,
-    get_cr_session,
     logger,
     divide_list,
-    get_resource_arr, get_updated_file,
+    get_resource_arr,
+    get_updated_file,
 )
 import pandas as pd
 import numpy as np
@@ -105,7 +105,6 @@ def download_file(task_id) -> Response | tuple[Response, int]:
 
 # for quick testing when adding new services
 if os.getenv("DEVELOPMENT") == "TRUE":
-
     @authorization.route("/test", methods=["POST"])
     def test():
         async def run_test():
@@ -125,10 +124,12 @@ if os.getenv("DEVELOPMENT") == "TRUE":
                             logger.error(f"Error processing chunk: {result}")
                         else:
                             combined_results.update(result)
-                    get_updated_file(file,combined_results, "client_id")
+                    get_updated_file(file, combined_results, "client_id")
                     output_folder = "./output"
                     os.makedirs(output_folder, exist_ok=True)
-                    output_file_path = os.path.join(output_folder, os.path.basename('results.csv'))
+                    output_file_path = os.path.join(
+                        output_folder, os.path.basename("results.csv")
+                    )
                     file.to_csv(output_file_path, index=False)
                     print(f"File saved to: {output_file_path}")
                     return {"results": combined_results}

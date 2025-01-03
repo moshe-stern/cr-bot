@@ -8,7 +8,7 @@ from celery.backends.redis import RedisBackend
 
 from celery_app import celery
 from src.celery_tasks.process_update.start_playwright import start_playwright
-from src.classes import UpdateType
+from src.classes import UpdateType, AIOHTTPClientSession
 from src.shared.helpers import get_data_frame, get_resource_arr, get_updated_file
 
 logging.basicConfig(level=logging.INFO)

@@ -5,19 +5,19 @@ from playwright.async_api import Page
 
 from src.api import API
 from src.api.auth_settings import get_service_codes
-from src.classes import CRResource, ServiceCodeUpdateKeys
-from src.shared import get_cr_session
+from src.classes import CRResource, ServiceCodeUpdateKeys, AIOHTTPClientSession
+from src.shared.start import get_cr_session_and_client
 
 
 async def update_service_codes(code_resource: CRResource, page: Page) -> bool | None:
-    cr_session = await get_cr_session()
+    cr_session, client = await get_cr_session_and_client()
     service_code_updates = cast(ServiceCodeUpdateKeys, code_resource.updates)
     service_codes = page.get_by_role("link", name="Service Code(s)")
     await service_codes.wait_for(state="visible")
     await service_codes.click()
     updated_codes = [0, 0]
     for code in service_code_updates.to_add:
-        if len(await get_service_codes(cr_session, code)) == 0:
+        if len(await get_service_codes(client, code)) == 0:
             continue
         updated_codes[0] += 1
         has_code = page.locator("#service-codes div").get_by_text(code, exact=True)

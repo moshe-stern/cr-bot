@@ -1,16 +1,35 @@
 from src.api import API
-from src.api.index import do_cr_post
-from src.classes import CRSession, AuthSetting, AuthorizationSettingPayload
+from src.classes import (
+    CRSession,
+    AuthSetting,
+    AuthorizationSettingPayload,
+    AIOHTTPClientSession,
+    Authorization,
+)
 
 
-def load_auth_settings(session: CRSession, resources_id: int) -> list[dict[str, str]]:
-    res = session.post(
+async def load_auth_settings(
+    client: AIOHTTPClientSession, resources_id: int
+) -> list[AuthSetting]:
+    res = await client.do_cr_post(
         API.AUTH_SETTINGS.LOAD_SETTINGS,
-        json={"resourceId": resources_id, "_utcOffsetMinutes": 300},
+        {"resourceId": resources_id, "_utcOffsetMinutes": 300},
     )
     if res.ok:
         data = res.json()
-        return data.get("authorizationSettings")
+        settings: list[AuthSetting] = [
+            AuthSetting(
+                auth_setting["Id"],
+                [
+                    Authorization(
+                        auth["ServiceCodeIdServiceCodeId"], auth["authorizationId"]
+                    )
+                    for auth in auth_setting
+                ],
+            )
+            for auth_setting in data.get("authorizationSettings")
+        ]
+        return settings
     else:
         return []
 
@@ -25,8 +44,10 @@ def load_auth_setting(session: CRSession, authorization_setting_id: int):
     ).json()
 
 
-async def set_auth_setting(session: CRSession, payload: AuthorizationSettingPayload):
-    res = await do_cr_post(
+async def set_auth_setting(
+    client: AIOHTTPClientSession, payload: AuthorizationSettingPayload
+):
+    res = await client.do_cr_post(
         API.AUTH_SETTINGS.SET_SETTING,
         {
             "resourceId": payload.resourceId,
@@ -36,7 +57,6 @@ async def set_auth_setting(session: CRSession, payload: AuthorizationSettingPayl
             "endDate": payload.endDate,
             "startDate": payload.startDate,
         },
-        session,
     )
     data = {"success": False}
     if res.ok:
@@ -48,11 +68,10 @@ async def set_auth_setting(session: CRSession, payload: AuthorizationSettingPayl
     }
 
 
-async def get_service_codes(session: CRSession, code: str) -> list[int]:
-    response = await do_cr_post(
+async def get_service_codes(client: AIOHTTPClientSession, code: str) -> list[int]:
+    response = await client.do_cr_post(
         API.SERVICE_CODES.GET,
         {"search": code, "searchTerm": code, "_utcOffsetMinutes": 300},
-        session,
     )
     if response.ok:
         data = await response.json()

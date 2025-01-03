@@ -11,21 +11,23 @@ from src.classes import (
     PayorUpdateKeys,
     AuthorizationSettingPayload,
     CRSession,
+    AIOHTTPClientSession,
 )
+from src.classes.resources_v2 import PayorUpdateKeysV2
 from src.shared import logger
 
 
-async def update_payors_v2(resources: list[CRResource], session: CRSession):
+async def update_payors_v2(resources: list[CRResource], client: AIOHTTPClientSession):
     try:
 
         async def get_auth_setting_meta(resource: CRResource):
-            settings = await load_auth_settings(session, resource.id)
+            settings = await load_auth_settings(client, resource.id)
             return [
                 {
                     "setting": setting,
                     "resourceId": resource.id,
                     "insuranceCompanyId": cast(
-                        PayorUpdateKeys, resource.updates
+                        PayorUpdateKeysV2, resource.updates
                     ).insurance_company_id,
                 }
                 for setting in settings
@@ -38,7 +40,7 @@ async def update_payors_v2(resources: list[CRResource], session: CRSession):
         updated_settings = await asyncio.gather(
             *(
                 set_auth_setting(
-                    session,
+                    client,
                     AuthorizationSettingPayload(
                         insuranceCompanyId=auth["insuranceCompanyId"],
                         resourceId=auth["resourceId"],
