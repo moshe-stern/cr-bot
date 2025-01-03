@@ -16,7 +16,7 @@ async def load_auth_settings(
         {"resourceId": resources_id, "_utcOffsetMinutes": 300},
     )
     if res.ok:
-        data = res.json()
+        data = await res.json()
         settings: list[AuthSetting] = [
             AuthSetting(
                 auth_setting["Id"],

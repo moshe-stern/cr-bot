@@ -6,7 +6,7 @@ class AIOHTTPClientSession:
 
     def __init__(self, session: CRSession):
         self.session = session
-        self.client = None
+        self.client: aiohttp.ClientSession | None = None
 
     async def initialize_aiohttp_session(
         self, headers=None, connector=None, timeout=None
@@ -46,10 +46,7 @@ class AIOHTTPClientSession:
                     "cookie": f"csrf-token={csrf}; tzoffset=300; crsd={crsd}; crud={crud}",
                 },
             )
-            if response.status < 400:
-                return response
-            else:
-                raise Exception(await response.text())
+            return response
         except Exception as e:
             logger.error(
                 f"An error occurred while making POST request to {api_url}: {e}"
