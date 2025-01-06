@@ -39,6 +39,8 @@ class Billing:
         self.GET_AUTH_CODES = (
             f"{BASE_URL}?billingmanager.loadprocedurecodesandauthorizations"
         )
+        self.GET_TIMESHEET = f"{BASE_URL_CRX}/converted-timesheets/by-segment"
+        self.PUT_TIMESHEET = f"{BASE_URL_CRX}/converted-timesheets/by-segment"
 
 
 class API:

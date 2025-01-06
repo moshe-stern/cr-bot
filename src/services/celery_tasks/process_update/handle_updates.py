@@ -1,5 +1,6 @@
 from src.classes import CRResource, UpdateType
-from src.services.shared import divide_list, logger
+from src.services.billing import update_billings
+from src.services.shared import divide_list, logger, start
 
 
 async def handle_updates(
@@ -7,13 +8,10 @@ async def handle_updates(
 ):
     from src.services.celery_tasks import start_playwright
 
-    chunks = divide_list(resources, 5)
-    combined_results: dict = {}
-    logger.info(f"Divided work into {len(chunks)} chunks")
-    update_results = await start_playwright(chunks, req_id, instance, update_type)
-    for result in update_results:
-        if isinstance(result, Exception):
-            logger.error(f"Error processing chunk: {result}")
-        else:
-            combined_results.update(result)
-    return combined_results
+    if update_type == UpdateType.BILLING:
+        await start(instance)
+        return await update_billings(resources)
+    else:
+        chunks = divide_list(resources, 5)
+        logger.info(f"Divided work into {len(chunks)} chunks")
+        return await start_playwright(chunks, req_id, instance, update_type)

@@ -5,7 +5,8 @@ from typing import cast
 
 import numpy as np
 
-from src.classes import AIOHTTPClientSession, AuthorizationSettingPayload, CRResource
+from src.classes import (AIOHTTPClientSession, AuthorizationSettingPayload,
+                         CRResource)
 from src.classes.resources_v2 import PayorUpdateKeysV2
 from src.services.api import load_auth_settings, set_auth_setting
 from src.services.shared import logger
@@ -35,14 +36,7 @@ async def update_payors_v2(resources: list[CRResource], client: AIOHTTPClientSes
             *(
                 set_auth_setting(
                     client,
-                    AuthorizationSettingPayload(
-                        insuranceCompanyId=auth["insuranceCompanyId"],
-                        resourceId=auth["resourceId"],
-                        authorizationSettingId=auth.get("setting")["Id"],
-                        startDate=auth.get("setting")["StartDate"],
-                        endDate=auth.get("setting")["EndDate"],
-                        frequency=auth.get("setting")["Frequency"],
-                    ),
+                    auth,
                 )
                 for auth in auth_settings
             )

@@ -6,7 +6,7 @@ from src.classes import CRResource, UpdateType
 from src.services.auth_settings import update_auth_settings
 from src.services.billing import update_billings
 from src.services.schedule import update_schedules
-from src.services.shared import start
+from src.services.shared import logger, start, start_with_playwright
 
 
 async def start_playwright(
@@ -16,7 +16,7 @@ async def start_playwright(
     update_type: UpdateType,
 ):
     async with async_playwright() as p:
-        context = await start(p, instance)
+        context = await start_with_playwright(p, instance)
         await context.route(
             "https://members.centralreach.com/crxapieks/session-lock/ping",
             handle_route,
@@ -27,8 +27,14 @@ async def start_playwright(
                 for index, chunk in enumerate(chunks)
             )
         )
+        combined_results = {}
         await context.close()
-        return chunk_results
+        for result in chunk_results:
+            if isinstance(result, Exception):
+                logger.error(f"Error processing chunk: {result}")
+            else:
+                combined_results.update(result)
+        return combined_results
 
 
 async def process_chunk(
@@ -40,9 +46,7 @@ async def process_chunk(
 ) -> dict[int, bool | None]:
     if update_type == UpdateType.SCHEDULE:
         return await update_schedules(parent_task_id, child_id, chunk, page)
-    elif update_type == UpdateType.BILLING:
-        return await update_billings(parent_task_id, child_id, chunk, page)
-    elif update_type == UpdateType.CODES or update_type == UpdateType.PAYORS:
+    else:
         return await update_auth_settings(parent_task_id, child_id, chunk, page)
 
 

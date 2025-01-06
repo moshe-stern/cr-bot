@@ -2,6 +2,7 @@ import os
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from typing import Optional
 
 import requests
 from dotenv import load_dotenv
@@ -23,7 +24,7 @@ class CR_TokenResponse:
 
 
 class CRSession(requests.Session):
-    def __init__(self, org: CrORG, context: APIRequestContext):
+    def __init__(self, org: CrORG, context: Optional[APIRequestContext] = None):
         super().__init__()
         self.org = org
         self._client_secret = os.getenv(f"CR_API_SECRET_{org.org_str}_{org.org_type}")
@@ -82,7 +83,8 @@ class CRSession(requests.Session):
         payload = {"token": self.cr_token_response.access_token}
         headers = {"Accept": "application/json", "Content-Type": "application/json"}
         response = self.post(url, headers=headers, json=payload)
-        await self.context.post(url, headers=headers, data=payload)
+        if self.context:
+            await self.context.post(url, headers=headers, data=payload)
         if response.status_code >= 400:
             raise Exception(
                 f"could not get cookies status code: {response.status_code}"

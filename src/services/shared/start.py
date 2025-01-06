@@ -8,7 +8,15 @@ from src.classes import AIOHTTPClientSession, CRSession, orgs
 _cr_session: Union[CRSession, None] = None
 
 
-async def start(p: Playwright, instance: str):
+async def start(instance: str):
+    global _cr_session
+    cr_instance = orgs[instance]
+    if not cr_instance:
+        raise Exception("Invalid cr instance")
+    _cr_session = CRSession(cr_instance)
+
+
+async def start_with_playwright(p: Playwright, instance: str):
     global _cr_session
     browser = await p.chromium.launch()
     cr_instance = orgs[instance]

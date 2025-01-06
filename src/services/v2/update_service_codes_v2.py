@@ -1,13 +1,8 @@
 import asyncio
 from typing import Coroutine, List, cast
 
-from src.classes import (
-    API,
-    AIOHTTPClientSession,
-    AuthSetting,
-    CRResource,
-    ServiceCodeUpdateKeys,
-)
+from src.classes import (API, AIOHTTPClientSession, AuthSetting, CRResource,
+                         ServiceCodeUpdateKeys)
 from src.services.api import get_service_codes, load_auth_settings
 from src.services.shared import get_cr_session
 
@@ -62,7 +57,7 @@ async def update_codes(
 ):
     codes = await get_service_codes(client, code)
     authorization_to_update = [
-        auth for auth in setting.Authorizations if auth.ServiceCodeId in codes
+        auth for auth in setting.authorizations if auth.service_code_id in codes
     ]
     if not authorization_to_update:
         return None
@@ -70,11 +65,11 @@ async def update_codes(
         API.AUTHORIZATION.SET if update_type == "SET" else API.AUTHORIZATION.DELETE
     )
     tasks: list[Coroutine] = [
-        client.do_cr_post(
+        client.do_cr_fetch(
             api_url,
             {
-                "serviceCodeId": auth.ServiceCodeId,
-                "settingsId": auth.authorizationId,
+                "serviceCodeId": auth.service_code_id,
+                "settingsId": auth.authorization_id,
             },
         )
         for auth in authorization_to_update

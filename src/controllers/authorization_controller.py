@@ -1,6 +1,8 @@
 import asyncio
 import os
+
 from flask import Blueprint, Response, jsonify, request
+
 from src.classes import UpdateType
 from src.services.celery_tasks import process_update
 from src.services.shared import get_json
@@ -27,4 +29,4 @@ if os.getenv("DEVELOPMENT") == "TRUE":
     def test():
         from config.tests import run_test
 
-        return asyncio.run(run_test(UpdateType.CODES, "Kadiant", "resource_id"))
+        return asyncio.run(run_test(UpdateType.BILLING, "Attain TSS", "client_id"))

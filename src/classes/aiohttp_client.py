@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from typing import Optional
 
 import aiohttp
 
@@ -31,7 +32,9 @@ class AIOHTTPClientSession:
             await self.client.close()
             self.client = None
 
-    async def do_cr_post(self, api_url: str, data: dict):
+    async def do_cr_fetch(
+        self, api_url: str, data: Optional[dict] = None, method: Optional[str] = None
+    ):
         from src.services.shared import logger
 
         try:
@@ -40,19 +43,20 @@ class AIOHTTPClientSession:
             csrf = self.session.csrf_token
             crsd = self.session.myCookies.get("crsd")
             crud = self.session.myCookies.get("crud")
-            return await self.client.post(
-                api_url,
-                json=data,
-                headers={
-                    **self.session.myHeaders,
-                    "cookie": f"csrf-token={csrf}; tzoffset=300; crsd={crsd}; crud={crud}",
-                },
-            )
+            headers = {
+                **self.session.myHeaders,
+                "cookie": f"csrf-token={csrf}; tzoffset=300; crsd={crsd}; crud={crud}",
+            }
+            if not data:
+                print("getting")
+                return await self.client.get(api_url, headers=headers)
+            if method == "PUT":
+                return await self.client.put(api_url, json=data, headers=headers)
+            return await self.client.post(api_url, json=data, headers=headers)
         except Exception as e:
             logger.error(
                 f"An error occurred while making POST request to {api_url}: {e}"
             )
-            return False
 
     @asynccontextmanager
     async def managed_session(self, headers=None, connector=None, timeout=None):

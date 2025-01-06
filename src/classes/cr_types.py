@@ -1,33 +1,31 @@
 import dataclasses
-from datetime import date
 
 
 @dataclasses.dataclass
 class Authorization:
-    ServiceCodeId: int
-    authorizationId: int
+    service_code_id: int
+    authorization_id: int
 
 
 @dataclasses.dataclass
 class AuthSetting:
-    Id: int
-    Authorizations: list[Authorization]
+    id: int
+    authorizations: list[Authorization]
 
 
 @dataclasses.dataclass()
 class AuthorizationSettingPayload:
-    resourceId: int
-    insuranceCompanyId: int
-    authorizationSettingId: int
+    resource_id: int
+    insurance_company_id: int
+    authorization_setting_id: int
     frequency: str
-    endDate: str
-    startDate: str
+    end_date: str
+    start_date: str
 
 
 @dataclasses.dataclass
 class Billing:
-    Id: int
-    DateOfService: date
-    ClientId: int
-    ProviderId: int
-    ProcedureCodeString: str
+    id: int
+    date_of_service: str
+    provider_id: int
+    procedure_code_string: str
