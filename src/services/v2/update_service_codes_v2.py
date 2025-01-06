@@ -1,8 +1,13 @@
 import asyncio
 from typing import Coroutine, List, cast
 
-from src.classes import (API, AIOHTTPClientSession, AuthSetting, CRResource,
-                         ServiceCodeUpdateKeys)
+from src.classes import (
+    API,
+    AIOHTTPClientSession,
+    AuthSetting,
+    CRResource,
+    ServiceCodeUpdateKeys,
+)
 from src.services.api import get_service_codes, load_auth_settings
 from src.services.shared import get_cr_session
 

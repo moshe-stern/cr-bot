@@ -5,8 +5,7 @@ from typing import cast
 
 import numpy as np
 
-from src.classes import (AIOHTTPClientSession, AuthorizationSettingPayload,
-                         CRResource)
+from src.classes import AIOHTTPClientSession, AuthorizationSettingPayload, CRResource
 from src.classes.resources_v2 import PayorUpdateKeysV2
 from src.services.api import load_auth_settings, set_auth_setting
 from src.services.shared import logger

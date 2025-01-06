@@ -1,6 +1,11 @@
-from src.classes import (API, AIOHTTPClientSession,
-                         AuthorizationSettingPayload, AuthSetting, CRSession,
-                         cr_types)
+from src.classes import (
+    API,
+    AIOHTTPClientSession,
+    AuthorizationSettingPayload,
+    AuthSetting,
+    CRSession,
+    cr_types,
+)
 
 
 async def load_auth_settings(

@@ -34,13 +34,14 @@ async def set_billing_payors(
 ):
     client_id = list(billings_dict.keys())[0]
     insurance_id = cast(int, billings_dict[client_id].get("insurance_company_id"))
+    billings = cast(list[Billing], billings_dict[client_id].get("billings"))
+    if not billings:
+        return None
     return all(
         await asyncio.gather(
             *[
                 asyncio.create_task(set_billing_payor(client, billing.id, insurance_id))
-                for billing in cast(
-                    list[Billing], billings_dict[client_id].get("billings")
-                )
+                for billing in billings
             ]
         )
     )

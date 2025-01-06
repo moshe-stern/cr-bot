@@ -9,8 +9,11 @@ from celery.backends.redis import RedisBackend
 
 from celery_app import celery
 from src.classes import UpdateType
-from src.services.shared.helpers import (get_data_frame, get_resource_arr,
-                                         get_updated_file)
+from src.services.shared.helpers import (
+    get_data_frame,
+    get_resource_arr,
+    get_updated_file,
+)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

@@ -3,8 +3,7 @@ import re
 import time
 from typing import Union, cast
 
-from src.classes import (AIOHTTPClientSession, Billing, BillingUpdateKeys,
-                         CRResource)
+from src.classes import AIOHTTPClientSession, Billing, BillingUpdateKeys, CRResource
 from src.services.api import get_billings_updates
 from src.services.api.billing.billing import set_billing_updates, set_timesheet
 from src.services.shared import logger
@@ -46,6 +45,7 @@ async def update_billings(resources: list[CRResource]):
                     for billing_dict in billings_list
                 ]
             )
+
             for updated in updated_billings:
                 for key, value in updated.items():
                     updated_resources[key] = value.get("updated")

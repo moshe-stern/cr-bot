@@ -5,8 +5,13 @@ from flask import request
 
 from src.classes import UpdateType
 from src.services.celery_tasks import handle_updates, start_playwright
-from src.services.shared import (check_required_cols, divide_list,
-                                 get_resource_arr, get_updated_file, logger)
+from src.services.shared import (
+    check_required_cols,
+    divide_list,
+    get_resource_arr,
+    get_updated_file,
+    logger,
+)
 
 
 async def run_test(update_type: UpdateType, instance: str, col_name: str):

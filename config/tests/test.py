@@ -142,6 +142,5 @@ def handle_files(test_type: str):
                     logger.error(f"Error: {e}")
 
 
-# for choice in choices:
-#     handle_files(choice)
-handle_files(choices[-1])
+for choice in choices:
+    handle_files(choice)
