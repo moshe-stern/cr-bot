@@ -1,10 +1,10 @@
-from src.services.api import API
 from src.classes import (
     CRSession,
     AuthSetting,
     AuthorizationSettingPayload,
     AIOHTTPClientSession,
-    Authorization,
+    cr_types,
+    API,
 )
 
 
@@ -21,7 +21,7 @@ async def load_auth_settings(
             AuthSetting(
                 auth_setting["Id"],
                 [
-                    Authorization(auth.get("ServiceCodeId"), auth.get("Id"))
+                    cr_types.Authorization(auth.get("ServiceCodeId"), auth.get("Id"))
                     for auth in auth_setting.get("Authorizations")
                 ],
             )

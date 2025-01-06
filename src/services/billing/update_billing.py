@@ -1,10 +1,9 @@
+import asyncio
 import re
 import time
 import traceback
 from typing import Union, cast
-
 from playwright.async_api import Page
-
 from src.services.api import Billing, get_billings, set_billing_payor
 from src.classes import BillingUpdateKeys, CRResource, AIOHTTPClientSession
 from src.services.shared import logger, update_task_progress
@@ -20,29 +19,36 @@ async def update_billings(
     }
     client = AIOHTTPClientSession(session)
     async with client.managed_session():
-        for index, resource in enumerate(resources):
-            billing_updates = cast(BillingUpdateKeys, resource.updates)
-            try:
-                billings: list[Billing] = get_billings(
-                    session,
+        tasks = [
+            asyncio.create_task(
+                get_billings(
+                    client,
                     resource.id,
-                    billing_updates.start_date,
-                    billing_updates.end_date,
+                    cast(BillingUpdateKeys, resource.updates).start_date,
+                    cast(BillingUpdateKeys, resource.updates).end_date,
                 )
-                for billing in billings:
-                    res = set_billing_payor(
-                        session, billing["Id"], billing_updates.insurance_id
-                    )
-                    if not res["success"]:
-                        raise Exception("Failed to set Payor")
-                    await update_billing(page, billing, billing_updates)
-                updated_resources[resource.id] = True
-                update_task_progress(parent_task_id, index + 1, child_id)
-            except Exception as e:
-                updated_resources[resource.id] = False
-                logger.error(f"Failed to update resource {resource.id}: {e}")
-                traceback.print_exc()
-    return updated_resources
+            )
+            for resource in resources
+        ]
+        billings_list: list[list[Billing]] = await asyncio.gather(*tasks)
+        print(billings_list)
+        return billings_list
+        # for index, resource in enumerate(resources):
+        #     billing_updates = cast(BillingUpdateKeys, resource.updates)
+        #     try:
+        #         for billing in billings:
+        #             res = set_billing_payor(
+        #                 session, billing["Id"], billing_updates.insurance_id
+        #             )
+        #             if not res["success"]:
+        #                 raise Exception("Failed to set Payor")
+        #             await update_billing(page, billing, billing_updates)
+        #         updated_resources[resource.id] = True
+        #         update_task_progress(parent_task_id, index + 1, child_id)
+        #     except Exception as e:
+        #         updated_resources[resource.id] = False
+        #         logger.error(f"Failed to update resource {resource.id}: {e}")
+        #         traceback.print_exc()
 
 
 async def update_billing(

@@ -40,7 +40,7 @@ class AIOHTTPClientSession:
             csrf = self.session.csrf_token
             crsd = self.session.myCookies.get("crsd")
             crud = self.session.myCookies.get("crud")
-            response = await self.client.post(
+            return await self.client.post(
                 api_url,
                 json=data,
                 headers={
@@ -48,7 +48,6 @@ class AIOHTTPClientSession:
                     "cookie": f"csrf-token={csrf}; tzoffset=300; crsd={crsd}; crud={crud}",
                 },
             )
-            return response
         except Exception as e:
             logger.error(
                 f"An error occurred while making POST request to {api_url}: {e}"

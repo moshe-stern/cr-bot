@@ -74,11 +74,13 @@ def handle_files(test_type: str):
                 try:
                     res = requests.get(f"{url}/status/{task_id}", headers=headers)
                     data = res.json()
+                    print(data)
                     if data.get("state") == "SUCCESS":
                         logger.info(f"Progress: {data.get('progress')}")
                         res2 = requests.get(
                             f"{url}/download/{task_id}", headers=headers
                         )
+                        print(res2.json())
                         task_ids.remove(task_id)
                         if res2.status_code == 200:
                             downloaded_file = io.BytesIO(res2.content)

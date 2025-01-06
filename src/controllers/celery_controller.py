@@ -5,7 +5,7 @@ from celery_app import celery
 from src.services.celery_tasks import cleanup_file
 
 from src.services.shared import (
-    get_task_progress,
+    get_task_progress, logger,
 )
 
 celery_controller = Blueprint("celery_controller", __name__)
@@ -15,6 +15,7 @@ celery_controller = Blueprint("celery_controller", __name__)
 def check_task_status(task_id) -> dict[str, Any]:
     task: AsyncResult = celery.AsyncResult(task_id)
     response: dict[str, Any] = {}
+    print(task.info)
     if task.state == "PENDING":
         response = {
             "state": task.state,
@@ -23,7 +24,7 @@ def check_task_status(task_id) -> dict[str, Any]:
     elif task.state == "SUCCESS":
         response = {
             "state": task.state,
-            "file_url": f"/authorization/download/{task_id}",
+            "file_url": f"/download/{task_id}",
             "progress": "100%",
         }
     elif task.state == "FAILURE":
@@ -36,10 +37,12 @@ def check_task_status(task_id) -> dict[str, Any]:
 @celery_controller.route("/download/<task_id>", methods=["GET"])
 def download_file(task_id) -> Response | tuple[Response, int]:
     task = celery.AsyncResult(task_id)
+    print(task.result)
     if task.state == "SUCCESS":
         try:
             if isinstance(task.result, str):
                 file_path = task.result
+                print(file_path)
                 response = send_file(
                     file_path,
                     as_attachment=True,
@@ -51,6 +54,7 @@ def download_file(task_id) -> Response | tuple[Response, int]:
             cleanup_file.apply_async((file_path,), countdown=30)
             return response
         except Exception as e:
+            logger.error(e)
             return jsonify({"error": f"Error serving file: {str(e)}"}), 500
         finally:
             task.forget()

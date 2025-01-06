@@ -3,9 +3,8 @@ from typing import Union, cast
 
 from playwright.async_api import Page
 
-from src.services.api import API
 from src.services.api.schedule import get_appointments
-from src.classes import CRResource, ScheduleUpdateKeys, AIOHTTPClientSession
+from src.classes import CRResource, ScheduleUpdateKeys, AIOHTTPClientSession, API
 from src.services.shared import (
     get_cr_session,
     handle_dialogs,

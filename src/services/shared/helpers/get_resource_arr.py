@@ -54,12 +54,7 @@ def get_resource_arr(update_type: UpdateType, df: DataFrame):
             CRResource(
                 id=row["client_id"],
                 updates=BillingUpdateKeys(
-                    start_date=str(row["start_date"]),
-                    end_date=str(row["end_date"]),
-                    insurance_id=row["insurance_id"],
-                    authorization_name=str(row["authorization"]),
-                    place_of_service=str(row["place_of_service"]),
-                    service_address=str(row["service_address"]),
+                    start_date=str(row["start_date"]), end_date=str(row["end_date"])
                 ),
                 update_type=UpdateType.BILLING,
             )

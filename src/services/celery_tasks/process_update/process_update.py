@@ -46,6 +46,7 @@ async def _process_update(self, file_content, update_type_str, instance) -> str:
             "client_id" if update_type == UpdateType.SCHEDULE else "resource_id"
         )
         updated_file = get_updated_file(df, combined_results, key_column)
+        print(updated_file)
         with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as temp_file:
             temp_file.write(updated_file.getvalue())
             logger.info(f"File saved to {temp_file.name}")

@@ -1,4 +1,5 @@
 import dataclasses
+from datetime import date
 
 
 @dataclasses.dataclass
@@ -21,3 +22,12 @@ class AuthorizationSettingPayload:
     frequency: str
     endDate: str
     startDate: str
+
+
+@dataclasses.dataclass
+class Billing:
+    Id: int
+    DateOfService: date
+    ClientId: int
+    ProviderId: int
+    ProcedureCodeString: str

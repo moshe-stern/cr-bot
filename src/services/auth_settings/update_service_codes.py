@@ -3,9 +3,8 @@ from typing import cast
 
 from playwright.async_api import Page
 
-from src.services.api import API
 from src.services.api import get_service_codes
-from src.classes import CRResource, ServiceCodeUpdateKeys, AIOHTTPClientSession
+from src.classes import CRResource, ServiceCodeUpdateKeys, AIOHTTPClientSession, API
 
 
 async def update_service_codes(

@@ -2,16 +2,15 @@ import asyncio
 import os
 from flask import Blueprint, Response, jsonify, request
 from playwright.async_api import async_playwright
+
+from src.services.api import get_billings
+from src.services.billing import update_billings
 from src.services.celery_tasks import process_update, start_playwright
 from src.classes import (
     UpdateType,
 )
 from src.services.shared import (
-    get_json,
-    logger,
-    divide_list,
-    get_resource_arr,
-    get_updated_file,
+    get_json
 )
 import pandas as pd
 
@@ -37,34 +36,5 @@ if os.getenv("DEVELOPMENT") == "TRUE":
 
     @authorization.route("/test", methods=["POST"])
     def test():
-        async def run_test():
-            data = request.files["file"]
-            file = pd.read_excel(data)
-            update_type = UpdateType.CODES
-            check_required_cols(update_type, file)
-            payor_resources = get_resource_arr(update_type, file)
-            try:
-                chunks = divide_list(payor_resources, 20)
-                combined_results = {}
-                update_results = await start_playwright(
-                    chunks, None, "Kadiant", update_type
-                )
-                for result in update_results:
-                    if isinstance(result, Exception):
-                        logger.error(f"Error processing chunk: {result}")
-                    else:
-                        combined_results.update(result)
-                get_updated_file(file, combined_results, "resource_id")
-                output_folder = "./output"
-                os.makedirs(output_folder, exist_ok=True)
-                output_file_path = os.path.join(
-                    output_folder, os.path.basename("results.csv")
-                )
-                file.to_csv(output_file_path, index=False)
-                print(f"File saved to: {output_file_path}")
-                return {"results": combined_results}
-            except Exception as e:
-                logger.error(e)
-                return {"error": "Failed to update"}
-
-        return asyncio.run(run_test())
+        from config.tests import run_test
+        return asyncio.run(run_test(UpdateType.CODES, "Kadiant", "resource_id"))

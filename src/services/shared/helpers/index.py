@@ -32,6 +32,7 @@ def update_task_progress(task_id: int, progress: int, child_id: int):
     from src.services.shared import logger
 
     backend: RedisBackend = celery.backend
+    print(task_id, progress, child_id)
     if not task_id:
         logger.info("Finished resource")
         return
@@ -42,6 +43,7 @@ def update_task_progress(task_id: int, progress: int, child_id: int):
 
 
 def get_task_progress(task: AsyncResult):
+    print(task.info,task.result, "task queed")
     if task.info is None:
         return "task is still queued"
     child_progress_pattern = re.compile(r"^child_progress_")

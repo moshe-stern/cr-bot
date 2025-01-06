@@ -1,11 +1,11 @@
 from typing import List, cast, Coroutine
-from src.services.api import API
 from src.services.api import load_auth_settings, get_service_codes
 from src.classes import (
     CRResource,
     ServiceCodeUpdateKeys,
     AuthSetting,
     AIOHTTPClientSession,
+    API,
 )
 import asyncio
 
