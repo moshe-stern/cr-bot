@@ -7,7 +7,7 @@ import requests
 from dotenv import load_dotenv
 from playwright.async_api import APIRequestContext
 
-from src.classes import CrORG
+from .org import CrORG
 
 if not load_dotenv():
     raise Exception("Failed to load dotenv")

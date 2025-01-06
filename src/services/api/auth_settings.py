@@ -1,10 +1,10 @@
 from src.classes import (
-    CRSession,
-    AuthSetting,
-    AuthorizationSettingPayload,
-    AIOHTTPClientSession,
-    cr_types,
     API,
+    AIOHTTPClientSession,
+    AuthorizationSettingPayload,
+    AuthSetting,
+    CRSession,
+    cr_types,
 )
 
 

@@ -5,13 +5,9 @@ from typing import cast
 
 import numpy as np
 
-from src.services.api import set_auth_setting, load_auth_settings
-from src.classes import (
-    CRResource,
-    AuthorizationSettingPayload,
-    AIOHTTPClientSession,
-)
+from src.classes import AIOHTTPClientSession, AuthorizationSettingPayload, CRResource
 from src.classes.resources_v2 import PayorUpdateKeysV2
+from src.services.api import load_auth_settings, set_auth_setting
 from src.services.shared import logger
 
 

@@ -1,20 +1,9 @@
 import asyncio
 import os
 from flask import Blueprint, Response, jsonify, request
-from playwright.async_api import async_playwright
-
-from src.services.api import get_billings
-from src.services.billing import update_billings
-from src.services.celery_tasks import process_update, start_playwright
-from src.classes import (
-    UpdateType,
-)
-from src.services.shared import (
-    get_json
-)
-import pandas as pd
-
-from src.services.shared import check_required_cols
+from src.classes import UpdateType
+from src.services.celery_tasks import process_update
+from src.services.shared import get_json
 
 authorization = Blueprint("authorization", __name__, url_prefix="/authorization")
 
@@ -33,7 +22,6 @@ def update() -> tuple[Response, int]:
 
 # for quick testing when adding new services
 if os.getenv("DEVELOPMENT") == "TRUE":
-
     @authorization.route("/test", methods=["POST"])
     def test():
         from config.tests import run_test

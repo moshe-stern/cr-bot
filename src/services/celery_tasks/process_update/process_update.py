@@ -1,6 +1,7 @@
 import asyncio
 import base64
 import logging
+import os
 import tempfile
 import traceback
 
@@ -20,12 +21,16 @@ logger = logging.getLogger(__name__)
 
 @celery.task(bind=True, queue="cr-bot-queue")
 def process_update(self, file_content: bytes, update_type_str: str, instance: str):
-    return asyncio.run(_process_update(self, file_content, update_type_str, instance))
+    res = asyncio.run(_process_update(self, file_content, update_type_str, instance))
+    if isinstance(res[1], Exception):
+        raise Exception(res[1])
+    else:
+        return res[0]
 
 
-async def _process_update(self, file_content, update_type_str, instance) -> str:
+async def _process_update(self, file_content, update_type_str, instance):
+    from src.services.shared import check_required_cols
     from src.services.celery_tasks import handle_updates
-
     logger.info(f"Starting process_update with type: {update_type_str}")
     try:
         file_data = base64.b64decode(file_content)
@@ -33,6 +38,7 @@ async def _process_update(self, file_content, update_type_str, instance) -> str:
         if update_type_str not in UpdateType:
             raise ValueError("Invalid update type specified.")
         update_type = UpdateType(update_type_str)
+        check_required_cols(update_type, df)
         resources = get_resource_arr(update_type, df)
         backend: RedisBackend = celery.backend
         task = backend.get_task_meta(self.request.id)
@@ -46,20 +52,12 @@ async def _process_update(self, file_content, update_type_str, instance) -> str:
             "client_id" if update_type == UpdateType.SCHEDULE else "resource_id"
         )
         updated_file = get_updated_file(df, combined_results, key_column)
-        print(updated_file)
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as temp_file:
-            temp_file.write(updated_file.getvalue())
-            logger.info(f"File saved to {temp_file.name}")
-            return temp_file.name
+        output_folder = "./output"
+        os.makedirs(output_folder, exist_ok=True)
+        output_file_path = os.path.join(output_folder, os.path.basename("results.xlsx"))
+        with open(output_file_path, "wb") as f:
+            f.write(updated_file.getvalue())
+        logger.info(f'Saved file to {output_file_path}')
+        return output_file_path, None
     except Exception as e:
-        self.update_state(
-            state="FAILURE",
-            meta={
-                "reason": str(e),
-                "exc_type": type(e).__name__,
-                "exc_message": e.__str__(),
-            },
-        )
-        logger.error(f"Error in process_update: {e}")
-        traceback.print_exc()
-        return "Failed"
+        return 'Failed', e

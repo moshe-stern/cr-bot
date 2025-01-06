@@ -1,6 +1,8 @@
 from datetime import datetime
+
 from dacite import from_dict
-from src.classes import CRSession, API, AIOHTTPClientSession, Billing, cr_types
+
+from src.classes import API, AIOHTTPClientSession, Billing, CRSession, cr_types
 from src.services.shared import get_cr_session
 
 
@@ -665,12 +667,10 @@ async def get_billings(
                 "enddate": end_date,
             }
         )
-        print(data)
         billings: list[Billing] = [
             from_dict(data_class=Billing, data=billing)
             for billing in data.get("items", [])
         ]
-        print(billings)
         return billings
     else:
         return []

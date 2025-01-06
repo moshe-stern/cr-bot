@@ -7,10 +7,10 @@ from src.classes import UpdateType
 from src.services.celery_tasks import start_playwright
 from src.services.shared import (
     check_required_cols,
-    get_resource_arr,
     divide_list,
-    logger,
+    get_resource_arr,
     get_updated_file,
+    logger,
 )
 
 
@@ -19,12 +19,10 @@ async def run_test(update_type: UpdateType, instance: str, col_name: str):
         data = request.files["file"]
         file = pd.read_excel(data)
         check_required_cols(update_type, file)
-        print("hello")
         payor_resources = get_resource_arr(update_type, file)
-        print(payor_resources)
         chunks = divide_list(payor_resources, 20)
         combined_results = {}
-        update_results = await start_playwright(chunks, None, instance, update_type)
+        update_results = await start_playwright(chunks, 1, instance, update_type)
         for result in update_results:
             if isinstance(result, Exception):
                 logger.error(f"Error processing chunk: {result}")

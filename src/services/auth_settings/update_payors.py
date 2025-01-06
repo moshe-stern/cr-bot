@@ -1,6 +1,7 @@
 from typing import cast
 
 from playwright.async_api import Page
+
 from src.classes import CRResource, PayorUpdateKeys
 
 

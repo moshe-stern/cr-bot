@@ -11,9 +11,6 @@ from src.classes import (
 
 
 def get_resource_arr(update_type: UpdateType, df: DataFrame):
-    from .index import check_required_cols
-
-    check_required_cols(update_type, df)
     resources: list[CRResource] = []
     if update_type == UpdateType.CODES:
         resources = [

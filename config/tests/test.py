@@ -12,7 +12,6 @@ import requests
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from dotenv import load_dotenv
 
-
 load_dotenv()
 parser = argparse.ArgumentParser(
     description="Run the application in a specific environment."
@@ -80,7 +79,6 @@ def handle_files(test_type: str):
                         res2 = requests.get(
                             f"{url}/download/{task_id}", headers=headers
                         )
-                        print(res2.json())
                         task_ids.remove(task_id)
                         if res2.status_code == 200:
                             downloaded_file = io.BytesIO(res2.content)
@@ -134,12 +132,15 @@ def handle_files(test_type: str):
                                 )
                         else:
                             raise Exception(res2.json())
+                    elif data.get("state") == "FAILURE":
+                        logger.info("Task Failed")
+                        task_ids.remove(task_id)
                     else:
                         logger.info(f"Progress: {data.get('progress')}")
                         time.sleep(10)
                 except Exception as e:
                     logger.error(f"Error: {e}")
 
-
 for choice in choices:
     handle_files(choice)
+

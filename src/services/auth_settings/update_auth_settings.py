@@ -2,21 +2,16 @@ from typing import List, Union, cast
 
 from playwright.async_api import Page
 
-from src.services.api import API
-from src.services.api import load_auth_settings
 from src.classes import (
-    CRResource,
-    UpdateType,
-    PayorUpdateKeys,
-    AuthSetting,
     AIOHTTPClientSession,
+    AuthSetting,
+    CRResource,
+    PayorUpdateKeys,
+    UpdateType,
 )
+from src.services.api import API, load_auth_settings
 from src.services.auth_settings.update_payors import set_global_payer
-from src.services.shared import (
-    handle_dialogs,
-    logger,
-    update_task_progress,
-)
+from src.services.shared import handle_dialogs, logger, update_task_progress
 from src.services.shared.start import get_cr_session
 
 
@@ -43,26 +38,27 @@ async def update_auth_settings(
                 updated_settings: bool | None = None
                 if len(auth_settings) > 0:
                     authorization_page = f"https://members.centralreach.com/#resources/details/?id={resource.id}&tab=authorizations"
-                    await goto_auth_settings(page, authorization_page)
-                    await handle_dialogs(page, True)
-                    for index_2, auth_setting in enumerate(auth_settings):
-                        if resource.update_type == UpdateType.PAYORS and index_2 == 0:
-                            await set_global_payer(
-                                page,
-                                cast(PayorUpdateKeys, resource.updates).global_payor,
-                            )
-                        group = page.locator(f"#group-auth-{auth_setting.Id}")
-                        edit = group.locator("a").nth(1)
-                        await group.wait_for(state="visible")
-                        await group.hover()
-                        await edit.click()
-                        page.expect_response(API.AUTH_SETTINGS.LOAD_SETTING)
-                        if resource.update_type == UpdateType.PAYORS:
-                            updated_settings = await update_payors(resource, page)
-                        elif resource.update_type == UpdateType.CODES:
-                            updated_settings = await update_service_codes(
-                                resource, page, client
-                            )
+                    is_routed = await goto_auth_settings(page, authorization_page)
+                    if is_routed:
+                        await handle_dialogs(page, True)
+                        for index_2, auth_setting in enumerate(auth_settings):
+                            if resource.update_type == UpdateType.PAYORS and index_2 == 0:
+                                await set_global_payer(
+                                    page,
+                                    cast(PayorUpdateKeys, resource.updates).global_payor,
+                                )
+                            group = page.locator(f"#group-auth-{auth_setting.Id}")
+                            edit = group.locator("a").nth(1)
+                            await group.wait_for(state="visible")
+                            await group.hover()
+                            await edit.click()
+                            page.expect_response(API.AUTH_SETTINGS.LOAD_SETTING)
+                            if resource.update_type == UpdateType.PAYORS:
+                                updated_settings = await update_payors(resource, page)
+                            elif resource.update_type == UpdateType.CODES:
+                                updated_settings = await update_service_codes(
+                                    resource, page, client
+                                )
                 updated_resources[resource.id] = updated_settings
             except Exception as e:
                 updated_resources[resource.id] = False
@@ -77,4 +73,5 @@ async def goto_auth_settings(page: Page, authorization_page):
         page.url != authorization_page
         or await page.locator("text=Resource Not Found").is_visible()
     ):
-        raise Exception("Resource does not exist")
+        return False
+    return True

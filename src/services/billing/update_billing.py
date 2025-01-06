@@ -3,9 +3,11 @@ import re
 import time
 import traceback
 from typing import Union, cast
+
 from playwright.async_api import Page
+
+from src.classes import AIOHTTPClientSession, BillingUpdateKeys, CRResource
 from src.services.api import Billing, get_billings, set_billing_payor
-from src.classes import BillingUpdateKeys, CRResource, AIOHTTPClientSession
 from src.services.shared import logger, update_task_progress
 from src.services.shared.start import get_cr_session
 
@@ -57,10 +59,10 @@ async def update_billing(
     updates: BillingUpdateKeys,
 ):
     await page.goto(
-        f"https://members.centralreach.com/#billingmanager/timesheeteditor/?&id={billing['Id']}"
+        f"https://members.centralreach.com/#billingmanager/timesheeteditor/?&id={billing.Id}"
     )
     await page.locator("div").filter(
-        has_text=re.compile(rf"^ServiceCode{billing['ProcedureCodeString']}$")
+        has_text=re.compile(rf"^ServiceCode{billing.ProcedureCodeString}$")
     ).locator("a").click()
     new_auth = page.locator("a").filter(has_text="kjkkjkj")
     time.sleep(5)

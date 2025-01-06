@@ -4,8 +4,7 @@ import aiohttp
 
 
 class AIOHTTPClientSession:
-    from src.classes import CRSession
-
+    from .session import CRSession
     def __init__(self, session: CRSession):
         self.session = session
         self.client: aiohttp.ClientSession | None = None
