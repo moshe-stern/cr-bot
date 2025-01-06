@@ -4,6 +4,7 @@ from src.services.shared import logger
 
 def cleanup_file(file_path):
     import os
+
     try:
         if os.path.exists(file_path):
             os.remove(file_path)

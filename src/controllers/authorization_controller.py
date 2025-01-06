@@ -22,7 +22,9 @@ def update() -> tuple[Response, int]:
 
 # for quick testing when adding new services
 if os.getenv("DEVELOPMENT") == "TRUE":
+
     @authorization.route("/test", methods=["POST"])
     def test():
         from config.tests import run_test
+
         return asyncio.run(run_test(UpdateType.CODES, "Kadiant", "resource_id"))

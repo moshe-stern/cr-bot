@@ -31,6 +31,7 @@ def process_update(self, file_content: bytes, update_type_str: str, instance: st
 async def _process_update(self, file_content, update_type_str, instance):
     from src.services.shared import check_required_cols
     from src.services.celery_tasks import handle_updates
+
     logger.info(f"Starting process_update with type: {update_type_str}")
     try:
         file_data = base64.b64decode(file_content)
@@ -57,7 +58,7 @@ async def _process_update(self, file_content, update_type_str, instance):
         output_file_path = os.path.join(output_folder, os.path.basename("results.xlsx"))
         with open(output_file_path, "wb") as f:
             f.write(updated_file.getvalue())
-        logger.info(f'Saved file to {output_file_path}')
+        logger.info(f"Saved file to {output_file_path}")
         return output_file_path, None
     except Exception as e:
-        return 'Failed', e
+        return "Failed", e

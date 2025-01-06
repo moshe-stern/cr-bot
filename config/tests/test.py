@@ -141,6 +141,6 @@ def handle_files(test_type: str):
                 except Exception as e:
                     logger.error(f"Error: {e}")
 
+
 for choice in choices:
     handle_files(choice)
-

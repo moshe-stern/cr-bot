@@ -42,10 +42,15 @@ async def update_auth_settings(
                     if is_routed:
                         await handle_dialogs(page, True)
                         for index_2, auth_setting in enumerate(auth_settings):
-                            if resource.update_type == UpdateType.PAYORS and index_2 == 0:
+                            if (
+                                resource.update_type == UpdateType.PAYORS
+                                and index_2 == 0
+                            ):
                                 await set_global_payer(
                                     page,
-                                    cast(PayorUpdateKeys, resource.updates).global_payor,
+                                    cast(
+                                        PayorUpdateKeys, resource.updates
+                                    ).global_payor,
                                 )
                             group = page.locator(f"#group-auth-{auth_setting.Id}")
                             edit = group.locator("a").nth(1)
