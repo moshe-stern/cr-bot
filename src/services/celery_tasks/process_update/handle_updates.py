@@ -1,5 +1,5 @@
 from src.classes import CRResource, UpdateType
-from src.services.billing import update_billings
+from src.services.billing import update_billings, update_timesheet
 from src.services.shared import divide_list, logger, start
 
 
@@ -11,6 +11,9 @@ async def handle_updates(
     if update_type == UpdateType.BILLING:
         await start(instance)
         return await update_billings(resources)
+    elif update_type == UpdateType.TIMESHEET:
+        await start(instance)
+        return await update_timesheet(resources)
     else:
         chunks = divide_list(resources, 5)
         logger.info(f"Divided work into {len(chunks)} chunks")

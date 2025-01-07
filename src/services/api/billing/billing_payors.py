@@ -36,15 +36,21 @@ async def set_billing_payors(
     insurance_id = cast(int, billings_dict[client_id].get("insurance_company_id"))
     billings = cast(list[Billing], billings_dict[client_id].get("billings"))
     if not billings:
-        return None
-    return all(
-        await asyncio.gather(
-            *[
-                asyncio.create_task(set_billing_payor(client, billing.id, insurance_id))
-                for billing in billings
-            ]
-        )
-    )
+        return {client_id: {"updated": False}}
+    return {
+        client_id: {
+            "updated": all(
+                await asyncio.gather(
+                    *[
+                        asyncio.create_task(
+                            set_billing_payor(client, billing.id, insurance_id)
+                        )
+                        for billing in billings
+                    ]
+                )
+            )
+        }
+    }
 
 
 def get_client_payor(session: CRSession, client_id: int):

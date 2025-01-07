@@ -11,6 +11,7 @@ class UpdateType(Enum):
     PAYORS = "Payors"
     SCHEDULE = "Schedules"
     BILLING = "Billing"
+    TIMESHEET = "Time Sheet"
 
 
 class UpdateKeys:
@@ -56,14 +57,19 @@ class BillingUpdateKeys(UpdateKeys):
     start_date: str
     end_date: str
     insurance_id: int
-    authorization_name: str
-    place_of_service: str
-    service_address: str
 
     def __init__(self, **kwargs) -> None:
         self.start_date = kwargs.get("start_date", "")
         self.end_date = kwargs.get("end_date", "")
         self.insurance_id = kwargs.get("insurance_id", 0)
-        self.authorization_name = kwargs.get("authorization_name", "")
-        self.place_of_service = kwargs.get("place_of_service", "")
-        self.service_address = kwargs.get("service_address", "")
+
+
+class TimeSheetUpdateKeys(UpdateKeys):
+    start_date: str
+    end_date: str
+    insurance_id: int
+
+    def __init__(self, **kwargs) -> None:
+        self.start_date = kwargs.get("start_date", "")
+        self.end_date = kwargs.get("end_date", "")
+        self.insurance_id = kwargs.get("insurance_id", 0)
