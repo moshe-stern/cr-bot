@@ -1,12 +1,14 @@
-import re
+import asyncio
 import time
-from typing import Union
+from typing import Union, cast
 
 from playwright.async_api import Page
 from typing_extensions import deprecated
 
-from src.classes import (AIOHTTPClientSession, Billing, BillingUpdateKeys,
-                         CRResource)
+from src.classes import (AIOHTTPClientSession, Billing, CRResource,
+                         TimeSheetUpdateKeys)
+from src.services.api import set_billing_timesheets
+from src.services.billing.shared import get_billings_list
 from src.services.shared import get_cr_session
 
 
@@ -18,14 +20,26 @@ async def update_timesheet(resources: list[CRResource]):
     client = AIOHTTPClientSession(session)
 
     def get_updates(resource: CRResource):
-        return {}
+        return {
+            "authorization_id": cast(
+                TimeSheetUpdateKeys, resource.updates
+            ).authorization_id
+        }
 
     async with client.managed_session():
-        pass
-        # billings_list: list[dict[str, Union[list[Billing], int]]] = (
-        #     await get_billings_list(client, resources, get_updates)
-        # )
-        # get_timesheet(client, billings_list[0])
+        billings_list: list[dict[str, Union[list[Billing], int]]] = (
+            await get_billings_list(client, resources, get_updates)
+        )
+        updated_timesheets = await asyncio.gather(
+            *[
+                asyncio.create_task(set_billing_timesheets(client, billing_dict))
+                for billing_dict in billings_list
+            ]
+        )
+        for updated in updated_timesheets:
+            for key, value in updated.items():
+                updated_resources[key] = value.get("updated")
+
     return updated_resources
 
 

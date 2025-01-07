@@ -67,9 +67,9 @@ class BillingUpdateKeys(UpdateKeys):
 class TimeSheetUpdateKeys(UpdateKeys):
     start_date: str
     end_date: str
-    insurance_id: int
+    authorization_id: int
 
     def __init__(self, **kwargs) -> None:
         self.start_date = kwargs.get("start_date", "")
         self.end_date = kwargs.get("end_date", "")
-        self.insurance_id = kwargs.get("insurance_id", 0)
+        self.authorization_id = kwargs.get("authorization_id", 0)

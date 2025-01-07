@@ -40,7 +40,7 @@ class Billing:
             f"{BASE_URL}?billingmanager.loadprocedurecodesandauthorizations"
         )
         self.GET_TIMESHEET = f"{BASE_URL_CRX}/converted-timesheets/by-segment"
-        self.PUT_TIMESHEET = f"{BASE_URL_CRX}/converted-timesheets/by-segment"
+        self.PUT_TIMESHEET = f"{BASE_URL_CRX}/converted-timesheets"
 
 
 class API:

@@ -48,7 +48,6 @@ class AIOHTTPClientSession:
                 "cookie": f"csrf-token={csrf}; tzoffset=300; crsd={crsd}; crud={crud}",
             }
             if not data:
-                print("getting")
                 return await self.client.get(api_url, headers=headers)
             if method == "PUT":
                 return await self.client.put(api_url, json=data, headers=headers)

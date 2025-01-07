@@ -1,7 +1,8 @@
 from pandas import DataFrame
 
 from src.classes import (BillingUpdateKeys, CRResource, PayorUpdateKeys,
-                         ScheduleUpdateKeys, ServiceCodeUpdateKeys, UpdateType)
+                         ScheduleUpdateKeys, ServiceCodeUpdateKeys,
+                         TimeSheetUpdateKeys, UpdateType)
 
 
 def get_resource_arr(update_type: UpdateType, df: DataFrame):
@@ -48,6 +49,19 @@ def get_resource_arr(update_type: UpdateType, df: DataFrame):
                     start_date=str(row["start_date"]),
                     end_date=str(row["end_date"]),
                     insurance_id=row["insurance_id"],
+                ),
+                update_type=UpdateType.BILLING,
+            )
+            for _, row in df.iterrows()
+        ]
+    elif update_type == UpdateType.TIMESHEET:
+        resources = [
+            CRResource(
+                id=row["client_id"],
+                updates=TimeSheetUpdateKeys(
+                    authorization_id=row["authorization_id"],
+                    start_date=str(row["start_date"]),
+                    end_date=str(row["end_date"]),
                 ),
                 update_type=UpdateType.BILLING,
             )

@@ -29,4 +29,4 @@ if os.getenv("DEVELOPMENT") == "TRUE":
     def test():
         from config.tests import run_test
 
-        return asyncio.run(run_test(UpdateType.BILLING, "Kadiant", "client_id"))
+        return asyncio.run(run_test(UpdateType.TIMESHEET, "Attain TSS", "client_id"))
