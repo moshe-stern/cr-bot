@@ -46,4 +46,9 @@ async def get_billings_updates(
             }
         }
     else:
-        raise Exception("Failed to get billings")
+        return {
+            client_id: {
+                "billings": [],
+                **updates,
+            }
+        }

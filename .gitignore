@@ -10,3 +10,4 @@ output
 .env
 .idea
 playwright
+data.json

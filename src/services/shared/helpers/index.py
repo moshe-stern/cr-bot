@@ -1,3 +1,4 @@
+import json
 import re
 
 from celery.backends.redis import RedisBackend
@@ -77,3 +78,19 @@ def check_required_cols(update_type: UpdateType, df: DataFrame):
         )
     if required_columns != df.columns.tolist():
         raise Exception(f"Columns must be in this exact format: {required_columns}")
+
+
+def get_debug_json(data: dict):
+    file_path = "data.json"
+    new_obj = data.get("results")
+    try:
+        with open(file_path, "r") as file:
+            file_data = json.load(file)
+        if not isinstance(file_data, list):
+            raise ValueError("JSON file does not contain an array.")
+        file_data.append(new_obj)
+    except (FileNotFoundError, json.JSONDecodeError):
+        file_data = [new_obj]
+    with open(file_path, "w") as file:
+        json.dump(file_data, file, indent=4)
+    print(f"Object successfully added to {file_path}")

@@ -4,7 +4,7 @@ import dataclasses
 @dataclasses.dataclass
 class Authorization:
     service_code_id: int
-    authorization_id: int
+    id: int
 
 
 @dataclasses.dataclass

@@ -2,9 +2,9 @@ from typing import List, Union, cast
 
 from playwright.async_api import Page
 
-from src.classes import (AIOHTTPClientSession, AuthSetting, CRResource,
+from src.classes import (API, AIOHTTPClientSession, AuthSetting, CRResource,
                          PayorUpdateKeys, UpdateType)
-from src.services.api import API, load_auth_settings
+from src.services.api import load_auth_settings
 from src.services.auth_settings.update_payors import set_global_payer
 from src.services.shared import handle_dialogs, logger, update_task_progress
 from src.services.shared.start import get_cr_session
