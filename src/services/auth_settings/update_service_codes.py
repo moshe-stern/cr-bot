@@ -3,7 +3,8 @@ from typing import cast
 
 from playwright.async_api import Page
 
-from src.classes import API, AIOHTTPClientSession, CRResource, ServiceCodeUpdateKeys
+from src.classes import (API, AIOHTTPClientSession, CRResource,
+                         ServiceCodeUpdateKeys)
 from src.services.api import get_service_codes
 
 

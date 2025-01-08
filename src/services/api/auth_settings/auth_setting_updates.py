@@ -1,12 +1,7 @@
 from dacite import from_dict
 
-from src.classes import (
-    API,
-    AIOHTTPClientSession,
-    Authorization,
-    AuthSetting,
-    CRResource,
-)
+from src.classes import (API, AIOHTTPClientSession, Authorization, AuthSetting,
+                         CRResource)
 
 
 async def get_authorizations_in_settings_updates(

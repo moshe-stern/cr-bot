@@ -1,33 +1,50 @@
+import json
+import time
 from typing import cast
 
-from playwright.async_api import Page
+from playwright.async_api import Page, Request, Response, Route
 
-from src.classes import CRResource, PayorUpdateKeys
+from src.classes import API, CRResource, PayorUpdateKeys
+from src.services.shared import logger
 
 
 async def update_payors(payor_resource: CRResource, page: Page):
     resource_global_payer = cast(PayorUpdateKeys, payor_resource.updates).global_payor
-    combo = page.get_by_role("combobox")
-    await combo.click()
-    options = await combo.get_by_role("option").all_text_contents()
-    index = options.index(resource_global_payer)
-    await combo.select_option(index=index, timeout=1000)
-    await page.keyboard.press("Enter")
+
+    async def add_payor(route: Route):
+        request_body = route.request.post_data_json
+        updated_body = {
+            **(request_body or {}),
+            "insuranceCompanyId": int(resource_global_payer),
+        }
+        await route.continue_(
+            post_data=json.dumps(updated_body), headers=route.request.headers
+        )
+
+    await page.route(API.AUTH_SETTINGS.SET_SETTING, add_payor)
     await page.get_by_role("button", name="Save", exact=True).click()
+
     return True
 
 
 async def set_global_payer(page: Page, payer: str):
-    global_auth = page.get_by_text("Global Authorization Settings")
-    edit = page.locator(".pull-right > a:nth-child(2)").first
-    await global_auth.first.hover()
-    await edit.wait_for(state="visible")
-    await edit.click()
-    combo = page.get_by_role("combobox").first
-    await combo.wait_for(state="visible")
-    await combo.click()
-    options = await combo.get_by_role("option").all_text_contents()
-    index = options.index(payer)
-    await combo.select_option(index=index, timeout=1000)
-    await page.keyboard.press("Enter")
-    await page.get_by_role("button", name="Save Changes").click()
+    try:
+        global_auth = page.get_by_text("Global Authorization Settings")
+        edit = page.locator(".pull-right > a:nth-child(2)").first
+        await global_auth.first.hover()
+        await edit.wait_for(state="visible")
+        await edit.click()
+
+        async def add_payor(route: Route):
+            request_body = route.request.post_data_json
+            updated_body = {**(request_body or {}), "authContactPayorId": int(payer)}
+            await route.continue_(
+                post_data=json.dumps(updated_body), headers=route.request.headers
+            )
+
+        await page.route(API.AUTH_SETTINGS.SET_GLOBAL_SETTING, add_payor)
+        await page.get_by_role("button", name="Save Changes", exact=True).click()
+        return True
+    except Exception as e:
+        logger.error(e)
+        return False

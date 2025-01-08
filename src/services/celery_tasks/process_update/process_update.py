@@ -9,11 +9,8 @@ from celery.backends.redis import RedisBackend
 
 from celery_app import celery
 from src.classes import UpdateType
-from src.services.shared.helpers import (
-    get_data_frame,
-    get_resource_arr,
-    get_updated_file,
-)
+from src.services.shared.helpers import (get_data_frame, get_resource_arr,
+                                         get_updated_file)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -49,9 +46,11 @@ async def _process_update(self, file_content, update_type_str, instance):
         results = await handle_updates(
             resources, self.request.id, instance, update_type
         )
-        is_client_id_col = (
-            update_type == UpdateType.SCHEDULE or update_type == UpdateType.BILLING
-        )
+        is_client_id_col = update_type in [
+            UpdateType.SCHEDULE,
+            UpdateType.BILLING,
+            UpdateType.TIMESHEET,
+        ]
         key_column = "client_id" if is_client_id_col else "resource_id"
         updated_file = get_updated_file(df, results, key_column)
         output_folder = "./output"

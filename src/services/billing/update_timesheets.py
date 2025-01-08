@@ -5,7 +5,8 @@ from typing import Union, cast
 from playwright.async_api import Page
 from typing_extensions import deprecated
 
-from src.classes import AIOHTTPClientSession, Billing, CRResource, TimeSheetUpdateKeys
+from src.classes import (AIOHTTPClientSession, Billing, CRResource,
+                         TimeSheetUpdateKeys)
 from src.services.api import set_billing_timesheets
 from src.services.billing.shared import get_billings_list
 from src.services.shared import get_cr_session

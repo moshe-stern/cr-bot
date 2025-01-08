@@ -28,7 +28,7 @@ local = "http://localhost:8000"
 url: str = f"{local if environment == 'local' else prod}"
 task_ids = []
 headers = {"X-Secret-Key": os.getenv("SECRET_KEY")}
-choices = ["Service Codes", "Payors", "Schedules", "Billing"]
+choices = ["Service Codes", "Payors", "Schedules", "Billing", "Timesheet"]
 
 
 def handle_files(test_type: str):

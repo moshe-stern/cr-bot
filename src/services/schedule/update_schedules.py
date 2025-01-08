@@ -3,14 +3,11 @@ from typing import Union, cast
 
 from playwright.async_api import Page
 
-from src.classes import API, AIOHTTPClientSession, CRResource, ScheduleUpdateKeys
+from src.classes import (API, AIOHTTPClientSession, CRResource,
+                         ScheduleUpdateKeys)
 from src.services.api.schedule import get_appointments
-from src.services.shared import (
-    get_cr_session,
-    handle_dialogs,
-    logger,
-    update_task_progress,
-)
+from src.services.shared import (get_cr_session, handle_dialogs, logger,
+                                 update_task_progress)
 
 
 async def update_schedules(
@@ -28,7 +25,7 @@ async def update_schedules(
         for index, resource in enumerate(resources):
             codes_added = 0
             try:
-                appointments = get_appointments(cr_session, resource.id)
+                appointments = await get_appointments(client, resource.id)
                 if len(appointments) > 0:
                     for appointment in appointments:
                         await handle_appointment(

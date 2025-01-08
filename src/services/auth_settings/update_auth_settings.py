@@ -1,15 +1,10 @@
+import time
 from typing import List, Union, cast
 
 from playwright.async_api import Page
 
-from src.classes import (
-    API,
-    AIOHTTPClientSession,
-    AuthSetting,
-    CRResource,
-    PayorUpdateKeys,
-    UpdateType,
-)
+from src.classes import (API, AIOHTTPClientSession, AuthSetting, CRResource,
+                         PayorUpdateKeys, UpdateType)
 from src.services.api import load_auth_settings
 from src.services.auth_settings.update_payors import set_global_payer
 from src.services.shared import handle_dialogs, logger, update_task_progress
@@ -30,7 +25,7 @@ async def update_auth_settings(
     session = await get_cr_session()
     client = AIOHTTPClientSession(session)
     async with client.managed_session():
-        for index, resource in enumerate(resources_to_update):
+        for i, resource in enumerate(resources_to_update):
             try:
                 await handle_dialogs(page)
                 auth_settings: list[AuthSetting] = await load_auth_settings(
@@ -42,17 +37,16 @@ async def update_auth_settings(
                     is_routed = await goto_auth_settings(page, authorization_page)
                     if is_routed:
                         await handle_dialogs(page, True)
-                        for index_2, auth_setting in enumerate(auth_settings):
-                            if (
-                                resource.update_type == UpdateType.PAYORS
-                                and index_2 == 0
-                            ):
-                                await set_global_payer(
+                        for j, auth_setting in enumerate(auth_settings):
+                            if j == 0 and resource.update_type == UpdateType.PAYORS:
+                                res = await set_global_payer(
                                     page,
                                     cast(
                                         PayorUpdateKeys, resource.updates
                                     ).global_payor,
                                 )
+                                if not res:
+                                    raise Exception("Failed to Set global payor")
                             group = page.locator(f"#group-auth-{auth_setting.id}")
                             edit = group.locator("a").nth(1)
                             await group.wait_for(state="visible")
@@ -69,7 +63,7 @@ async def update_auth_settings(
             except Exception as e:
                 updated_resources[resource.id] = False
                 logger.error(f"Failed to update resource {resource.id}: {e}")
-            update_task_progress(parent_task_id, index, child_id)
+            update_task_progress(parent_task_id, i, child_id)
     return updated_resources
 
 

@@ -6,15 +6,9 @@ from celery.result import AsyncResult
 from pandas import DataFrame
 
 from celery_app import celery
-from src.classes import (
-    BillingUpdateKeys,
-    CRResource,
-    PayorUpdateKeys,
-    ScheduleUpdateKeys,
-    ServiceCodeUpdateKeys,
-    TimeSheetUpdateKeys,
-    UpdateType,
-)
+from src.classes import (BillingUpdateKeys, CRResource, PayorUpdateKeys,
+                         ScheduleUpdateKeys, ServiceCodeUpdateKeys,
+                         TimeSheetUpdateKeys, UpdateType)
 
 
 def divide_list(lst: list[CRResource], n: int) -> list[list[CRResource]]:
@@ -35,7 +29,7 @@ def update_task_progress(task_id: int, progress: int, child_id: int):
     from src.services.shared import logger
 
     backend: RedisBackend = celery.backend
-    if not task_id:
+    if task_id == -1:
         logger.info("Finished resource")
         return
     parent_meta = backend.get_task_meta(task_id)
