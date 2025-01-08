@@ -52,14 +52,17 @@ def handle_files(test_type: str):
                         "$content": base64data,
                     },
                     "type": os.path.splitext(filename)[0],
-                    "instance": "Kadiant",
+                    "instance": (
+                        "Attain TSS"
+                        if os.path.splitext(filename)[0] == "Billing"
+                        else "Kadiant"
+                    ),
                 }
                 response = requests.post(
                     url + "/authorization",
                     headers={**headers, "Content-Type": "application/json"},
                     json=data,
                 )
-                print(response.text)
                 if response.status_code == 202:
                     data = response.json()
                     task_ids.append(data.get("task_id"))
@@ -73,7 +76,6 @@ def handle_files(test_type: str):
                 try:
                     res = requests.get(f"{url}/status/{task_id}", headers=headers)
                     data = res.json()
-                    print(data)
                     if data.get("state") == "SUCCESS":
                         logger.info(f"Progress: {data.get('progress')}")
                         res2 = requests.get(

@@ -37,7 +37,7 @@ async def update_service_codes(
             delete_button = page.get_by_role("button", name="Yes", exact=True)
             await delete_button.wait_for(state="visible")
             await delete_button.click()
-            updated_codes[1] += 1
+        updated_codes[1] += 1
     await page.get_by_role("button", name="Save", exact=True).click()
     updated: bool | None = (
         updated_codes[0] == len(service_code_updates.to_add)
