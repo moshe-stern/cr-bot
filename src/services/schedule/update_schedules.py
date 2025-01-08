@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 from typing import Union, cast
 
@@ -54,15 +55,16 @@ async def handle_appointment(
     )
     page.expect_response(API.AUTHORIZATION.LOAD_AUTHS_CODES)
     deletes_locator = page.get_by_role("button", name="")
-    await deletes_locator.first.wait_for(state="visible")
     deletes = await deletes_locator.all()
     for delete in deletes:
         delete_locator_2 = page.get_by_role("button", name="")
         await delete_locator_2.first.wait_for(state="visible")
         await delete_locator_2.first.click()
     await page.get_by_role("button", name=" Add").click()
+    no_auths = page.get_by_text('No authorizations available')
+    if await no_auths.is_visible():
+        return None
     items_locator = page.locator(".list-group .list-group-item")
-    await items_locator.first.wait_for(state="visible")
     await items_locator.first.wait_for(state="visible")
     items = await items_locator.all()
     filtered_items = [
