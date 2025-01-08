@@ -4,11 +4,14 @@ from typing import Union, cast
 
 from playwright.async_api import Page
 
-from src.classes import (API, AIOHTTPClientSession, CRResource,
-                         ScheduleUpdateKeys)
+from src.classes import API, AIOHTTPClientSession, CRResource, ScheduleUpdateKeys
 from src.services.api.schedule import get_appointments
-from src.services.shared import (get_cr_session, handle_dialogs, logger,
-                                 update_task_progress)
+from src.services.shared import (
+    get_cr_session,
+    handle_dialogs,
+    logger,
+    update_task_progress,
+)
 
 
 async def update_schedules(
@@ -61,7 +64,7 @@ async def handle_appointment(
         await delete_locator_2.first.wait_for(state="visible")
         await delete_locator_2.first.click()
     await page.get_by_role("button", name=" Add").click()
-    no_auths = page.get_by_text('No authorizations available')
+    no_auths = page.get_by_text("No authorizations available")
     if await no_auths.is_visible():
         return None
     items_locator = page.locator(".list-group .list-group-item")

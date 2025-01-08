@@ -6,9 +6,15 @@ from celery.result import AsyncResult
 from pandas import DataFrame
 
 from celery_app import celery
-from src.classes import (BillingUpdateKeys, CRResource, PayorUpdateKeys,
-                         ScheduleUpdateKeys, ServiceCodeUpdateKeys,
-                         TimeSheetUpdateKeys, UpdateType)
+from src.classes import (
+    BillingUpdateKeys,
+    CRResource,
+    PayorUpdateKeys,
+    ScheduleUpdateKeys,
+    ServiceCodeUpdateKeys,
+    TimeSheetUpdateKeys,
+    UpdateType,
+)
 
 
 def divide_list(lst: list[CRResource], n: int) -> list[list[CRResource]]:

@@ -4,8 +4,13 @@ from typing import cast
 
 from dateutil.relativedelta import relativedelta
 
-from src.classes import (API, AIOHTTPClientSession, CRResource, CRSession,
-                         ScheduleUpdateKeys)
+from src.classes import (
+    API,
+    AIOHTTPClientSession,
+    CRResource,
+    CRSession,
+    ScheduleUpdateKeys,
+)
 
 
 async def get_appointments(client: AIOHTTPClientSession, client_id: int):
