@@ -1,8 +1,6 @@
 from dacite import from_dict
 
-from src.classes import (API, AIOHTTPClientSession,
-                         AuthorizationSettingPayload, AuthSetting, CRResource,
-                         CRSession, cr_types)
+from src.classes import API, AIOHTTPClientSession, AuthSetting, CRSession, cr_types
 
 
 async def load_auth_settings(
@@ -29,38 +27,65 @@ async def load_auth_settings(
         return []
 
 
-def load_auth_setting(session: CRSession, authorization_setting_id: int):
-    return session.post(
-        API.AUTH_SETTINGS.SET_SETTING,
-        json={
-            "authorizationSettingId": authorization_setting_id,
+async def load_auth_setting(client: AIOHTTPClientSession, setting_id: int):
+    res = await client.do_cr_fetch(
+        API.AUTH_SETTINGS.LOAD_SETTING,
+        {
+            "authorizationSettingId": setting_id,
             "_utcOffsetMinutes": 300,
         },
-    ).json()
+    )
+
+    def convert_obj_keys_to_lower(obj: dict):
+        return {key[0].lower() + key[1:]: value for key, value in obj.items()}
+
+    if res.ok:
+        data = await res.json()
+        return {
+            **convert_obj_keys_to_lower(data.get("authorizationSetting")),
+            "diagnosisCodes": [
+                {
+                    "code": str(code.get("Code")),
+                    "description": code.get("Description"),
+                    "id": code.get("Id"),
+                    "name": code.get("name"),
+                    "pointer": "",
+                    "version": code.get("Version"),
+                }
+                for code in data.get("diagnosisCodes", [])
+            ],
+            "authorizations": [
+                convert_obj_keys_to_lower(auth)
+                for auth in data.get("authorizations", [])
+            ],
+        }
 
 
 async def set_auth_setting(
-    client: AIOHTTPClientSession, payload: AuthorizationSettingPayload
+    client: AIOHTTPClientSession, setting_id: int, global_payor: int
 ):
+    loaded_setting = await load_auth_setting(client, setting_id)
+    if not loaded_setting:
+        return False
     res = await client.do_cr_fetch(
         API.AUTH_SETTINGS.SET_SETTING,
         {
-            "resourceId": payload.resource_id,
-            "insuranceCompanyId": payload.insurance_company_id,
-            "authorizationSettingId": payload.authorization_setting_id,
-            "frequency": payload.frequency,
-            "endDate": payload.end_date,
-            "startDate": payload.start_date,
+            **loaded_setting,
+            "insuranceCompanyId": global_payor,
+            "authorizationSettingId": loaded_setting.get("id"),
+            "diagnosisString": ",".join(
+                [
+                    str(code.get("id"))
+                    for code in loaded_setting.get("diagnosisCodes", [])
+                ]
+            ),
         },
     )
-    data = {"success": False}
     if res.ok:
         data = await res.json()
-    return {
-        "resource": payload.resource_id,
-        "setting": payload.authorization_setting_id,
-        "updated": data["success"],
-    }
+        return data["success"]
+    else:
+        return False
 
 
 async def get_service_codes(client: AIOHTTPClientSession, code: str) -> list[int]:

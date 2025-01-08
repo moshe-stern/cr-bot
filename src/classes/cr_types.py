@@ -13,19 +13,26 @@ class AuthSetting:
     authorizations: list[Authorization]
 
 
-@dataclasses.dataclass()
-class AuthorizationSettingPayload:
-    resource_id: int
-    insurance_company_id: int
-    authorization_setting_id: int
-    frequency: str
-    end_date: str
-    start_date: str
-
-
 @dataclasses.dataclass
 class Billing:
     id: int
     date_of_service: str
     provider_id: int
     procedure_code_string: str
+
+
+@dataclasses.dataclass
+class AuthorizationData:
+    authorizationNumber: str
+    billingId: int
+    clientAcceptedHoursFrequency: str
+    endDate: str
+    firstDayOfWeek: int
+    frequency: str
+    id: int
+    insuranceCompanyId: int
+    organizationId: int
+    providerSupplierId: int
+    referrerId: int
+    resourceId: int
+    startDate: str

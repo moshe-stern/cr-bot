@@ -5,11 +5,16 @@ from flask import request
 
 from src.classes import UpdateType
 from src.services.celery_tasks import handle_updates, start_playwright
-from src.services.shared import (check_required_cols, divide_list,
-                                 get_resource_arr, get_updated_file, logger)
+from src.services.shared import (
+    check_required_cols,
+    divide_list,
+    get_resource_arr,
+    get_updated_file,
+    logger,
+)
 
 
-async def run_test(update_type: UpdateType, instance: str, col_name: str):
+async def run_test(update_type: UpdateType, instance: str):
     try:
         data = request.files["file"]
         file = pd.read_excel(data)
@@ -17,7 +22,11 @@ async def run_test(update_type: UpdateType, instance: str, col_name: str):
         update_results = await handle_updates(
             get_resource_arr(update_type, file), 1, instance, update_type
         )
-        get_updated_file(file, update_results, col_name)
+        is_client_id_col = (
+            update_type == UpdateType.SCHEDULE or update_type == UpdateType.BILLING
+        )
+        key_column = "client_id" if is_client_id_col else "resource_id"
+        get_updated_file(file, update_results, key_column)
         output_folder = "./output"
         os.makedirs(output_folder, exist_ok=True)
         output_file_path = os.path.join(output_folder, os.path.basename("results.csv"))

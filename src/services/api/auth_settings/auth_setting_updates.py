@@ -1,10 +1,15 @@
 from dacite import from_dict
 
-from src.classes import (API, AIOHTTPClientSession, Authorization, AuthSetting,
-                         CRResource)
+from src.classes import (
+    API,
+    AIOHTTPClientSession,
+    Authorization,
+    AuthSetting,
+    CRResource,
+)
 
 
-async def get_auth_settings_updates(
+async def get_authorizations_in_settings_updates(
     client: AIOHTTPClientSession, resource_id: int, updates: dict
 ):
     res = await client.do_cr_fetch(
@@ -30,6 +35,24 @@ async def get_auth_settings_updates(
                     ],
                 },
             )
+            for auth_setting in data.get("authorizationSettings", [])
+        ]
+        return {resource_id: {"settings": settings, **updates}}
+    else:
+        return {resource_id: {"settings": [], **updates}}
+
+
+async def get_settings_updates(
+    client: AIOHTTPClientSession, resource_id: int, updates: dict
+):
+    res = await client.do_cr_fetch(
+        API.AUTH_SETTINGS.LOAD_SETTINGS,
+        {"resourceId": int(resource_id), "_utcOffsetMinutes": 300},
+    )
+    if res.ok:
+        data = await res.json()
+        settings = [
+            int(auth_setting.get("Id", 0))
             for auth_setting in data.get("authorizationSettings", [])
         ]
         return {resource_id: {"settings": settings, **updates}}

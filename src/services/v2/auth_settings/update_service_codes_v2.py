@@ -1,10 +1,16 @@
 import asyncio
 from typing import List, Union, cast
 
-from src.classes import (AIOHTTPClientSession, AuthSetting, CRResource,
-                         ServiceCodeUpdateKeys)
-from src.services.api import (delete_authorizations_in_setting,
-                              set_authorization_in_setting)
+from src.classes import (
+    AIOHTTPClientSession,
+    AuthSetting,
+    CRResource,
+    ServiceCodeUpdateKeys,
+)
+from src.services.api import (
+    delete_authorizations_in_setting,
+    set_authorization_in_setting,
+)
 from src.services.shared import get_cr_session
 
 from .shared import get_auth_settings_list
@@ -25,7 +31,7 @@ async def update_service_codes_v2(resources: List[CRResource]):
 
     async with client.managed_session():
         auth_settings_list = await get_auth_settings_list(
-            client, resources, get_updates
+            client, resources, get_updates, True
         )
         updated_settings: list[dict] = await asyncio.gather(
             *[
