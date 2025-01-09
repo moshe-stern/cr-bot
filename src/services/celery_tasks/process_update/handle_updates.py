@@ -10,20 +10,23 @@ async def handle_updates(
 ):
     from src.services.celery_tasks import start_playwright
 
-    if update_type == UpdateType.BILLING:
+    if update_type not in [UpdateType.PAYORS]:
         await start(instance)
+
+    if update_type == UpdateType.BILLING:
         return await update_billings(resources)
+
     elif update_type == UpdateType.TIMESHEET:
         # TODO: get billing types
-        await start(instance)
         return await update_timesheet(resources)
+
     elif update_type == UpdateType.CODES:
-        await start(instance)
         return await update_service_codes_v2(resources)
+
     elif update_type == UpdateType.SCHEDULE:
         # TODO: verify fee schedules
-        await start(instance)
         return await update_schedules(resources)
+
     elif update_type == UpdateType.PAYORS:
         # TODO: get all updates out of playwright so far only auth setting payors uses it
         chunks = divide_list(resources, 5)
