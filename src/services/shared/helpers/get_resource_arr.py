@@ -1,14 +1,8 @@
 from pandas import DataFrame
 
-from src.classes import (
-    BillingUpdateKeys,
-    CRResource,
-    PayorUpdateKeys,
-    ScheduleUpdateKeys,
-    ServiceCodeUpdateKeys,
-    TimeSheetUpdateKeys,
-    UpdateType,
-)
+from src.classes import (BillingUpdateKeys, CRResource, PayorUpdateKeys,
+                         ScheduleUpdateKeys, ServiceCodeUpdateKeys,
+                         TimeSheetUpdateKeys, UpdateType)
 
 
 def get_resource_arr(update_type: UpdateType, df: DataFrame):
@@ -43,7 +37,7 @@ def get_resource_arr(update_type: UpdateType, df: DataFrame):
             CRResource(
                 id=int(row["client_id"]),
                 updates=ScheduleUpdateKeys(
-                    codes=[str(code).strip() for code in row["codes"].split(";")]
+                    codes=[str(code).strip() for code in str(row["auths"]).split(";")]
                 ),
                 update_type=UpdateType.SCHEDULE,
             )

@@ -3,14 +3,8 @@ from typing import List, Union, cast
 
 from playwright.async_api import Page
 
-from src.classes import (
-    API,
-    AIOHTTPClientSession,
-    AuthSetting,
-    CRResource,
-    PayorUpdateKeys,
-    UpdateType,
-)
+from src.classes import (API, AIOHTTPClientSession, AuthSetting, CRResource,
+                         PayorUpdateKeys, UpdateType)
 from src.services.api import load_auth_settings
 from src.services.auth_settings.update_payors import set_global_payer
 from src.services.shared import handle_dialogs, logger, update_task_progress
@@ -23,7 +17,7 @@ async def update_auth_settings(
     resources_to_update: List[CRResource],
     page: Page,
 ):
-    from src.services.auth_settings import update_payors, update_service_codes
+    from src.services.auth_settings import update_payors
 
     updated_resources: dict[int, Union[bool, None]] = {
         resource.id: None for resource in resources_to_update
@@ -44,7 +38,7 @@ async def update_auth_settings(
                     if is_routed:
                         await handle_dialogs(page, True)
                         for j, auth_setting in enumerate(auth_settings):
-                            if j == 0 and resource.update_type == UpdateType.PAYORS:
+                            if j == 0:
                                 res = await set_global_payer(
                                     page,
                                     cast(
@@ -59,12 +53,7 @@ async def update_auth_settings(
                             await group.hover()
                             await edit.click()
                             page.expect_response(API.AUTH_SETTINGS.LOAD_SETTING)
-                            if resource.update_type == UpdateType.PAYORS:
-                                updated_settings = await update_payors(resource, page)
-                            elif resource.update_type == UpdateType.CODES:
-                                updated_settings = await update_service_codes(
-                                    resource, page, client
-                                )
+                            updated_settings = await update_payors(resource, page)
                 updated_resources[resource.id] = updated_settings
             except Exception as e:
                 updated_resources[resource.id] = False

@@ -1,6 +1,7 @@
 from dacite import from_dict
 
-from src.classes import API, AIOHTTPClientSession, AuthSetting, CRSession, cr_types
+from src.classes import (API, AIOHTTPClientSession, AuthSetting, CRSession,
+                         cr_types)
 
 
 async def load_auth_settings(

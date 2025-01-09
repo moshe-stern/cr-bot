@@ -29,6 +29,7 @@ class Schedule:
         self.GET_EVENT = f"{BASE_URL}?scheduling.loadevent"
         self.UPDATE_EVENT = f"{BASE_URL}?scheduling.updateevent"
         self.GET_APPOINTMENTS = f"{BASE_URL}?contacts.loadcontactappointments"
+        self.GET_AUTH_CODES = f"{BASE_URL}?scheduling.loadauthsandcodes"
 
 
 class Billing:

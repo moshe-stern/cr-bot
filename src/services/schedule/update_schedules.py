@@ -4,14 +4,11 @@ from typing import Union, cast
 
 from playwright.async_api import Page
 
-from src.classes import API, AIOHTTPClientSession, CRResource, ScheduleUpdateKeys
+from src.classes import (API, AIOHTTPClientSession, CRResource,
+                         ScheduleUpdateKeys)
 from src.services.api.schedule import get_appointments
-from src.services.shared import (
-    get_cr_session,
-    handle_dialogs,
-    logger,
-    update_task_progress,
-)
+from src.services.shared import (get_cr_session, handle_dialogs, logger,
+                                 update_task_progress)
 
 
 async def update_schedules(
@@ -27,17 +24,17 @@ async def update_schedules(
     client = AIOHTTPClientSession(cr_session)
     async with client.managed_session():
         for index, resource in enumerate(resources):
-            codes_added = 0
+            auths_added = 0
             try:
                 appointments = await get_appointments(client, resource.id)
                 if len(appointments) > 0:
                     for appointment in appointments:
                         await handle_appointment(
-                            appointment, page, codes_added, resource
+                            appointment, page, auths_added, resource
                         )
                     updated_resources[resource.id] = (
-                        codes_added
-                        == len(cast(ScheduleUpdateKeys, resource.updates).codes)
+                        auths_added
+                        == len(cast(ScheduleUpdateKeys, resource.updates).auths)
                         or None
                     )
             except Exception as e:
@@ -48,7 +45,7 @@ async def update_schedules(
 
 
 async def handle_appointment(
-    appointment, page: Page, codes_added: int, resource: CRResource
+    appointment, page: Page, auths_added: int, resource: CRResource
 ):
     date_today = datetime.now().strftime("%Y-%m-%d")
     await handle_dialogs(page)
@@ -73,11 +70,11 @@ async def handle_appointment(
     filtered_items = [
         item
         for item in items
-        if await is_item_visible(item, cast(ScheduleUpdateKeys, resource.updates).codes)
+        if await is_item_visible(item, cast(ScheduleUpdateKeys, resource.updates).auths)
     ]
     for item in filtered_items:
         await item.get_by_role("button", name="Use this").click()
-        codes_added += 1
+        auths_added += 1
     if not removed_handler:
         await handle_dialogs(page, True)
         removed_handler = True
@@ -89,8 +86,8 @@ async def handle_appointment(
     await page.get_by_text("Save", exact=True).click()
 
 
-async def is_item_visible(item, codes):
-    for code in codes:
-        if await item.get_by_text(code).is_visible():
+async def is_item_visible(item, auths):
+    for auth in auths:
+        if await item.get_by_text(auth).is_visible():
             return True
     return False

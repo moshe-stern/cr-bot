@@ -2,14 +2,8 @@ from datetime import datetime
 
 from dacite import from_dict
 
-from src.classes import (
-    API,
-    AIOHTTPClientSession,
-    Billing,
-    CRSession,
-    UpdateType,
-    cr_types,
-)
+from src.classes import (API, AIOHTTPClientSession, Billing, CRSession,
+                         UpdateType, cr_types)
 
 
 async def get_billings_updates(

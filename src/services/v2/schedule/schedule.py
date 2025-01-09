@@ -2,8 +2,7 @@ import asyncio
 from typing import Union
 
 from src.classes import AIOHTTPClientSession, CRResource
-from src.services.api import get_appointment_updates, set_event
-from src.services.api.schedule import set_appointments
+from src.services.api import get_appointment_updates, set_appointments
 from src.services.shared import get_cr_session
 
 

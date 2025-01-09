@@ -14,12 +14,18 @@ async def handle_updates(
         await start(instance)
         return await update_billings(resources)
     elif update_type == UpdateType.TIMESHEET:
+        # TODO: get billing types
         await start(instance)
         return await update_timesheet(resources)
     elif update_type == UpdateType.CODES:
         await start(instance)
         return await update_service_codes_v2(resources)
-    else:
+    elif update_type == UpdateType.SCHEDULE:
+        # TODO: verify fee schedules
+        await start(instance)
+        return await update_schedules(resources)
+    elif update_type == UpdateType.PAYORS:
+        # TODO: get all updates out of playwright so far only auth setting payors uses it
         chunks = divide_list(resources, 5)
         logger.info(f"Divided work into {len(chunks)} chunks")
         return await start_playwright(chunks, req_id, instance, update_type)

@@ -40,10 +40,10 @@ class ServiceCodeUpdateKeys(UpdateKeys):
 
 
 class ScheduleUpdateKeys(UpdateKeys):
-    codes: list[str]
+    auths: list[str]
 
     def __init__(self, **kwargs) -> None:
-        self.codes = kwargs.get("codes", [])
+        self.auths = kwargs.get("codes", [])
 
 
 class PayorUpdateKeys(UpdateKeys):

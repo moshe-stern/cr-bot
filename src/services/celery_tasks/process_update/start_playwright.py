@@ -4,9 +4,7 @@ from playwright.async_api import BrowserContext, Page, Route, async_playwright
 
 from src.classes import CRResource, UpdateType
 from src.services.auth_settings import update_auth_settings
-from src.services.billing import update_billings
-from src.services.schedule import update_schedules
-from src.services.shared import logger, start, start_with_playwright
+from src.services.shared import logger, start_with_playwright
 
 
 async def start_playwright(
@@ -44,10 +42,7 @@ async def process_chunk(
     update_type: UpdateType,
     page: Page,
 ) -> dict[int, bool | None]:
-    if update_type == UpdateType.SCHEDULE:
-        return await update_schedules(parent_task_id, child_id, chunk, page)
-    else:
-        return await update_auth_settings(parent_task_id, child_id, chunk, page)
+    return await update_auth_settings(parent_task_id, child_id, chunk, page)
 
 
 async def handle_route(route: Route):

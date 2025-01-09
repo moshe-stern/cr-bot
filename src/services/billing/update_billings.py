@@ -1,7 +1,8 @@
 import asyncio
 from typing import Union, cast
 
-from src.classes import AIOHTTPClientSession, Billing, BillingUpdateKeys, CRResource
+from src.classes import (AIOHTTPClientSession, Billing, BillingUpdateKeys,
+                         CRResource)
 from src.services.api import set_billing_payors
 from src.services.billing.shared import get_billings_list
 from src.services.shared import logger
