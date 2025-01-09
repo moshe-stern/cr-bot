@@ -1,7 +1,7 @@
 import asyncio
 import re
 import time
-from typing import Union, cast, Any
+from typing import Any, Union, cast
 
 from playwright.async_api import Page
 from typing_extensions import deprecated
