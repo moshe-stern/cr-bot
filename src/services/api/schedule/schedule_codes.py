@@ -29,6 +29,7 @@ async def get_schedule_auth_codes(
             {
                 "auth_id": auth.get("authId"),
                 "billing_code_id": auth.get("billingCodeId"),
+                'fee_schedule_rate_id': auth.get("feeScheduleRateId")
             }
             for auth in filtered
         ]

@@ -69,8 +69,8 @@ def handle_files(test_type: str):
         except Exception as e:
             logger.error(f"Error: {e}")
 
-        time.sleep(10)
-        logger.info("sleeping for 10 seconds")
+        time.sleep(5)
+        logger.info("sleeping for 5 seconds")
         while len(task_ids) > 0:
             for task_id in task_ids:
                 try:

@@ -1,6 +1,7 @@
 import asyncio
+import re
 import time
-from typing import Union, cast
+from typing import Union, cast, Any
 
 from playwright.async_api import Page
 from typing_extensions import deprecated
@@ -44,20 +45,20 @@ async def update_timesheet(resources: list[CRResource]):
 
 
 @deprecated("This one uses playwright")
-async def update_timesheet_old(billing: Billing, updates: Billing, page: Page):
+async def update_timesheet_old(billing: Any, updates: Any, page: Page):
     await page.goto(
         f"https://members.centralreach.com/#billingmanager/timesheeteditor/?&id={billing.id}"
     )
-    # await page.locator("div").filter(
-    #     has_text=re.compile(rf"^ServiceCode{billing.procedure_code_string}$")
-    # ).locator("a").click()
+    await page.locator("div").filter(
+        has_text=re.compile(rf"^ServiceCode{billing.procedure_code_string}$")
+    ).locator("a").click()
     new_auth = page.locator("a").filter(has_text="kjkkjkj")
     time.sleep(5)
     if await new_auth.is_visible():
-        # await page.get_by_test_id("timesheet-placeofservice").select_option(
-        #     updates.place_of_service, timeout=1
-        # )
-        # await page.locator("#selectedServiceAddressId").select_option(
-        #     updates.service_address, timeout=1
-        # )
+        await page.get_by_test_id("timesheet-placeofservice").select_option(
+            updates.place_of_service, timeout=1
+        )
+        await page.locator("#selectedServiceAddressId").select_option(
+            updates.service_address, timeout=1
+        )
         await page.get_by_role("button", name="SUBMIT").click()

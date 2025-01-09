@@ -24,7 +24,6 @@ async def handle_updates(
         return await update_service_codes_v2(resources)
 
     elif update_type == UpdateType.SCHEDULE:
-        # TODO: verify fee schedules
         return await update_schedules(resources)
 
     elif update_type == UpdateType.PAYORS:

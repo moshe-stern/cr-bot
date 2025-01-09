@@ -72,7 +72,7 @@ async def get_set_event_payload(
         "timeZone": appointment_from_res.get("timeZone", 0),
         "userTimeZone": "America/New_York",
         "qualificationWarningsOverridden": False,
-        "feeScheduleRateIds": [],
+        "feeScheduleRateIds": [auth_code.get('fee_schedule_rate_id') for auth_code in auth_list if auth_code.get('fee_schedule_rate_id')],
         "_track": {
             "channel": "scheduling",
             "action": "event/update",
