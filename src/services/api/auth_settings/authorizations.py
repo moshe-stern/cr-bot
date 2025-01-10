@@ -8,9 +8,8 @@ async def set_authorization_in_setting(
     setting: AuthSetting,
     service_code_id: int,
 ):
-    if next(
+    if any(
         (auth.service_code_id == service_code_id for auth in setting.authorizations),
-        False,
     ):
         return True
     res = await client.do_cr_fetch(

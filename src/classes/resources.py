@@ -7,11 +7,11 @@ from pandas import Series
 
 
 class UpdateType(Enum):
-    CODES = "Service Codes"
-    PAYORS = "Payors"
+    CODES = "Auth-Setting (Service Codes)"
+    PAYORS = "Auth-Setting (Payors)"
     SCHEDULE = "Schedules"
-    BILLING = "Billing"
-    TIMESHEET = "Time Sheet"
+    BILLING = "Billing (Payors)"
+    TIMESHEET = "Billing (Timesheet Authorizations)"
 
 
 class UpdateKeys:
