@@ -6,9 +6,8 @@ from typing import Any, Union, cast
 from playwright.async_api import Page
 from typing_extensions import deprecated
 
-from src.classes import (AIOHTTPClientSession, Billing, CRResource,
-                         TimeSheetUpdateKeys)
-from src.services.api import set_billing_timesheets
+from src.classes import AIOHTTPClientSession, Billing, CRResource, TimeSheetUpdateKeys
+from src.services.api import is_auth_id_in_billing, set_billing_timesheets
 from src.services.billing.shared import get_billings_list
 from src.services.shared import get_cr_session
 
@@ -24,12 +23,19 @@ async def update_timesheet(resources: list[CRResource]):
         return {
             "authorization_id": cast(
                 TimeSheetUpdateKeys, resource.updates
-            ).authorization_id
+            ).authorization_id,
+            "provider_id": cast(TimeSheetUpdateKeys, resource.updates).provider_id,
         }
 
     async with client.managed_session():
         billings_list: list[dict[str, Union[list[Billing], int]]] = (
             await get_billings_list(client, resources, get_updates)
+        )
+        billings_list = await asyncio.gather(
+            *[
+                is_auth_id_in_billing(client, billing_dict)
+                for billing_dict in billings_list
+            ]
         )
         updated_timesheets = await asyncio.gather(
             *[

@@ -28,7 +28,13 @@ local = "http://localhost:8000"
 url: str = f"{local if environment == 'local' else prod}"
 task_ids = []
 headers = {"X-Secret-Key": os.getenv("SECRET_KEY")}
-choices = ["Service Codes", "Payors", "Schedules", "Billing", "Timesheet"]
+choices = [
+    "Auth-Setting (Service Codes)",
+    "Auth-Setting (Payors)",
+    "Schedules",
+    "Billing (Payors)",
+    "Billing (Timesheet Authorizations)",
+]
 
 
 def handle_files(test_type: str):
@@ -51,10 +57,11 @@ def handle_files(test_type: str):
                         "$content-type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                         "$content": base64data,
                     },
-                    "type": os.path.splitext(filename)[0],
+                    "type": test_type,
                     "instance": (
                         "Attain TSS"
-                        if os.path.splitext(filename)[0] == "Billing"
+                        if test_type
+                        in ["Billing (Payors)", "Billing (Timesheet Authorizations)"]
                         else "Kadiant"
                     ),
                 }

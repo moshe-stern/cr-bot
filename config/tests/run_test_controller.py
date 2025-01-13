@@ -2,7 +2,6 @@ import os
 
 import pandas as pd
 from flask import request
-
 from src.classes import UpdateType
 from src.services.celery_tasks import handle_updates
 from src.services.shared import (check_required_cols, get_resource_arr,

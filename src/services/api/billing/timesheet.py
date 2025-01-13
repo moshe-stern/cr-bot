@@ -1,11 +1,8 @@
 import asyncio
-import json
-import os
 from typing import cast
 
-import pandas as pd
-
 from src.classes import API, AIOHTTPClientSession, Billing, CRSession, cr_types
+from src.services.shared import get_debug_json
 
 
 async def get_timesheet(client: AIOHTTPClientSession, billing_id: int):
@@ -43,19 +40,23 @@ async def set_billing_timesheets(client: AIOHTTPClientSession, billings_dict: di
 async def set_timesheet(
     client: AIOHTTPClientSession, timesheet: dict, authorization_id: int
 ):
+    segments = [
+        {
+            **segment,
+            "authorizationId": authorization_id,
+        }
+        for segment in timesheet.get("segments", [])
+    ]
     res = await client.do_cr_fetch(
         API.BILLING.PUT_TIMESHEET + "/" + str(timesheet.get("timesheetId")),
-        {"timesheet": timesheet},
+        {"timesheet": {**timesheet, "segments": segments}},
         "PUT",
     )
+
     if res.ok:
         data = await res.json()
-        if data.get("updateSuccess"):
-            return True
-        else:
-            return await set_timesheet_with_exception_overide(
-                client, data.get("results"), authorization_id
-            )
+        return data.get("updateSuccess")
+    return False
 
 
 async def set_timesheet_with_exception_overide(
@@ -88,4 +89,6 @@ async def set_timesheet_with_exception_overide(
     )
     if res.ok:
         data = await res.json()
+        if not data.get("updateSuccess"):
+            get_debug_json(data)
         return data.get("updateSuccess")

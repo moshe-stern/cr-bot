@@ -4,8 +4,7 @@ from typing import cast
 
 from dateutil.relativedelta import relativedelta
 
-from src.classes import (API, AIOHTTPClientSession, CRResource,
-                         ScheduleUpdateKeys)
+from src.classes import API, AIOHTTPClientSession, CRResource, ScheduleUpdateKeys
 
 from .event import set_event
 

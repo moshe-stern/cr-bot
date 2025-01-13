@@ -17,7 +17,6 @@ async def handle_updates(
         return await update_billings(resources)
 
     elif update_type == UpdateType.TIMESHEET:
-        # TODO: get billing types
         return await update_timesheet(resources)
 
     elif update_type == UpdateType.CODES:

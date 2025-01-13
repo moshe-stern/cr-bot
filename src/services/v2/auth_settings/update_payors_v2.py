@@ -1,8 +1,7 @@
 import asyncio
 from typing import Union, cast
 
-from src.classes import (AIOHTTPClientSession, AuthSetting, CRResource,
-                         PayorUpdateKeys)
+from src.classes import AIOHTTPClientSession, AuthSetting, CRResource, PayorUpdateKeys
 from src.services.shared import get_cr_session
 
 from ...api import set_auth_setting

@@ -6,9 +6,15 @@ from celery.result import AsyncResult
 from pandas import DataFrame
 
 from celery_app import celery
-from src.classes import (BillingUpdateKeys, CRResource, PayorUpdateKeys,
-                         ScheduleUpdateKeys, ServiceCodeUpdateKeys,
-                         TimeSheetUpdateKeys, UpdateType)
+from src.classes import (
+    BillingUpdateKeys,
+    CRResource,
+    PayorUpdateKeys,
+    ScheduleUpdateKeys,
+    ServiceCodeUpdateKeys,
+    TimeSheetUpdateKeys,
+    UpdateType,
+)
 
 
 def divide_list(lst: list[CRResource], n: int) -> list[list[CRResource]]:
@@ -76,7 +82,7 @@ def check_required_cols(update_type: UpdateType, df: DataFrame):
         required_columns = ["client_id"] + list(
             TimeSheetUpdateKeys.__annotations__.keys()
         )
-    if required_columns != df.columns.tolist():
+    if required_columns.sort() != df.columns.tolist().sort():
         raise Exception(f"Columns must be in this exact format: {required_columns}")
 
 
